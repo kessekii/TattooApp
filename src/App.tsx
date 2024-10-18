@@ -46,9 +46,9 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app, "streaminai");
 
 const App: React.FC = () => {
-  const { login, profile } = useTypedSelector((state) => state);
+  const { login, user } = useTypedSelector((state) => state);
 
-  const [profileData, setProfileData] = useState(profile);
+  const [profileData, setProfileData] = useState(user);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isErrorPromptOpened, setIsErrorPromptOpened] = useState(false);

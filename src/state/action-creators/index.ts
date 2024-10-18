@@ -125,6 +125,32 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
     }
   };
 };
+export const updateUser = (user: any, setErrorMessage: any) => {
+  return async (dispatch: Dispatch<Action>) => {
+    try {
+      const headers = {
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+      };
+
+      const { data } = await AxiosCustom.post(endpoints.ADD_POINT, user, {
+        headers,
+      });
+
+      if (!data.successful) {
+        setErrorMessage(data.payload);
+        return;
+      }
+
+      dispatch({
+        type: ActionType.ADD_POINT,
+        payload: data.payload,
+      });
+    } catch (err) {
+      setErrorMessage(err);
+      console.error(err);
+    }
+  };
+};
 export const addPoint = (user: any, setErrorMessage: any) => {
   return async (dispatch: Dispatch<Action>) => {
     try {

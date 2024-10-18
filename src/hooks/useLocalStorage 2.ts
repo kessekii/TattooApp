@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-import { constructObjectPath, deconstructObjectPath } from '../utils';
-import useLatest from '../hooks/useLatest';
-import usePrevious from './usePrevious';
+import { constructObjectPath, deconstructObjectPath } from "../utils";
+import useLatest from "../hooks/useLatest";
+import usePrevious from "./usePrevious";
 
 const initializer = (key, initialValue, options) => {
   if (!key) return null;
@@ -33,10 +33,10 @@ const initializer = (key, initialValue, options) => {
 };
 
 const defaultOptions = {
-  keyPrefix: '',
+  keyPrefix: "",
   path: [],
   serialize: JSON.stringify,
-  deserialize: JSON.parse
+  deserialize: JSON.parse,
 };
 
 /**
@@ -62,11 +62,11 @@ const useLocalStorage = ({
     path = defaultOptions.path,
     keyPrefix = defaultOptions.keyPrefix,
     serialize = defaultOptions.serialize,
-    deserialize = defaultOptions.deserialize
-  } = defaultOptions
+    deserialize = defaultOptions.deserialize,
+  } = defaultOptions,
 }) => {
   let localStorageKey;
-  if (key) localStorageKey = keyPrefix ? [keyPrefix, key].join(':') : key;
+  if (key) localStorageKey = keyPrefix ? [keyPrefix, key].join(":") : key;
   const prevLocalStorageKey = usePrevious(localStorageKey);
   const options = { path, keyPrefix, serialize, deserialize };
   const latestOptions = useLatest(options);
@@ -138,7 +138,7 @@ const useLocalStorage = ({
       try {
         if (removeByKeyPrefix) {
           for (const _key of Object.keys(localStorage)) {
-            const [_keyPrefix] = _key.split(':');
+            const [_keyPrefix] = _key.split(":");
             if (_keyPrefix === keyPrefix) {
               localStorage.removeItem(_key);
             }

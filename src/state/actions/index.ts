@@ -85,7 +85,10 @@ interface ProfileDataInterfaceReducer {
   type: ActionType.GETPROFILEDATA;
   payload: any;
 }
-
+interface UpdateUserInterfaceReducer {
+  type: ActionType.UPDATE_USER;
+  payload: any;
+}
 export type Action =
   | LoginInterfacrReducer
   | LogoutInterfaceReducer
@@ -104,4 +107,5 @@ export type Action =
   | NotifyRemoveInterfaceReducer
   | ProfileDataInterfaceReducer
   | AddPointInterfaceReducer
-  | InsertUserInterfaceReducer;
+  | InsertUserInterfaceReducer
+  | UpdateUserInterfaceReducer;
