@@ -601,10 +601,13 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
   };
 
   const handleLocationSaveClick = () => {
-    setProfileData((prevProfile) => ({
-      ...prevProfile,
+    const newUserData = {
+      ...user,
       location: editProfile.location,
-    }));
+    };
+    setProfileData(newUserData);
+    updateUser(newUserData, setErrorMessage);
+    setUser(newUserData);
     setShowLocationPopup(false);
   };
 
