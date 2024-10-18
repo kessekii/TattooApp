@@ -178,22 +178,20 @@ const RepositoriesList = () => {
             Login
           </LoginButton>
         </LoginWrapper>
-        {errorMessage && (
+        {/* {errorMessage && (
           <div style={{ marginTop: "8%", color: "red" }}>
             Error: {errorMessage}
           </div>
-        )}
+        )} */}
         {/* <Logo>
 					<img src={logo} alt='aistream' />
 				</Logo> */}
-        {isVisible ? (
+        {isVisible && (
           <ForgotPasswordPopup
             isVisible
             setIsVisible={setIsVisible}
             setErrorMessage={setErrorMessage}
           ></ForgotPasswordPopup>
-        ) : (
-          <></>
         )}
       </LoginPageWrapper>
     </ThemeProvider>

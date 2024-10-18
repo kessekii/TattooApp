@@ -86,7 +86,7 @@ export const deletePointbyPointId = async (pointId: string) => {
       }
     );
 
-    const result = await response.json();
+    const result = response.json();
     console.log(result);
     return result;
   } catch (error) {

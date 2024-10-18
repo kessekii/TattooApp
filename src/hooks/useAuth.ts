@@ -18,7 +18,7 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    setUser(null);
+    // setUser(null);
   };
 
   const register = async (email: string, password: string) => {

@@ -106,14 +106,14 @@ const PoiMarker = (props: {
               onClick={async () => {
                 await props.tryRemovingAPoint(
                   props.point,
-                  props.user,
+
                   props.setUser,
-                  props.setErrorMessage,
+
                   props.auth,
-                  props.addPoint,
+
                   props.setPoints
                 );
-                props.setfocusedPoint(0);
+                props.setfocusedPoint(null);
               }}
               style={{ width: "20px", height: "20px", background: "red" }}
             ></Button>
@@ -126,22 +126,19 @@ const PoiMarker = (props: {
 };
 const tryRemovingAPoint = async (
   point: any,
-  user: any,
+
   setUser: any,
-  setErrorMessage: any,
+
   auth: any,
-  addPoint: any,
-  setPoints
+
+  setPoints: any
 ) => {
   const headers = {
     Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
   };
 
-  const newUserFields = Object.assign({}, user);
-
-  const userData = await deletePointbyPointId(point.key);
-
-  console.log(newUserFields);
+  const userData = (await deletePointbyPointId(point.pointId)).payload;
+  console.log("EEEE", userData);
   let pointsObject: any = {};
   for (let pointId of Object.keys(userData.points)) {
     const pointData = await getPointByPointId(pointId);
@@ -149,32 +146,33 @@ const tryRemovingAPoint = async (
   }
   setUser(userData);
   setPoints(pointsObject);
-  await auth.setUserFull(newUserFields);
+  await auth.setUserFull(userData);
+  // setFocusedPoint(null);
 };
 
 const tryAddNewPoint = async (
   ev: any,
-
+  user: any,
   setUser: any,
   setErrorMessage: any,
   auth: any,
   addPoint: any,
   setPoints: any
 ) => {
-  const user = JSON.parse(window.localStorage.getItem("user") || "");
+  // const user = JSON.parse(window.localStorage.getItem("user") || "");
 
-  const newUserFields = Object.assign({}, user);
-
-  await createPointByUsername(user.username, ev.detail.latLng!);
+  const newUserData = (
+    await createPointByUsername(user.username, ev.detail.latLng!)
+  ).payload;
+  console.log(user);
   let pointsObject: any = {};
-  for (let pointId of Object.keys(user.points)) {
+  for (let pointId of Object.keys(newUserData.points)) {
     const pointData = await getPointByPointId(pointId);
     pointsObject[pointId] = pointData.payload;
   }
-  setUser(newUserFields);
+  setUser(newUserData);
   setPoints(pointsObject);
-  // addPoint(newUserFields, setErrorMessage);
-  await auth.setUserFull(newUserFields);
+  await auth.setUserFull(newUserData);
 };
 
 export const MapPage = () => {
@@ -253,6 +251,7 @@ export const MapPage = () => {
               console.log("", userRef);
               tryAddNewPoint(
                 ev,
+                user,
                 setUser,
 
                 setErrorMessage,
