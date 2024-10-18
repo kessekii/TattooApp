@@ -462,20 +462,20 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
       { photo: "new-photo.jpg", nickname: user.username, ...newReview },
     ];
     setProfileData({
-      ...profileData,
+      ...user,
       reviews: updatedReviews,
     });
     setNewReview({ text: "", mark: 5 }); // Reset form
     setShowAddReview(false); // Close form
     updateUser(
       {
-        ...profileData,
+        ...user,
         reviews: updatedReviews,
       },
       setErrorMessage
     );
     setUser({
-      ...profileData,
+      ...user,
       reviews: updatedReviews,
     });
   };

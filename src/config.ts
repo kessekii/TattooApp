@@ -143,7 +143,7 @@ export enum endpoints {
   USER = "user",
   LIVESTREAMS = "livestreams",
   LIVESTREAMCREATE = "livestreams/createStream",
-  REGISTER = "register",
+  REGISTER = "users/register",
   LOGIN = "users/login",
   ADVERTISER = "advertiser",
   CAMPAIGN = "campaign",

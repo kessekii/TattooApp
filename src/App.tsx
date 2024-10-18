@@ -30,6 +30,7 @@ import { useDispatch } from "react-redux";
 import { getProfileData } from "./state/action-creators";
 import { get } from "video.js/dist/types/tech/middleware";
 import { MapPage } from "./pages/settings/home";
+import RegisterPage from "../src/pages/register/registerPage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
@@ -46,7 +47,7 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app, "streaminai");
 
 const App: React.FC = () => {
-  const { login, user } = useTypedSelector((state) => state);
+  const { user } = useTypedSelector((state) => state);
 
   const [profileData, setProfileData] = useState(user);
 
@@ -78,10 +79,7 @@ const App: React.FC = () => {
           <Route
             path="/newstream"
             element={
-              <ProtectedRoute
-                redirectPath="/login"
-                isAllowed={login.user && login.user}
-              >
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 <NewStreamPage />
               </ProtectedRoute>
             }
@@ -91,7 +89,7 @@ const App: React.FC = () => {
           <Route
             path="/:username"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 <ProfilePageComponent
                   profileData={profileData}
                   setProfileData={setProfileData}
@@ -104,7 +102,7 @@ const App: React.FC = () => {
           <Route
             path="/:username/portfolioeditor"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 <PortfolioEditorPage setProfileData={setProfileData} />
               </ProtectedRoute>
             }
@@ -114,7 +112,7 @@ const App: React.FC = () => {
           <Route
             path="/:username/portfolio"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 <PortfolioViewPage
                   profileData={profileData}
                   setProfileData={setProfileData}
@@ -127,7 +125,7 @@ const App: React.FC = () => {
           <Route
             path="/:username/portfolio/post/:postId"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 {/* Replace with your component to view a specific post */}
                 <div>Viewing Post {useParams().postId}</div>
               </ProtectedRoute>
@@ -138,10 +136,7 @@ const App: React.FC = () => {
           <Route
             path="/news"
             element={
-              <ProtectedRoute
-                redirectPath="/login"
-                isAllowed={login.user && login.user.token}
-              >
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 <NewsPage
                   setErrorMessage={setErrorMessage}
                   errorMessage={errorMessage}
@@ -151,6 +146,7 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/register" element={<RegisterPage />} />
         </Route>
       </Route>
     </Routes>

@@ -2,14 +2,15 @@
 import React, { useState, useTransition } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import { Input } from "../../components/Input";
-import { Page } from "../../components/Page";
-import { Logo } from "../../assets/logo";
-import { Form } from "../../components/Form";
-import { Link } from "../../components/Link";
-import { Button } from "../../components/Button";
-import { Outlet, useNavigate } from "react-router-dom";
+
+// import { Page } from "../components/Page";
+// import { Logo } from "../assets/logo";
+// import { Form } from "../components/Form";
+// import { Link } from "../components/Link";
+// import { Button } from "../components/Button";
+import { Form, Link, Outlet, useNavigate } from "react-router-dom";
 import { useActions } from "../../hooks/useActions";
+import { Button, Input } from "@mui/material";
 export interface Comment {
   author: string;
   text: string;
@@ -99,31 +100,28 @@ export const RegisterPage = () => {
   };
 
   return (
-    <Page>
-      <Logo />
-      <Form>
-        <Input
-          type="email"
-          placeholder={"register.email"}
-          value={email}
-          onChange={(e: any) => setEmail(e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder={"register.password"}
-          value={password}
-          onChange={(e: any) => setPassword(e.target.value)}
-        />
-        <Input
-          type="username"
-          placeholder={"register.username"}
-          value={username}
-          onChange={(e: any) => setUsername(e.target.value)}
-        />
-        <Button onClick={handleRegister}>{"register.register"}</Button>
-        <Link to="/login">{"register.login"}</Link>
-      </Form>
-    </Page>
+    <div>
+      <Input
+        type="email"
+        placeholder={"register.email"}
+        value={email}
+        onChange={(e: any) => setEmail(e.target.value)}
+      />
+      <Input
+        type="password"
+        placeholder={"register.password"}
+        value={password}
+        onChange={(e: any) => setPassword(e.target.value)}
+      />
+      <Input
+        type="username"
+        placeholder={"register.username"}
+        value={username}
+        onChange={(e: any) => setUsername(e.target.value)}
+      />
+      <Button onClick={handleRegister}>{"register.register"}</Button>
+      <Link to="/login">{"register.login"}</Link>
+    </div>
   );
 };
 export default RegisterPage;
