@@ -105,10 +105,7 @@ const App: React.FC = () => {
             path="/:username/portfolioeditor"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={login}>
-                <PortfolioEditorPage
-                  profileData={profileData}
-                  setProfileData={setProfileData}
-                />
+                <PortfolioEditorPage setProfileData={setProfileData} />
               </ProtectedRoute>
             }
           />

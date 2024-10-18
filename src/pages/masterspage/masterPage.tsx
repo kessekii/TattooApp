@@ -459,14 +459,25 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
   const handleReviewSubmit = () => {
     const updatedReviews = [
       ...user.reviews,
-      { photo: "new-photo.jpg", nickname: username, ...newReview },
+      { photo: "new-photo.jpg", nickname: user.username, ...newReview },
     ];
-    setProfileData((prevProfile) => ({
-      ...prevProfile,
+    setProfileData({
+      ...profileData,
       reviews: updatedReviews,
-    }));
+    });
     setNewReview({ text: "", mark: 5 }); // Reset form
     setShowAddReview(false); // Close form
+    updateUser(
+      {
+        ...profileData,
+        reviews: updatedReviews,
+      },
+      setErrorMessage
+    );
+    setUser({
+      ...profileData,
+      reviews: updatedReviews,
+    });
   };
 
   const navigate = useNavigate();
@@ -488,6 +499,7 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
     setProfileData(newProfileData);
     updateUser(newProfileData, setErrorMessage);
     setIsEditing(false);
+    setUser(newProfileData);
   };
 
   // Cancel editing
@@ -550,8 +562,24 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
       : filteredFriends;
 
     setProfileData(updatedProfileData);
+    updateUser(updatedProfileData, setErrorMessage);
+    setUser(updatedProfileData);
   };
-
+  const posts = useMemo(
+    () =>
+      user.posts?.map((post) => (
+        <Post key={post.id}>
+          <PostImage
+            src={post.image}
+            onClick={() => {
+              navigate("../" + username + "/portfolio");
+            }}
+            alt={`Post ${post.id}`}
+          />
+        </Post>
+      )),
+    [user]
+  );
   const handleMapClick = () => {
     window.location.href = "/map";
   };
@@ -598,7 +626,7 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
 
   const handleImageSelect = (image: string) => {
     setSelectedImage(image); // Save the selected image
-    console.log("Selected Image:", image);
+    // console.log("Selected Image:", image);
   };
 
   const setClientDate = (date: any) => {
@@ -644,6 +672,8 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
         ...user.calendar[index].hours,
       ];
       setProfileData(updatedProfileData);
+      updateUser(updatedProfileData, setErrorMessage);
+      setUser(updatedProfileData);
     } else {
       // If the date doesn't exist, add it to the calendar
       console.log("Date not found, adding new date", date);
@@ -651,6 +681,8 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
       const updatedProfileData = { ...user };
       updatedProfileData.calendar.push({ date: date.date, hours: [date.time] });
       setProfileData(updatedProfileData);
+      updateUser(updatedProfileData, setErrorMessage);
+      setUser(updatedProfileData);
     }
   };
 
@@ -669,6 +701,11 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
 
     user.calendar = finalDates;
     setProfileData(user);
+
+    updateUser(user, setErrorMessage);
+    setUser(user);
+    setIsEditing(false);
+
     console.log("Updated Calendar:", user);
     return user.calendar;
   };
@@ -823,19 +860,7 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
         </ProfileInfo>
       </ProfileHeader>
 
-      <ProfilePosts>
-        {user.posts?.map((post) => (
-          <Post key={post.id}>
-            <PostImage
-              src={post.image}
-              onClick={() => {
-                navigate("../" + username + "/portfolio");
-              }}
-              alt={`Post ${post.id}`}
-            />
-          </Post>
-        ))}
-      </ProfilePosts>
+      <ProfilePosts>{posts}</ProfilePosts>
 
       {showReviews && (
         <ReviewPopup>

@@ -47,7 +47,7 @@ const PoiMarker = (props: {
       setIsVisible(false);
     }
   }, [props.focusedPoint]);
-  console.log(JSON.stringify(props.user));
+  // console.log(JSON.stringify(props.user));
   return (
     <AdvancedMarker
       key={props.point.key}
