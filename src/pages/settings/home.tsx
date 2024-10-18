@@ -23,6 +23,7 @@ import {
   createPointByUsername,
   deletePointbyPointId,
   getPointByPointId,
+  getPointsInRadius,
 } from "../../../src/hooks/useChat";
 
 type Poi = {
@@ -54,14 +55,17 @@ const PoiMarker = (props: {
     }
   }, [props.focusedPoint]);
   console.log(JSON.stringify(props.point));
-  if (!props.point) {
-    return <></>;
-  }
-  console.log(props);
+  // if (!props.point.location) {
+  //   return <></>;
+  // }
+  console.log(props.point);
   return (
     <AdvancedMarker
       key={props.point.pointId}
-      position={props.point.location}
+      position={{
+        lat: props.point.location._latitude,
+        lng: props.point.location._longitude,
+      }}
       onMouseEnter={() => {
         if (props.focusedPoint === null) setIsVisible(true);
       }}
@@ -73,7 +77,6 @@ const PoiMarker = (props: {
           props.setfocusedPoint(props.point.pointId);
       }}
     >
-      {/* <Pin background={"#FBBC04"} glyphColor={"#0f0"} borderColor={"#000"} /> */}
       <div
         style={{
           width: isVisible ? "200px" : "40px",
@@ -159,16 +162,17 @@ const tryAddNewPoint = async (
   addPoint: any,
   setPoints: any
 ) => {
-  // const user = JSON.parse(window.localStorage.getItem("user") || "");
-
-  const newUserData = (
-    await createPointByUsername(user.username, ev.detail.latLng!)
-  ).payload;
-  console.log(user);
+  const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
+  // console.log(user);
+  const newUserData = await createPointByUsername(
+    userU.username,
+    ev.detail.latLng!
+  );
+  console.log(userU);
   let pointsObject: any = {};
   for (let pointId of Object.keys(newUserData.points)) {
     const pointData = await getPointByPointId(pointId);
-    pointsObject[pointId] = pointData.payload;
+    pointsObject[pointId] = pointData.data().payload;
   }
   setUser(newUserData);
   setPoints(pointsObject);
@@ -182,6 +186,10 @@ export const MapPage = () => {
   const [user, setUser] = useLocalStorage("user", {});
   const [points, setPoints] = useLocalStorage("points", {});
   const [focusedPoint, setfocusedPoint] = useState<any>(null);
+  const [cameraLocation, setCameraLocation] = useState({
+    lat: 32.02119878251853,
+    lng: 34.74333323660794,
+  });
 
   const auth = useAuth();
 
@@ -236,19 +244,29 @@ export const MapPage = () => {
           defaultZoom={15}
           mapId={"d4d9dfa4fa686c88"}
           defaultCenter={{ lat: 32.02119878251853, lng: 34.74333323660794 }}
-          onCameraChanged={(ev: MapCameraChangedEvent) =>
+          onCameraChanged={async (ev: MapCameraChangedEvent) => {
             console.log(
               "camera changed:",
               ev.detail.center,
               "zoom:",
               ev.detail.zoom
-            )
-          }
+            );
+            setCameraLocation(ev.detail.center);
+            const pointsInRadius = await getPointsInRadius(
+              ev.detail.center,
+              1.1
+            );
+            console.log("pointsInRadius", pointsInRadius);
+            let inumeratel = user;
+            inumeratel.points = pointsInRadius.payload;
+            setUser(inumeratel);
+            setPoints(pointsInRadius.payload);
+          }}
           onClick={(ev) => {
             const userRef = {};
             Object.assign(userRef, user);
             if (focusedPoint === null) {
-              console.log("", userRef);
+              console.log("user", user);
               tryAddNewPoint(
                 ev,
                 user,

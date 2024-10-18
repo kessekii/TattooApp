@@ -71,6 +71,28 @@ export const createPointByUsername = async (
     console.log("error", error);
   }
 };
+export const getPointsInRadius = async (location: any, radius: any) => {
+  try {
+    const response = await fetch(
+      "http://localhost:4000/points/getPointsInRadius",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ coordOfCenter: location, radius: radius }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
 export const deletePointbyPointId = async (pointId: string) => {
   try {
     const response = await fetch(
