@@ -1,330 +1,379 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useTypedSelector } from '../../hooks/useTypedSelector';
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import useLocalStorage from "../../../src/hooks/useLocalStorage";
+import { useActions } from "../../../src/hooks/useActions";
 
 const PortfolioPage = styled.div`
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100vh;
-    overflow-y: scroll;
-    background-color: #fafafa;
-    color: black;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 90vh;
+  overflow-y: scroll;
+  background-color: #fafafa;
+  color: black;
 `;
 
 const PostWrapper = styled.div`
-    width: 100%;
-    max-width: 600px;
-    height: 100vh;
-    background: white;
-    border-bottom: 1px solid #dbdbdb;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    size: content-fit;
-    color: black;
+  width: 100%;
+  max-width: 600px;
+  height: 100vh;
+  background: white;
+  border-bottom: 1px solid #dbdbdb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  size: content-fit;
+  color: black;
 `;
 
 const PostImage = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    color: black;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  color: black;
 `;
 
 const PostDetails = styled.div`
-    padding: 10px 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-    color: black;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  color: black;
 `;
 
 const UserSection = styled.div`
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    color: black;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  color: black;
 `;
 
 const UserAvatar = styled.img`
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
 `;
 
 const UserName = styled.div`
-    font-weight: bold;
-    color: black;
+  font-weight: bold;
+  color: black;
 `;
 
 const Description = styled.p`
-    margin-top: 10px;
-    font-size: 14px;
+  margin-top: 10px;
+  font-size: 14px;
 `;
 
 const Caption = styled.div`
-    font-size: 14px;
-    margin-top: 10px;
-    color: black;
+  font-size: 14px;
+  margin-top: 10px;
+  color: black;
 `;
 
 const CommentSection = styled.div`
-    font-size: 14px;
-    margin-top: 10px;
-    cursor: pointer;
-    color: #8e8e8e;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+  color: #8e8e8e;
 `;
 
 const LikeSection = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const LikeButton = styled.button`
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #262626;
-    display: flex;
-    align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #262626;
+  display: flex;
+  align-items: center;
 `;
 
 const LikeIcon = styled.span`
-    font-size: 18px;
-    margin-right: 5px;
+  font-size: 18px;
+  margin-right: 5px;
 `;
 
 const CommentsPopup = styled.div`
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const CommentsContent = styled.div`
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    color: black;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  color: black;
 `;
 
 const CloseButton = styled.button`
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 `;
 
 const CommentList = styled.ul`
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 `;
 
 const CommentItem = styled.li`
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #dbdbdb;
-    padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #dbdbdb;
+  padding-bottom: 10px;
 `;
 
 const CommentAuthor = styled.span`
-    font-weight: bold;
-    margin-right: 5px;
+  font-weight: bold;
+  margin-right: 5px;
 `;
 
 const CommentText = styled.p`
-    margin-top: 5px;
-    color: black;
+  margin-top: 5px;
+  color: black;
 `;
 
 const CommentInput = styled.input`
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 5px;
-    border: 1px solid #dbdbdb;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #dbdbdb;
 `;
 
 const CommentSubmitButton = styled.button`
-    margin-top: 10px;
-    padding: 10px 20px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
 `;
 
 interface PortfolioViewProps {
-    profileData: any;
-    setProfileData: (data: any) => void;
+  profileData: any;
+  setProfileData: (data: any) => void;
 }
 
-const PortfolioViewPage: React.FC<PortfolioViewProps> = ({ profileData, setProfileData }) => {
-    console.log(profileData)
-    const [showCommentsPopup, setShowCommentsPopup] = useState<number | null>(null);
-    const [newComment, setNewComment] = useState(''); // To hold new comment input
-    const [selectedPostId, setSelectedPostId] = useState<number | null>(null); // Track selected post for adding comment
+const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
+  profileData,
+  setProfileData,
+}) => {
+  const [user, setUser] = useLocalStorage("user", null);
+  const { updateUser } = useActions();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showCommentsPopup, setShowCommentsPopup] = useState<number | null>(
+    null
+  );
+  const [newComment, setNewComment] = useState(""); // To hold new comment input
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null); // Track selected post for adding comment
 
-    const postData = useTypedSelector((state) => state.profile.posts.find(post => post.id === selectedPostId))
-    const navigate = useNavigate();
+  const postData = useTypedSelector((state) =>
+    state.profile.posts.find((post) => post.id === selectedPostId)
+  );
+  const navigate = useNavigate();
 
-    const handleCommentsClick = (postId: number) => {
-        setShowCommentsPopup(postId);
-        setSelectedPostId(postId);
+  const handleCommentsClick = (postId: number) => {
+    setShowCommentsPopup(postId);
+    setSelectedPostId(postId);
+  };
 
-    };
+  const handleCloseCommentsPopup = () => {
+    setShowCommentsPopup(null);
+    setNewComment(""); // Clear comment input when popup closes
+  };
 
-    const handleCloseCommentsPopup = () => {
-        setShowCommentsPopup(null);
-        setNewComment(''); // Clear comment input when popup closes
-    };
+  const handleNewCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewComment(e.target.value);
+  };
 
-    const handleNewCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewComment(e.target.value);
-    };
+  const handleCommentSubmit = () => {
+    if (selectedPostId !== null && newComment.trim() !== "") {
+      // Find the selected post
+      // const updatedPosts = user.posts.map((post) => {
+      //     post.id === selectedPostId && post.comments && post.comments.length > 0) {
+      //         // Add the new comment to the selected post
+      //         return {
+      //             ...post,
+      //             comments: [...post.comments, { author: user.username, text: newComment }],
+      //         };
+      //     }
+      //     return {
+      //         ...post,
+      //         comments: [{ author: user.username, text: newComment }],
 
-    const handleCommentSubmit = () => {
-        if (selectedPostId !== null && newComment.trim() !== '') {
-            // Find the selected post
-            // const updatedPosts = profileData.posts.map((post) => {
-            //     post.id === selectedPostId && post.comments && post.comments.length > 0) {
-            //         // Add the new comment to the selected post
-            //         return {
-            //             ...post,
-            //             comments: [...post.comments, { author: profileData.username, text: newComment }],
-            //         };
-            //     }
-            //     return {
-            //         ...post,
-            //         comments: [{ author: profileData.username, text: newComment }],
+      //     }
+      // })
 
-            //     }
-            // })
-            console.log("newPost", profileData.posts, selectedPostId)
-            const filteredPosts = profileData.posts.filter((post) => post.id === selectedPostId)
-            if (filteredPosts.length > 0) {
-                if (filteredPosts.comments && filteredPosts.comments.length > 0) {
+      const filteredPost = user.posts.filter(
+        (post) => post.id === selectedPostId
+      )[0];
+      console.log(selectedPostId);
+      if (filteredPost) {
+        if (filteredPost.comments && filteredPost.comments.length > 0) {
+          console.log("not first");
+          const newPost = {
+            ...filteredPost,
+            comments: [
+              ...filteredPost.comments,
+              { author: user.username, text: newComment },
+            ],
+          };
+          const updatedProfileData = { ...user };
+          const otherPosts = user.posts.filter(
+            (post) => post.id !== selectedPostId
+          );
+          updatedProfileData.posts = [...otherPosts, newPost];
+          setProfileData(updatedProfileData);
+          updateUser(updatedProfileData, setErrorMessage);
 
-                    const newPost = {
-                        ...filteredPosts[0],
-                        comments: [...filteredPosts.comments, { author: profileData.username, text: newComment }],
-                    }
-                    const updatedProfileData = { ...profileData };
-                    updatedProfileData.posts = [...profileData.posts, newPost];
-                    setProfileData(updatedProfileData);
+          setUser(updatedProfileData);
+        } else if (filteredPost.comments && filteredPost.comments.length == 0) {
+          console.log("first");
+          const newPost = {
+            ...filteredPost,
+            comments: [{ author: user.username, text: newComment }],
+          };
+          const updatedProfileData = { ...user };
+          const otherPosts = user.posts.filter(
+            (post) => post.id !== selectedPostId
+          );
+          updatedProfileData.posts = [...otherPosts, newPost];
+          console.log(updatedProfileData);
+          setProfileData(updatedProfileData);
+          updateUser(updatedProfileData, setErrorMessage);
 
-                } else if (filteredPosts.comments && filteredPosts.comments.length == 0) {
-                    const newPost = {
-                        ...filteredPosts[0],
-                        comments: [{ author: profileData.username, text: newComment }],
-                    }
-                    const updatedProfileData = { ...profileData };
-                    updatedProfileData.posts = [...profileData.posts, newPost];
-                    setProfileData(updatedProfileData);
-                }
-            }
-            console.log()
-
-
-
-
-            // Update profileData with the new comments
-
-
-            // Clear the input and close the popup
-            setNewComment('');
-            handleCloseCommentsPopup();
+          setUser(updatedProfileData);
         }
-    };
+      }
+      console.log();
 
-    return (
-        <PortfolioPage>
-            {profileData && profileData.posts.map((post) => (
-                <PostWrapper key={post.id}>
-                    <PostImage src={post.image} alt={`Post ${post.id}`} />
-                    <PostDetails>
-                        <UserSection>
-                            <UserAvatar src={profileData.profilePicture} alt={`${profileData.username} avatar`} />
-                            <UserName onClick={() => navigate("../mastersPage")}>{profileData.name}</UserName>
-                        </UserSection>
-                        <Description>{post.description}</Description>
-                        <Caption>
-                            <strong>{post.user && post.user.name}</strong> {post.description}
-                        </Caption>
+      // Update user with the new comments
 
-                        {post.comments ? <CommentSection onClick={() => handleCommentsClick(post.id)}>
-                            {post.comments.length === 0 ? <>No comments yet</> : <>
-                                <>View all {post.comments.length} comments</>
-                                <strong>{post.comments[0].author}</strong>: {post.comments[0].text}
-                            </>}
-                        </CommentSection> : <CommentSection onClick={() => handleCommentsClick(post.id)}><>No comments yet</></CommentSection>}
-                        <LikeSection>
-                            <LikeButton>
-                                <LikeIcon>❤️</LikeIcon> Like
-                            </LikeButton>
-                        </LikeSection>
-                    </PostDetails>
+      // Clear the input and close the popup
+      setNewComment("");
+      handleCloseCommentsPopup();
+    }
+  };
 
-                    {showCommentsPopup === post.id && (
-                        <CommentsPopup>
-                            <CommentsContent>
-                                <CloseButton onClick={handleCloseCommentsPopup}>X</CloseButton>
-                                <h2 style={{ color: "black" }}>Comments</h2>
-                                <CommentList>
-                                    {post.comments && post.commenth.length !== 0 ? post.comments.map((comment, index) => (
-                                        <CommentItem key={index}>
-                                            <CommentAuthor>{comment.author}</CommentAuthor>
-                                            <CommentText>{comment.text}</CommentText>
-                                        </CommentItem>
-                                    )) :
-                                        <CommentItem>
-                                            <CommentText>No comments yet</CommentText>
-                                        </CommentItem>
-                                    }
-                                </CommentList>
+  return (
+    <PortfolioPage>
+      {user &&
+        user.posts.map((post) => (
+          <PostWrapper key={post.id}>
+            <PostImage src={post.image} alt={`Post ${post.id}`} />
+            <PostDetails>
+              <UserSection>
+                <UserAvatar
+                  src={user.profilePicture}
+                  alt={`${user.username} avatar`}
+                />
+                <UserName onClick={() => navigate("../mastersPage")}>
+                  {user.name}
+                </UserName>
+              </UserSection>
+              <Description>{post.description}</Description>
+              <Caption>
+                <strong>{post.user && post.user.name}</strong>{" "}
+                {post.description}
+              </Caption>
 
-                                {/* Add New Comment */}
-                                <CommentInput
-                                    type="text"
-                                    placeholder="Write a comment..."
-                                    value={newComment}
-                                    onChange={handleNewCommentChange}
-                                />
-                                <CommentSubmitButton onClick={handleCommentSubmit}>Submit Comment</CommentSubmitButton>
-                            </CommentsContent>
-                        </CommentsPopup>
+              {post.comments ? (
+                <CommentSection onClick={() => handleCommentsClick(post.id)}>
+                  {post.comments?.length === 0 ? (
+                    <>No comments yet</>
+                  ) : (
+                    <>
+                      <>View all {post.comments.length} comments</>
+                      <strong>{post.comments[0].author}</strong>:{" "}
+                      {post.comments[0].text}
+                    </>
+                  )}
+                </CommentSection>
+              ) : (
+                <CommentSection onClick={() => handleCommentsClick(post.id)}>
+                  <>No comments yet</>
+                </CommentSection>
+              )}
+              <LikeSection>
+                <LikeButton>
+                  <LikeIcon>❤️</LikeIcon> Like
+                </LikeButton>
+              </LikeSection>
+            </PostDetails>
+
+            {showCommentsPopup === post.id && (
+              <CommentsPopup>
+                <CommentsContent>
+                  <CloseButton onClick={handleCloseCommentsPopup}>
+                    X
+                  </CloseButton>
+                  <h2 style={{ color: "black" }}>Comments</h2>
+                  <CommentList>
+                    {post.comments && post.commenth?.length !== 0 ? (
+                      post.comments.map((comment, index) => (
+                        <CommentItem key={index}>
+                          <CommentAuthor>{comment.author}</CommentAuthor>
+                          <CommentText>{comment.text}</CommentText>
+                        </CommentItem>
+                      ))
+                    ) : (
+                      <CommentItem>
+                        <CommentText>No comments yet</CommentText>
+                      </CommentItem>
                     )}
-                </PostWrapper>
-            ))}
-        </PortfolioPage>
-    );
+                  </CommentList>
+
+                  {/* Add New Comment */}
+                  <CommentInput
+                    type="text"
+                    placeholder="Write a comment..."
+                    value={newComment}
+                    onChange={handleNewCommentChange}
+                  />
+                  <CommentSubmitButton onClick={handleCommentSubmit}>
+                    Submit Comment
+                  </CommentSubmitButton>
+                </CommentsContent>
+              </CommentsPopup>
+            )}
+          </PostWrapper>
+        ))}
+    </PortfolioPage>
+  );
 };
 
 export default PortfolioViewPage;
