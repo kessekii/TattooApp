@@ -19,6 +19,11 @@ import { User } from "../register/registerPage";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "../../hooks/useAuth";
 import { useActions } from "../../hooks/useActions";
+import {
+  createPointByUsername,
+  deletePointbyPointId,
+  getPointByPointId,
+} from "../../../src/hooks/useChat";
 
 type Poi = {
   key: string;
@@ -29,7 +34,7 @@ type Poi = {
   username: string;
 };
 const PoiMarker = (props: {
-  point: Poi;
+  point: any;
   user: any;
   setUser: any;
   tryRemovingAPoint: any;
@@ -38,19 +43,24 @@ const PoiMarker = (props: {
   setErrorMessage: any;
   auth: any;
   addPoint: any;
+  setPoints: any;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
-    if (props.focusedPoint === props.point.key) {
+    if (props.point && props.focusedPoint === props.point.pointId) {
       setIsVisible(true);
     } else {
       setIsVisible(false);
     }
   }, [props.focusedPoint]);
-  // console.log(JSON.stringify(props.user));
+  console.log(JSON.stringify(props.point));
+  if (!props.point) {
+    return <></>;
+  }
+  console.log(props);
   return (
     <AdvancedMarker
-      key={props.point.key}
+      key={props.point.pointId}
       position={props.point.location}
       onMouseEnter={() => {
         if (props.focusedPoint === null) setIsVisible(true);
@@ -59,7 +69,8 @@ const PoiMarker = (props: {
         if (props.focusedPoint === null) setIsVisible(false);
       }}
       onClick={() => {
-        if (props.focusedPoint === null) props.setfocusedPoint(props.point.key);
+        if (props.focusedPoint === null)
+          props.setfocusedPoint(props.point.pointId);
       }}
     >
       {/* <Pin background={"#FBBC04"} glyphColor={"#0f0"} borderColor={"#000"} /> */}
@@ -81,14 +92,16 @@ const PoiMarker = (props: {
             }}
             onClick={() => {
               if (props.focusedPoint === null)
-                props.setfocusedPoint(props.point.key);
+                props.setfocusedPoint(props.point.pointId);
             }}
           ></Paper>
         )}
         {isVisible && (
           <>
-            <Typography color="black">{props.point.name}</Typography>
-            <Typography color="black">{props.point.discription}</Typography>
+            <Typography color="black">{props.point.data?.name}</Typography>
+            <Typography color="black">
+              {props.point.data?.discription}
+            </Typography>
             <Button
               onClick={async () => {
                 await props.tryRemovingAPoint(
@@ -97,7 +110,8 @@ const PoiMarker = (props: {
                   props.setUser,
                   props.setErrorMessage,
                   props.auth,
-                  props.addPoint
+                  props.addPoint,
+                  props.setPoints
                 );
                 props.setfocusedPoint(0);
               }}
@@ -116,19 +130,25 @@ const tryRemovingAPoint = async (
   setUser: any,
   setErrorMessage: any,
   auth: any,
-  addPoint: any
+  addPoint: any,
+  setPoints
 ) => {
   const headers = {
     Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
   };
-  const newPoints = user.map.filter((e, i) => e.key !== point.key);
 
   const newUserFields = Object.assign({}, user);
-  newUserFields.map = newPoints;
 
-  setUser(newUserFields);
+  const userData = await deletePointbyPointId(point.key);
+
   console.log(newUserFields);
-  addPoint(newUserFields, setErrorMessage);
+  let pointsObject: any = {};
+  for (let pointId of Object.keys(userData.points)) {
+    const pointData = await getPointByPointId(pointId);
+    pointsObject[pointId] = pointData.payload;
+  }
+  setUser(userData);
+  setPoints(pointsObject);
   await auth.setUserFull(newUserFields);
 };
 
@@ -138,31 +158,22 @@ const tryAddNewPoint = async (
   setUser: any,
   setErrorMessage: any,
   auth: any,
-  addPoint: any
+  addPoint: any,
+  setPoints: any
 ) => {
-  const newUuid = uuidv4();
   const user = JSON.parse(window.localStorage.getItem("user") || "");
-  const hasPoints =
-    user.map !== undefined && user.map !== null && user.map.length != 0;
-  const newPoint = {
-    key: newUuid,
-    location: ev.detail.latLng!,
-    name: "TATTOO BOY",
-    discription: "A tattoo inthusiast as he every girl tret peski",
-    icon: (
-      <Paper style={{ width: "30px", height: "30px", background: "black" }} />
-    ),
-    // username: props.user.username,
-  };
-
-  const newPoints = hasPoints ? user.map.concat(newPoint) : [newPoint];
 
   const newUserFields = Object.assign({}, user);
-  newUserFields.map = newPoints;
 
+  await createPointByUsername(user.username, ev.detail.latLng!);
+  let pointsObject: any = {};
+  for (let pointId of Object.keys(user.points)) {
+    const pointData = await getPointByPointId(pointId);
+    pointsObject[pointId] = pointData.payload;
+  }
   setUser(newUserFields);
-
-  addPoint(newUserFields, setErrorMessage);
+  setPoints(pointsObject);
+  // addPoint(newUserFields, setErrorMessage);
   await auth.setUserFull(newUserFields);
 };
 
@@ -170,7 +181,8 @@ export const MapPage = () => {
   // const [points, setPoints] = useState<Poi[]>([]);
   const { addPoint } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
-  const [user, setUser] = useLocalStorage("user", null);
+  const [user, setUser] = useLocalStorage("user", {});
+  const [points, setPoints] = useLocalStorage("points", {});
   const [focusedPoint, setfocusedPoint] = useState<any>(null);
 
   const auth = useAuth();
@@ -183,11 +195,11 @@ export const MapPage = () => {
 
   const pointsStates = useMemo(
     () =>
-      user.map?.map((poi: any) => {
+      Object.keys(points).map((pointId: any) => {
         return (
           <PoiMarker
-            key={poi.key}
-            point={poi}
+            key={pointId}
+            point={points[pointId]}
             user={user}
             setUser={setUser}
             tryRemovingAPoint={tryRemovingAPoint}
@@ -196,10 +208,19 @@ export const MapPage = () => {
             setErrorMessage={setErrorMessage}
             auth={auth}
             addPoint={addPoint}
+            setPoints={setPoints}
           ></PoiMarker>
         );
       }) || [],
-    [focusedPoint, user, setUser, setfocusedPoint, auth, setErrorMessage]
+    [
+      focusedPoint,
+      user,
+      setUser,
+      setfocusedPoint,
+      auth,
+      setErrorMessage,
+      points,
+    ]
   );
   const isMobile = window.innerWidth < window.innerHeight;
   return (
@@ -236,7 +257,8 @@ export const MapPage = () => {
 
                 setErrorMessage,
                 auth,
-                addPoint
+                addPoint,
+                setPoints
               );
             } else {
               setfocusedPoint(null);

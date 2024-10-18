@@ -19,7 +19,7 @@ import {
 import AxiosCustom from "../../utils/Axios";
 import { useAuth } from "../../hooks/useAuth";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import { getChatByChatId } from "../../../src/hooks/useChat";
+import { getChatByChatId, getPointByPointId } from "../../../src/hooks/useChat";
 
 const RepositoriesList = () => {
   const auth = useAuth();
@@ -32,6 +32,8 @@ const RepositoriesList = () => {
   const { loginAction } = useActions();
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
+
+  const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
 
   const batchPromisesResolver = async (i: number) => {
@@ -82,9 +84,15 @@ const RepositoriesList = () => {
       chatsObject,
       userDataUpdated
     );
+    let pointsObject: any = {};
+    for (let pointId of Object.keys(userDataUpdated.points)) {
+      const pointData = await getPointByPointId(pointId);
+      pointsObject[pointId] = pointData.payload;
+    }
+
     setUser(userDataUpdated);
     setChats(chatsObject);
-
+    setPoints(pointsObject);
     await auth.setUserFull(userDataUpdated);
 
     navigate("/map");

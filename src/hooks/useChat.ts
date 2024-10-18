@@ -24,6 +24,94 @@ export const getChatByChatId = async (chatId: string, username: string) => {
     console.log("error", error);
   }
 };
+export const getPointByPointId = async (pointId: string) => {
+  try {
+    const response = await fetch(
+      "http://localhost:4000/points/getPointByPointId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ pointId: pointId }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+export const createPointByUsername = async (
+  username: string,
+  location: any
+) => {
+  try {
+    const response = await fetch(
+      "http://localhost:4000/points/createPointByUsername",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username, location: location }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+export const deletePointbyPointId = async (pointId: string) => {
+  try {
+    const response = await fetch(
+      "http://localhost:4000/points/deletePointbyPointId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ pointId: pointId }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+export const updatePoint = async (point: any) => {
+  try {
+    const response = await fetch("http://localhost:4000/points/updatePoint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ point: point }),
+    });
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
 export const useChat = () => {
   const { login } = useTypedSelector((state) => state);
   const queryClient = useQueryClient();

@@ -79,7 +79,7 @@ const App: React.FC = () => {
           <Route
             path="/newstream"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user.id}>
                 <NewStreamPage />
               </ProtectedRoute>
             }
