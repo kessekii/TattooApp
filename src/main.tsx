@@ -7,7 +7,10 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
+
+
 export const queryClient = new QueryClient()
+
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)
 root.render(

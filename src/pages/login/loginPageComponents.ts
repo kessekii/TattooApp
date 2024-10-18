@@ -14,7 +14,7 @@ export const TitleComponent = styled(Typography)(({ theme: Theme }) => ({
 }))
 
 export const LoginPageWrapper = styled('div')(({ theme: Theme }) => ({
-	position: 'absolute',
+	position: 'relative',
 	width: '100%',
 	height: '90%',
 

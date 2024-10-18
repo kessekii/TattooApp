@@ -22,9 +22,10 @@ const decodeJwt = (token: string) => {
 }
 const ProtectedRoutes = () => {
 	const { login } = useTypedSelector((state) => state)
-	const isAuth = useAuth(login.user.token)
 
-	return isAuth ? <Outlet /> : <NotLogged />
+
+	console.log('ProtectedRoutes: :login', login)
+	return login.ok ? <Outlet /> : <NotLogged />
 }
 
 export default ProtectedRoutes

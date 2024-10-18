@@ -1,5 +1,5 @@
 import React from "react";
-import { Image } from "../components/Image";
+// import { Image } from "../components/Image";
 
 export const Logo = () => {
   const logo = (
@@ -20,5 +20,5 @@ export const Logo = () => {
       ></path>
     </svg>
   );
-  return <Image src={logo} alt="logo" />;
+  // return <Image src={logo} alt="logo" />;
 };

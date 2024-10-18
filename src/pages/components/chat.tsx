@@ -131,7 +131,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatId }) => {
     }
 
     return (
-        <div>
+        <div style={{width: '100%', position:'relative', maxHeight: '20vh', marginTop: '100px'}}>
             {isLoading ? (
                 <div>Loading messages...</div> // Replace with a spinner component if available
             ) : (

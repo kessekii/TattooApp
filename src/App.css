@@ -1,84 +1,180 @@
+:root {
+	--foreground-rgb: 0, 0, 0;
+	--background-start-rgb: 214, 219, 220;
+	--background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--foreground-rgb: 255, 255, 255;
+		--background-start-rgb: 0, 0, 0;
+		--background-end-rgb: 0, 0, 0;
+	}
+}
+
+html,
 body {
-	/* Remember to use the other versions for IE 10 and older browsers! */
+	
+	box-sizing: border-box;
+	height: 100vh;
+	max-height: 100%;
+	display: flex;
+	flex-direction: column;
+	color: rgb(var(--foreground-rgb));
+	background: white
+}
+
+hr {
+	margin: 1rem 0;
+}
+
+table {
+	display: table;
+}
+
+canvas {
+	margin-bottom: 1rem;
+	background: grey;
+}
+
+video {
+	margin-bottom: 1rem;
+	background: black;
+	max-width: 100%;
+	max-height: 150px;
+	aspect-ratio: 16 / 9;
+	border: 0.5rem solid #555;
+	border-radius: 0.5rem;
 	width: 100%;
-	height: 100%;
-	/* display: flex; */
+}
+
+h3 {
+	display: flex;
 	justify-content: center;
+	padding-top: 3rem
+}
+
+.center {
+	display: flex;
+	justify-content: center;
+}
+
+.log {
+	flex: none;
+	height: 300px;
+}
+
+.content {
+	flex: 1 0 auto;
+}
+
+.margin-top {
+	margin-top: 5rem
+}
+
+.button-container {
+	display: flex !important;
+	margin-top: 2.5rem;
 	align-items: center;
-	min-height: 100%;
-	font-family: 'Montserrat', sans-serif;
-	color: #fff;
-	margin: inherit;
-	background: #fafbfc !important;
-	background: #fafbfc; /* fallback for old browsers */
-	background: -webkit-linear-gradient(
-		to top,
-		#ffffff,
-		#ffffff
-	); /* Chrome 10-25, Safari 5.1-6 */
+	justify-content: space-around;
 }
 
-/* width */
-::-webkit-scrollbar {
-	/* width: 5px; */
-	display: hidden;
-}
-#news-container::-webkit-scrollbar {
-	width: 5px;
-}
-#mediaPlanFiltersContainer::-webkit-scrollbar {
-	width: 5px;
-}
-#mediaPlanFiltersContainer::-webkit-scrollbar-thumb {
-	/* background: gray; */
-	background: linear-gradient(
-		180deg,
-		rgba(238, 29, 66, 1) 0%,
-		rgba(64, 19, 129, 1) 100%
-	);
-}
-/* .InovuaReactDataGrid__header-group {
-	width: 69vw !important;
-} */
-/* Track */
-::-webkit-scrollbar-track {
-	box-shadow: inset 0 0 5px grey;
-	border-radius: 10px;
+.button-container .button {
+	width: 45%
 }
 
-/* Handle */
-::-webkit-scrollbar-thumb {
-	background: linear-gradient(
-		180deg,
-		rgba(238, 29, 66, 1) 0%,
-		rgba(64, 19, 129, 1) 100%
-	);
-	border-radius: 10px;
-	min-height: 7 10px;
-	width: 100px;
+.local-container {
+	position: relative;
 }
 
-html {
-	width: 100%;
-	height: 100%;
-	/* background-color: rgb(255, 255, 255); */
+.static-controls {
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	text-align: center;
 }
 
-.MuiDataGrid-panelFooter .MuiButtonBase-root {
-	color: #000000 !important;
+.static-controls button {
+	display: inline-block;
+	margin: 1rem;
 }
 
-.sum-row-reports {
-	background: rgba(64, 19, 129, 0.06) 100% !important;
-	font-weight: 500;
+.hidden {
+	display: none;
+}
+
+.participant-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	margin: 1rem;
+}
+
+.relative {
+	position: relative;
+}
+
+.overlay-pill {
+	position: absolute;
+	bottom: 40px;
+	left: 24px;
+	padding: 0px 12px;
+	background-color: #fff;
+	color: black;
+	border-radius: 20px;
 	font-size: 14px;
 }
 
-.MuiDateRangePickerDay-rangeIntervalDayHighlight {
-	background: rgba(0, 0, 0, 0.2) !important;
+.placeholder {
+	background-color: #333333;
+	display: flex;
+	text-align: center;
+	margin-bottom: 1rem;
 }
 
-.rct-text {
-	margin-top: 12px;
+.placeholder span {
+	margin: auto;
+	color: white;
 }
 
+.device-container {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+}
+
+.local-video {
+	max-height: 300px;
+	display: inline-block;
+	width: 100vw;
+	max-width: 500px
+}
+
+.video-container {
+	width: 100%;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.margin {
+	margin: 3rem;
+}
+
+.remote-participant-video {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: row;
+	width: 100%;
+	height: auto;
+	max-width: 300px;
+	aspect-ratio: 16 / 9;
+}
+
+.margin-right {
+	margin-right: 1rem;
+}

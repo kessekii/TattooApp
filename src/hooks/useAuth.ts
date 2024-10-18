@@ -3,26 +3,34 @@ import { useState } from "react";
 import useLocalStorage from "./useLocalStorage";
 
 export const useAuth = () => {
-  const [user, setUser] = useLocalStorage("user", null);
+    const [user, setUser] = useLocalStorage("user", null);
 
-  const login = async (password: string, username: string) => {
-    try {
-      setUser({ username, password });
-    } catch (error) {
-      console.log(error);
+    const login = async (username: string, password: string) => {
+        try {
+            setUser({ username, password });
+
+           
+
+        } catch (error) {
+            console.log(error)
+        }
+
+
+
+
+    };
+    const setUserFull = async (user: any) => {
+        setUser(user);
     }
-  };
 
-  const setUserFull = async (data) => {
-    setUser(data);
-  };
-  const logout = async () => {
-    setUser(null);
-  };
 
-  const register = async (password: string, username: string) => {
-    setUser({ username, password });
-  };
+    const logout = async () => {
+        setUser(null);
+    };
 
-  return { user, login, setUserFull, logout, register };
+    const register = async (email: string, password: string) => {
+        setUser({ email });
+    };
+
+    return { user, login, logout, register, setUserFull };
 };

@@ -1,6 +1,6 @@
 export const CLIENT_VERSION = "0.0.0"; //THE HARDCODED VERSION NUMBER NEEDS TO BE CHECKED WITH SERVER EVERY PUSH
 
-export const devUrl = `http://127.0.0.1:4000/`;
+export const devUrl = `http://default-main-1360184486.eu-central-1.elb.amazonaws.com:4000/`;
 
 export interface routeItem {
   route: PAGE_NAVIGATION | null;
@@ -141,9 +141,10 @@ export const routes: routeItem[] = [
 
 export enum endpoints {
   USER = "user",
-  REGISTER = "users/register",
+  LIVESTREAMS = "livestreams",
+  LIVESTREAMCREATE = "livestreams/createStream",
+  REGISTER = "register",
   LOGIN = "users/login",
-  ADD_POINT = "users/addPoint",
   ADVERTISER = "advertiser",
   CAMPAIGN = "campaign",
   PUBLISHER = "publisher",
@@ -181,4 +182,6 @@ export enum endpoints {
   AUTOSWITCH = "autoswitch",
   ADJUST = "adjust",
   VERSION = "version",
+  GETPROFILEDATA = "profile",
+  PROFILEDATA_U = "profile/update",
 }

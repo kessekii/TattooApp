@@ -1,22 +1,33 @@
-import { configureStore, Middleware } from '@reduxjs/toolkit';
-import { persistStore } from 'redux-persist';
-import { thunk } from 'redux-thunk';
-import { persistedReducer } from './reducers/index';
+import { configureStore } from '@reduxjs/toolkit';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+import { rootReducer } from './reducers';
 
-export const store = configureStore({
+// Define the persistConfig
+const persistConfig = {
+	key: 'root',
+	storage,
+};
+
+// Create a persisted reducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+// Create the store with reducers and middleware automatically handled by RTK
+export const store: any = configureStore({
 	reducer: persistedReducer,
-	devTools: process.env.NODE_ENV !== 'production',
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			serializableCheck: {
-				ignoredActions: ['persist/PERSIST'],
-				ignoredPaths: ['some.path.that.is.non.serializable'], // Update this path as needed
-			}
-		}).concat(thunk as Middleware<any, any, any>), // Cast thunk as Middleware to resolve the type issue
-})
+				// Ignore these action types in the serializability check
+				ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+			},
+		}),
+});
 
-
-
+// Create the persistor instance for our store
 export const persistor = persistStore(store);
 
-export default { store, persistor };
+// Infer the `RootState` and `AppDispatch` types from the store itself
+export type RootState = ReturnType<typeof store.getState>
+// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+export type AppDispatch = typeof store.dispatch

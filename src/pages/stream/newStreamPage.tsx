@@ -1,321 +1,293 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  collection,
-  addDoc,
-  onSnapshot,
-} from "firebase/firestore";
-import { firestore } from "../../App";
+import { doc, setDoc, getDoc, updateDoc, collection, addDoc, onSnapshot } from 'firebase/firestore';
+import { firestore } from '../../App';
 
-import ChatComponent from "../components/chat";
+import ChatComponent from '../components/chat';
 
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { Button, Typography } from "@mui/material";
-import { ThemeProvider } from "styled-components";
-import { PageWrapper } from "../components/reusableComponents";
-import theme from "../../utils/theme";
+import { useTypedSelector } from '../../hooks/useTypedSelector';
+import { Button, Typography } from '@mui/material';
+import { ThemeProvider } from 'styled-components';
+import { PageWrapper } from '../components/reusableComponents';
+import theme from '../../utils/theme';
 // Define the Firebase configuration
+
 
 // Initialize Firebase
 
+
 // WebRTC configuration
 const servers = {
-  iceServers: [
-    {
-      urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
-    },
-  ],
-  iceCandidatePoolSize: 10,
+    iceServers: [
+        { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
+    ],
+    iceCandidatePoolSize: 10
 };
 
 const NewStreamPage = (): JSX.Element => {
-  console.log("NewStreamPage");
+    console.log('NewStreamPage')
 
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [callId, setCallId] = useState("");
-  const [chatId, setChatId] = useState("");
-  const pc = useRef<RTCPeerConnection>(new RTCPeerConnection(servers));
 
-  const { login } = useTypedSelector((state) => state);
+    const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+    const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+    const [callId, setCallId] = useState('');
+    const [chatId, setChatId] = useState('');
+    const pc = useRef<RTCPeerConnection>(new RTCPeerConnection(servers));
 
-  // Access to video elements
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+    const {
 
-  // useEffect(() => {
-  //     const cleanUp = () => {
-  //         localStream?.getTracks().forEach(track => track.stop());
-  //         remoteStream?.getTracks().forEach(track => track.stop());
-  //         pc.current.close();
-  //     };
+        login,
 
-  //     return cleanUp;
-  // }, [localStream, remoteStream]);
+    } = useTypedSelector((state) => state)
 
-  const startWebcam = async () => {
-    // Reinitialize the RTCPeerConnection
-    pc.current = new RTCPeerConnection(servers);
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-      setLocalStream(stream);
-      localVideoRef.current!.srcObject = stream;
+    // Access to video elements
+    const localVideoRef = useRef<HTMLVideoElement>(null);
+    const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
-      stream.getTracks().forEach((track) => {
-        pc.current.addTrack(track, stream);
-      });
+    // useEffect(() => {
+    //     const cleanUp = () => {
+    //         localStream?.getTracks().forEach(track => track.stop());
+    //         remoteStream?.getTracks().forEach(track => track.stop());
+    //         pc.current.close();
+    //     };
 
-      pc.current.ontrack = (event) => {
-        event.streams[0].getTracks().forEach((track) => {
-          console.log("ontrack", track);
+    //     return cleanUp;
+    // }, [localStream, remoteStream]);
 
-          if (remoteStream) {
-            remoteStream.addTrack(track);
-            setRemoteStream(remoteStream);
-          } else {
-            const newStream = new MediaStream([track]);
-            setRemoteStream(newStream);
-            remoteVideoRef.current!.srcObject = newStream;
-          }
-        });
-      };
-    } catch (error) {
-      console.error("Failed to start webcam", error);
-    }
-  };
+    const startWebcam = async () => {
+        // Reinitialize the RTCPeerConnection
+        pc.current = new RTCPeerConnection(servers);
 
-  const handleAddOffer = async (
-    id: string,
-    offer: RTCSessionDescriptionInit
-  ) => {
-    try {
-      await setDoc(doc(collection(firestore, "rtc-connections"), id), {
-        offer: JSON.stringify(offer),
-      });
-    } catch (error) {
-      console.error("Failed to add to firestore", error);
-    }
-  };
-
-  const handleAddAnswer = async (
-    id: any,
-    docData: any,
-    answer: RTCSessionDescriptionInit
-  ) => {
-    try {
-      console.log("DOC DATA IS :", docData);
-      await updateDoc(doc(firestore, "rtc-connections/" + id), {
-        answer: JSON.stringify(answer),
-      });
-    } catch (error) {
-      console.error("Failed to add to firestore", error);
-    }
-  };
-
-  const createOffer = async () => {
-    try {
-      const callDocRef = doc(collection(firestore, "rtc-connections"));
-      const offerCandidatesDocRef = collection(callDocRef, "offerCandidates");
-      const answerCandidatesDocRef = collection(callDocRef, "answerCandidates");
-      pc.current.onicecandidate = (event) => {
-        event.candidate &&
-          addDoc(offerCandidatesDocRef, event.candidate.toJSON());
-      };
-
-      const offerDescription = await pc.current.createOffer();
-      console.log(offerDescription);
-      pc.current.setLocalDescription(offerDescription);
-      handleAddOffer(callDocRef.id, offerDescription);
-
-      const getStreamId = async () => {
         try {
-          console.log("auth", login);
-          if (!login) {
-            return;
-          }
-          const payload = await fetch(
-            "http://127.0.0.1:4000/streams/createStream",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization:
-                  "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-                "Access-Control-Allow-Origin": "*",
-              },
-              body: JSON.stringify({
-                userEmail: login.user.email,
-              }),
-            }
-          );
-          console.log("payload", payload);
-          const result = await payload.json();
-          console.log("result", result);
-          return {
-            streamId: result.payload.streamId,
-            chatId: result.payload.chatId,
-          };
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            setLocalStream(stream);
+            localVideoRef.current!.srcObject = stream;
+
+            stream.getTracks().forEach(track => {
+                pc.current.addTrack(track, stream);
+            });
+
+            pc.current.ontrack = event => {
+                event.streams[0].getTracks().forEach(track => {
+                    console.log('ontrack', track)
+
+                    if (remoteStream) {
+
+                        remoteStream.addTrack(track);
+                        setRemoteStream(remoteStream)
+                    } else {
+                        const newStream = new MediaStream([track]);
+                        setRemoteStream(newStream);
+                        remoteVideoRef.current!.srcObject = newStream;
+                    }
+                });
+            };
         } catch (error) {
-          console.error("Failed to get stream id", error);
+            console.error('Failed to start webcam', error);
         }
-      };
-      const idObject = await getStreamId();
+    };
 
-      setCallId(callDocRef.id);
-      setChatId(idObject?.chatId);
-      await updateDoc(doc(firestore, "rtc-connections/" + callDocRef.id), {
-        chatId: JSON.stringify(idObject?.chatId),
-      });
+    const handleAddOffer = async (id: string, offer: RTCSessionDescriptionInit) => {
+        try {
+            await setDoc(doc(collection(firestore, 'rtc-connections'), id), { offer: JSON.stringify(offer) });
 
-      console.log(offerCandidatesDocRef.id);
-      onSnapshot(callDocRef, (snapshot) => {
-        const data = snapshot.data();
-        if (!pc.current.currentRemoteDescription && data && data.answer) {
-          const answerDescription = new RTCSessionDescription(
-            JSON.parse(data.answer)
-          );
-          pc.current.setRemoteDescription(answerDescription);
+        } catch (error) {
+            console.error('Failed to add to firestore', error);
         }
-      });
-
-      onSnapshot(
-        collection(
-          firestore,
-          "rtc-connections",
-          callDocRef.id,
-          "answerCandidates"
-        ),
-        { includeMetadataChanges: true },
-        async (snapshot) => {
-          console.log("snapshot", snapshot);
-          snapshot.docChanges().forEach((change: any) => {
-            if (
-              (change.type === "added" || change.type === "modified") &&
-              pc.current.remoteDescription
-            ) {
-              const data = change.doc.data();
-              console.log("candidate", data);
-              pc.current.addIceCandidate(new RTCIceCandidate(data));
-            }
-          });
-        }
-      );
-    } catch (error) {
-      console.error("Failed to create offer", error);
     }
-  };
 
-  const answerCall = async () => {
-    try {
-      const callDocRef = doc(collection(firestore, "rtc-connections"), callId);
-      const offerCandidatesDocRef = collection(callDocRef, "offerCandidates");
-      const answerCandidatesDocRef = collection(callDocRef, "answerCandidates");
-
-      pc.current.onicecandidate = (event) => {
-        event.candidate &&
-          addDoc(answerCandidatesDocRef, event.candidate.toJSON());
-      };
-
-      const callData = await getDoc(callDocRef);
-
-      if (!callData) {
-        console.error("Call document does not exist");
-        return;
-      }
-
-      const { chatId } = callData.data() as any;
-
-      // setChatId(idObject)
-      const data = JSON.parse(callData.data()!.offer);
-      // console.log('callData', data);
-      const offerDescription = new RTCSessionDescription(
-        data.offer as RTCSessionDescriptionInit
-      );
-
-      await pc.current.setRemoteDescription(data);
-
-      const answerDescription = await pc.current.createAnswer();
-      await handleAddAnswer(callId, data.offer, answerDescription);
-
-      await pc.current.setLocalDescription(answerDescription);
-
-      const payload = await fetch("http://127.0.0.1:4000/chats/addUserToChat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({
-          userEmail: login.user.email,
-          chatId: JSON.parse(chatId),
-        }),
-      });
-      console.log("payload", payload);
-
-      setChatId(JSON.parse(chatId));
-
-      onSnapshot(
-        collection(firestore, "rtc-connections", callId, "offerCandidates"),
-        { includeMetadataChanges: true },
-        async (snapshot: any) => {
-          for (let change of snapshot.docChanges()) {
-            if (change.type === "added" || change.type === "modified") {
-              const data = change.doc.data();
-
-              pc.current.addIceCandidate(new RTCIceCandidate(data));
-              console.log("candidate", data);
-            }
-          }
+    const handleAddAnswer = async (id: any, docData: any, answer: RTCSessionDescriptionInit) => {
+        try {
+            console.log('DOC DATA IS :', docData);
+            await updateDoc(doc(firestore, 'rtc-connections/' + id), { answer: JSON.stringify(answer) });
+        } catch (error) {
+            console.error('Failed to add to firestore', error);
         }
-      );
-    } catch (error) {
-      console.error("Failed to answer call", error);
     }
-  };
 
-  console.log("reru");
-  return (
-    <ThemeProvider theme={theme}>
-      <PageWrapper style={{ marginTop: "20px", background: "grey" }}>
-        <Typography style={{ color: "black" }}>1. Start your Webcam</Typography>
-        <div className="videos">
-          <div>
-            <Typography style={{ color: "black" }}>Local Stream</Typography>
-            <video ref={localVideoRef} autoPlay playsInline></video>
-          </div>
-          <div>
-            <Typography style={{ color: "black" }}>Remote Stream</Typography>
-            <video ref={remoteVideoRef} autoPlay playsInline></video>
-          </div>
-        </div>
-        <Button onClick={startWebcam}>Start webcam</Button>
+    const createOffer = async () => {
+        try {
+            const callDocRef = doc(collection(firestore, 'rtc-connections'));
+            const offerCandidatesDocRef = collection(callDocRef, 'offerCandidates');
+            const answerCandidatesDocRef = collection(callDocRef, 'answerCandidates');
+            pc.current.onicecandidate = event => {
+                event.candidate && addDoc(offerCandidatesDocRef, event.candidate.toJSON());
+            };
+            const offerDescription = await pc.current.createOffer();
+            console.log(offerDescription)
+            pc.current.setLocalDescription(offerDescription);
+            handleAddOffer(callDocRef.id, offerDescription);
 
-        <Typography style={{ color: "black" }}>2. Create a new Call</Typography>
-        <Button onClick={createOffer} disabled={!localStream}>
-          Create Call (offer)
-        </Button>
+            const getStreamId = async () => {
+                try {
+                    console.log('auth', login)
+                    if (!login) { return; }
+                    const payload = await fetch('http://localhost:3000/streams/createStream', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + 'AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM',
+                            'Access-Control-Allow-Origin': '*',
+                        },
+                        body: JSON.stringify({
 
-        {chatId && <ChatComponent chatId={chatId} />}
-        <Typography style={{ color: "black" }}>3. Join a Call</Typography>
-        <input value={callId} onChange={(e) => setCallId(e.target.value)} />
-        <Button onClick={answerCall} disabled={!callId}>
-          Answer
-        </Button>
 
-        <Typography>4. Hangup</Typography>
-        <Button onClick={() => pc.current.close()}>Hangup</Button>
-      </PageWrapper>
-    </ThemeProvider>
-  );
+                            userEmail: login.user.email
+
+                        })
+
+                    });
+                    console.log('payload', payload);
+                    const result = await payload.json();
+                    console.log('result', result);
+                    return { streamId: result.payload.streamId, chatId: result.payload.chatId };
+                } catch (error) {
+                    console.error('Failed to get stream id', error);
+                }
+
+            }
+            const idObject = await getStreamId();
+
+            setCallId(callDocRef.id);
+            setChatId(idObject?.chatId)
+            await updateDoc(doc(firestore, 'rtc-connections/' + callDocRef.id), { chatId: JSON.stringify(idObject?.chatId) });
+
+            console.log(offerCandidatesDocRef.id);
+            onSnapshot(callDocRef, snapshot => {
+                const data = snapshot.data();
+                if (!pc.current.currentRemoteDescription && data && data.answer) {
+                    const answerDescription = new RTCSessionDescription(JSON.parse(data.answer));
+                    pc.current.setRemoteDescription(answerDescription);
+                }
+            });
+
+            onSnapshot(collection(firestore, 'rtc-connections', callDocRef.id, 'answerCandidates'),
+                { includeMetadataChanges: true },
+                async (snapshot) => {
+                    console.log('snapshot', snapshot);
+                    snapshot.docChanges().forEach((change: any) => {
+
+                        if ((change.type === 'added' || change.type === 'modified') && pc.current.remoteDescription) {
+                            const data = change.doc.data();
+                            console.log('candidate', data);
+                            pc.current.addIceCandidate(new RTCIceCandidate(data));
+
+                        }
+                    }
+                    );
+                });
+
+
+        } catch (error) { console.error('Failed to create offer', error); }
+    };
+
+    const answerCall = async () => {
+        try {
+            const callDocRef = doc(collection(firestore, 'rtc-connections'), callId);
+            const offerCandidatesDocRef = collection(callDocRef, 'offerCandidates');
+            const answerCandidatesDocRef = collection(callDocRef, 'answerCandidates');
+
+            pc.current.onicecandidate = event => {
+                event.candidate && addDoc(answerCandidatesDocRef, event.candidate.toJSON());
+            };
+
+
+            const callData = await getDoc(callDocRef);
+
+
+            if (!callData) {
+                console.error('Call document does not exist');
+                return;
+            }
+
+            const { chatId
+            } = callData.data() as any;
+
+
+
+            // setChatId(idObject)
+            const data = JSON.parse(callData.data()!.offer);
+            // console.log('callData', data);
+            const offerDescription = new RTCSessionDescription(data.offer as RTCSessionDescriptionInit);
+
+            await pc.current.setRemoteDescription(data);
+
+            const answerDescription = await pc.current.createAnswer();
+            await handleAddAnswer(callId, data.offer, answerDescription)
+
+            await pc.current.setLocalDescription(answerDescription);
+
+            const payload = await fetch('http://localhost:3000/chats/addUserToChat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + 'AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                body: JSON.stringify({
+
+
+                    userEmail: login.user.email, chatId: JSON.parse(chatId)
+
+                })
+
+            });
+            console.log('payload', payload);
+
+            setChatId(JSON.parse(chatId));
+
+            onSnapshot(collection(firestore, 'rtc-connections', callId, 'offerCandidates'),
+                { includeMetadataChanges: true },
+                async (snapshot: any) => {
+                    for (let change of snapshot.docChanges()) {
+
+                        if ((change.type === 'added' || change.type === 'modified')) {
+                            const data = change.doc.data();
+
+                            pc.current.addIceCandidate(new RTCIceCandidate(data));
+                            console.log('candidate', data);
+                        }
+                    };
+                });
+        }
+        catch (error) { console.error('Failed to answer call', error); }
+
+
+
+    };
+
+    return (
+        <ThemeProvider theme={theme}>
+            <PageWrapper style={{ marginTop: '20px', background: 'grey' }}>
+                <Typography style={{ color: 'black' }}>1. Start your Webcam</Typography>
+                <div className="videos">
+                    <div>
+                        <Typography style={{ color: 'black' }}>Local Stream</Typography>
+                        <video ref={localVideoRef} autoPlay playsInline></video>
+                    </div>
+                    <div>
+                        <Typography style={{ color: 'black' }}>Remote Stream</Typography>
+                        <video ref={remoteVideoRef} autoPlay playsInline></video>
+                    </div>
+                </div>
+                <Button onClick={startWebcam}>Start webcam</Button>
+
+                <Typography style={{ color: 'black' }}>2. Create a new Call</Typography>
+                <Button onClick={createOffer} disabled={!localStream}>Create Call (offer)</Button>
+
+                {chatId && <ChatComponent chatId={chatId} />}
+                <Typography style={{ color: 'black' }}>3. Join a Call</Typography>
+                <input value={callId} onChange={e => setCallId(e.target.value)} />
+                <Button onClick={answerCall} disabled={!callId}>Answer</Button>
+
+
+
+                <Typography>4. Hangup</Typography>
+                <Button onClick={() => pc.current.close()}>Hangup</Button>
+            </PageWrapper>
+        </ThemeProvider>
+    );
 };
 
 export default NewStreamPage;

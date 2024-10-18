@@ -28,7 +28,7 @@ const RepositoriesList = () => {
   const [devLink, setDevLink] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { loginAction, insertLog } = useActions();
+  const { loginAction } = useActions();
   const [user, setUser] = useLocalStorage("user", null);
   const navigate = useNavigate();
 
@@ -55,7 +55,7 @@ const RepositoriesList = () => {
       }
       const data = await Promise.all(batchPromises);
       console.log("data", data);
-    } catch (err) {}
+    } catch (err) { }
   };
   const tryLogin = async () => {
     loginAction(

@@ -1,0 +1,13 @@
+{
+    "notifications": {
+      "moderating": "You are moderating this chat.",
+      "success": {
+        "message_removed": "Message removed successfully!"
+      },
+      "error": {
+        "your_message_was_removed": "Your message was removed.",
+        "you_have_been_banned": "You have been banned from this chat.",
+        "error_loading_chat": "Error loading chat."
+      }
+    }
+  }

@@ -55,7 +55,7 @@ export const FirstLoading = (props: {
 				height: '100%',
 				backdropFilter: 'blur(6px)',
 				zIndex: '99999',
-				backgroundColor: 'black',
+				backgroundColor: 'white',
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',

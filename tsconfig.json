@@ -1,34 +1,44 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext",
+      "webworker"
+    ],
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
     "skipLibCheck": true,
-
-    "downlevelIteration": true,
-
-    "allowJs": true,
-
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-
-    "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve",
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "noUnusedLocals": false,
-    "noImplicitAny": false
-
-    /* Linting */
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".", // If using path aliases
+    "paths": {
+      "@components/*": [
+        "src/components/*"
+      ], // Example alias, adjust according to your structure
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@workers/*": [
+        "src/workers/*"
+      ]
+    }
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }],
-  "types": ["vite/client"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/min.js"
+  ],
+  "exclude": [
+    "**/*.wasm"
+  ],
 }

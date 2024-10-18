@@ -1,68 +1,34 @@
-import { User } from "../../pages/register/registerPage";
-import { usersAction } from "../action-creators";
-import { ActionType } from "../action-types/index";
-import { Action } from "../actions";
+import { UserInterface } from '../../models/model.interface'
+import { ActionType } from '../action-types/index'
+import { Action } from '../actions'
 
 export interface loginReducerInterface {
-  ok: boolean;
-  user: User;
+	ok: boolean;
+	user: UserInterface;
 }
 
 const initialState: loginReducerInterface = {
-  ok: false,
-  user: {
-    name: "",
-    username: undefined,
-    userEmail: undefined,
-    password: undefined,
-    type: "",
-    location: "",
-    description: "",
-    profilePicture: "",
-    posts: [],
-    friends: [],
-    reviews: [],
-    calendar: [],
-    socialLinks: [],
-    map: [],
-  },
+	ok: false,
+	user: { name: '', role: '', token: '', email: '', department: 'tech' },
 };
 
 const reducer = (
-  state: loginReducerInterface = initialState,
-  action: Action
+	state: loginReducerInterface = initialState,
+	action: Action
 ): loginReducerInterface => {
-  switch (action.type) {
-    case ActionType.LOGIN:
-      console.log("action.payload", action);
+	switch (action.type) {
+		case ActionType.LOGIN:
 
-      return action.payload;
-    case ActionType.ADD_POINT:
-      return action.payload;
 
-    case ActionType.LOGOUT:
-      return {
-        ...state,
-        user: {
-          name: "",
-          username: undefined,
-          userEmail: undefined,
-          password: undefined,
-          type: "",
-          location: "",
-          description: "",
-          profilePicture: "",
-          posts: [],
-          friends: [],
-          reviews: [],
-          calendar: [],
-          socialLinks: [],
-          map: [],
-        },
-      };
-    default:
-      return state;
-  }
-};
+			return action.payload
+		case ActionType.LOGOUT:
+			return {
+				...state,
+				user: { name: '', role: '', token: '', email: '', department: 'tech' },
+			}
+		default:
+			return state
+	}
+}
 
-export default reducer;
+export default reducer
