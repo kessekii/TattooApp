@@ -1,0 +1,84 @@
+body {
+	/* Remember to use the other versions for IE 10 and older browsers! */
+	width: 100%;
+	height: 100%;
+	/* display: flex; */
+	justify-content: center;
+	align-items: center;
+	min-height: 100%;
+	font-family: 'Montserrat', sans-serif;
+	color: #fff;
+	margin: inherit;
+	background: #fafbfc !important;
+	background: #fafbfc; /* fallback for old browsers */
+	background: -webkit-linear-gradient(
+		to top,
+		#ffffff,
+		#ffffff
+	); /* Chrome 10-25, Safari 5.1-6 */
+}
+
+/* width */
+::-webkit-scrollbar {
+	/* width: 5px; */
+	display: hidden;
+}
+#news-container::-webkit-scrollbar {
+	width: 5px;
+}
+#mediaPlanFiltersContainer::-webkit-scrollbar {
+	width: 5px;
+}
+#mediaPlanFiltersContainer::-webkit-scrollbar-thumb {
+	/* background: gray; */
+	background: linear-gradient(
+		180deg,
+		rgba(238, 29, 66, 1) 0%,
+		rgba(64, 19, 129, 1) 100%
+	);
+}
+/* .InovuaReactDataGrid__header-group {
+	width: 69vw !important;
+} */
+/* Track */
+::-webkit-scrollbar-track {
+	box-shadow: inset 0 0 5px grey;
+	border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: linear-gradient(
+		180deg,
+		rgba(238, 29, 66, 1) 0%,
+		rgba(64, 19, 129, 1) 100%
+	);
+	border-radius: 10px;
+	min-height: 7 10px;
+	width: 100px;
+}
+
+html {
+	width: 100%;
+	height: 100%;
+	/* background-color: rgb(255, 255, 255); */
+}
+
+.MuiDataGrid-panelFooter .MuiButtonBase-root {
+	color: #000000 !important;
+}
+
+.sum-row-reports {
+	background: rgba(64, 19, 129, 0.06) 100% !important;
+	font-weight: 500;
+	font-size: 14px;
+}
+
+.MuiDateRangePickerDay-rangeIntervalDayHighlight {
+	background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.rct-text {
+	margin-top: 12px;
+}
+
