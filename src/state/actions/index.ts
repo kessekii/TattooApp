@@ -34,6 +34,10 @@ interface ChatInitMessagesInterfaceReducer {
   payload: any;
 }
 
+interface UpdateChatInterfaceReducer {
+  type: ActionType.UPDATE_CHAT;
+  payload: any;
+}
 interface ChatAddMessageInterfaceReducer {
   type: ActionType.ADD_MESSAGE;
   payload: any;
@@ -108,4 +112,5 @@ export type Action =
   | ProfileDataInterfaceReducer
   | AddPointInterfaceReducer
   | InsertUserInterfaceReducer
-  | UpdateUserInterfaceReducer;
+  | UpdateUserInterfaceReducer
+  | UpdateChatInterfaceReducer;

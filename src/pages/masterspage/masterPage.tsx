@@ -11,6 +11,7 @@ import { loginAction } from "src/state/action-creators";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { getChatByChatId } from "src/hooks/useChat";
 
 const ProfilePage = styled.div`
   font-family: Arial, sans-serif;
@@ -399,6 +400,7 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
   const { login, profile } = useTypedSelector((state) => state);
 
   const [user, setUser] = useLocalStorage("user", null);
+  const [chats, setChats] = useLocalStorage("chats", null);
   console.log("Profile:", user);
   const [loggedInUser, setLoggedInUser] = useState(false);
   const { username, postId } = useParams();
@@ -500,6 +502,8 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
     updateUser(newProfileData, setErrorMessage);
     setIsEditing(false);
     setUser(newProfileData);
+
+    setChats(newProfileData.chats);
   };
 
   // Cancel editing
@@ -567,14 +571,14 @@ const ProfilePageComponent: React.FC<ProfilePageProps> = ({
   };
   const posts = useMemo(
     () =>
-      user.posts?.map((post) => (
-        <Post key={post.id}>
+      Object.keys(user.posts).map((post) => (
+        <Post key={post}>
           <PostImage
-            src={post.image}
+            src={user.posts[post].image}
             onClick={() => {
               navigate("../" + username + "/portfolio");
             }}
-            alt={`Post ${post.id}`}
+            alt={`Post ${post}`}
           />
         </Post>
       )),

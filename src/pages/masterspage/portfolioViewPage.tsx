@@ -193,20 +193,21 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
   setProfileData,
 }) => {
   const [user, setUser] = useLocalStorage("user", null);
-  const { updateUser } = useActions();
+  const [chats, setChats] = useLocalStorage("chats", null);
+  const { updateUser, updateChat } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
-  const [showCommentsPopup, setShowCommentsPopup] = useState<number | null>(
+  const [showCommentsPopup, setShowCommentsPopup] = useState<string | null>(
     null
   );
   const [newComment, setNewComment] = useState(""); // To hold new comment input
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null); // Track selected post for adding comment
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
 
   const postData = useTypedSelector((state) =>
     state.profile.posts.find((post) => post.id === selectedPostId)
   );
   const navigate = useNavigate();
 
-  const handleCommentsClick = (postId: number) => {
+  const handleCommentsClick = (postId: string) => {
     setShowCommentsPopup(postId);
     setSelectedPostId(postId);
   };
@@ -238,45 +239,41 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
       //     }
       // })
 
-      const filteredPost = user.posts.filter(
-        (post) => post.id === selectedPostId
-      )[0];
-      console.log(selectedPostId);
-      if (filteredPost) {
-        if (filteredPost.comments && filteredPost.comments.length > 0) {
+      const filteredPost = user.posts[selectedPostId];
+      const chat = chats[filteredPost.chatId];
+      console.log(chat, selectedPostId);
+      if (chat) {
+        if (chat.messages && chat.messages?.length > 0) {
           console.log("not first");
-          const newPost = {
-            ...filteredPost,
-            comments: [
-              ...filteredPost.comments,
-              { author: user.username, text: newComment },
-            ],
-          };
-          const updatedProfileData = { ...user };
-          const otherPosts = user.posts.filter(
-            (post) => post.id !== selectedPostId
-          );
-          updatedProfileData.posts = [...otherPosts, newPost];
-          setProfileData(updatedProfileData);
-          updateUser(updatedProfileData, setErrorMessage);
 
+          chat.messages.push({
+            author: user.username,
+            text: newComment,
+          });
+
+          const updatedProfileData = { ...user };
+
+          updatedProfileData.posts[selectedPostId];
+          // setProfileData(updatedProfileData);
+          updateUser(updatedProfileData, setErrorMessage);
+          updateChat(chat, filteredPost.chatId, setErrorMessage);
           setUser(updatedProfileData);
-        } else if (filteredPost.comments && filteredPost.comments.length == 0) {
+
+          chats[filteredPost.chatId].messages = chat.messages;
+          setChats(chats);
+        } else if (chats && !chats.messages) {
           console.log("first");
-          const newPost = {
-            ...filteredPost,
-            comments: [{ author: user.username, text: newComment }],
-          };
-          const updatedProfileData = { ...user };
-          const otherPosts = user.posts.filter(
-            (post) => post.id !== selectedPostId
-          );
-          updatedProfileData.posts = [...otherPosts, newPost];
-          console.log(updatedProfileData);
-          setProfileData(updatedProfileData);
-          updateUser(updatedProfileData, setErrorMessage);
+          chat.messages = [{ author: user.username, text: newComment }];
 
+          const updatedProfileData = { ...user };
+
+          console.log(updatedProfileData);
+          // setProfileData(updatedProfileData);
+          updateUser(updatedProfileData, setErrorMessage);
+          updateChat(chat, filteredPost.chatId, setErrorMessage);
           setUser(updatedProfileData);
+          chats[filteredPost.chatId].messages = chat.messages;
+          setChats(chats);
         }
       }
       console.log();
@@ -292,9 +289,9 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
   return (
     <PortfolioPage>
       {user &&
-        user.posts.map((post) => (
-          <PostWrapper key={post.id}>
-            <PostImage src={post.image} alt={`Post ${post.id}`} />
+        Object.keys(user.posts).map((post) => (
+          <PostWrapper key={post}>
+            <PostImage src={user.posts[post].image} alt={`Post ${post}`} />
             <PostDetails>
               <UserSection>
                 <UserAvatar
@@ -305,26 +302,39 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
                   {user.name}
                 </UserName>
               </UserSection>
-              <Description>{post.description}</Description>
+              <Description>{user.posts[post].description}</Description>
               <Caption>
-                <strong>{post.user && post.user.name}</strong>{" "}
-                {post.description}
+                <strong>
+                  {user.posts[post].user && user.posts[post].user.name}
+                </strong>{" "}
+                {user.posts[post].description}
               </Caption>
 
-              {post.comments ? (
-                <CommentSection onClick={() => handleCommentsClick(post.id)}>
-                  {post.comments?.length === 0 ? (
+              {chats[user.posts[post].chatId] ? (
+                <CommentSection onClick={() => handleCommentsClick(post)}>
+                  {chats[user.posts[post].chatId].messages.length === 0 ? (
                     <>No comments yet</>
                   ) : (
                     <>
-                      <>View all {post.comments.length} comments</>
-                      <strong>{post.comments[0].author}</strong>:{" "}
-                      {post.comments[0].text}
+                      <>
+                        View all{" "}
+                        {chats[user.posts[post].chatId].messages?.length || 0}{" "}
+                        comments
+                      </>
+                      <strong>
+                        {chats[user.posts[post].chatId].messages.length > 0
+                          ? chats[user.posts[post].chatId].messages[0].author
+                          : ""}
+                      </strong>
+                      :{" "}
+                      {chats[user.posts[post].chatId].messages.length > 0
+                        ? chats[user.posts[post].chatId].messages[0].text
+                        : ""}
                     </>
                   )}
                 </CommentSection>
               ) : (
-                <CommentSection onClick={() => handleCommentsClick(post.id)}>
+                <CommentSection onClick={() => handleCommentsClick(post)}>
                   <>No comments yet</>
                 </CommentSection>
               )}
@@ -335,7 +345,7 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
               </LikeSection>
             </PostDetails>
 
-            {showCommentsPopup === post.id && (
+            {showCommentsPopup === post && (
               <CommentsPopup>
                 <CommentsContent>
                   <CloseButton onClick={handleCloseCommentsPopup}>
@@ -343,13 +353,16 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
                   </CloseButton>
                   <h2 style={{ color: "black" }}>Comments</h2>
                   <CommentList>
-                    {post.comments && post.commenth?.length !== 0 ? (
-                      post.comments.map((comment, index) => (
-                        <CommentItem key={index}>
-                          <CommentAuthor>{comment.author}</CommentAuthor>
-                          <CommentText>{comment.text}</CommentText>
-                        </CommentItem>
-                      ))
+                    {chats[user.posts[post].chatId]?.messages &&
+                    chats[user.posts[post].chatId].messages.length > 0 ? (
+                      chats[user.posts[post].chatId].messages.map(
+                        (comment, index) => (
+                          <CommentItem key={index}>
+                            <CommentAuthor>{comment?.author}</CommentAuthor>
+                            <CommentText>{comment?.text}</CommentText>
+                          </CommentItem>
+                        )
+                      )
                     ) : (
                       <CommentItem>
                         <CommentText>No comments yet</CommentText>

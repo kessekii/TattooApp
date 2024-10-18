@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../../assets/LogoSmall.png";
 import { useActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { loginParams } from "../../state/action-creators";
+import { getProfileData, loginParams } from "../../state/action-creators";
 import { theme } from "../../utils/theme";
 import { ForgotPasswordPopup } from "./forgotPasswordComponent";
 import {
@@ -19,6 +19,7 @@ import {
 import AxiosCustom from "../../utils/Axios";
 import { useAuth } from "../../hooks/useAuth";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import { getChatByChatId } from "../../../src/hooks/useChat";
 
 const RepositoriesList = () => {
   const auth = useAuth();
@@ -30,6 +31,7 @@ const RepositoriesList = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const { loginAction } = useActions();
   const [user, setUser] = useLocalStorage("user", null);
+  const [chats, setChats] = useLocalStorage("chats", null);
   const navigate = useNavigate();
 
   const batchPromisesResolver = async (i: number) => {
@@ -55,7 +57,7 @@ const RepositoriesList = () => {
       }
       const data = await Promise.all(batchPromises);
       console.log("data", data);
-    } catch (err) { }
+    } catch (err) {}
   };
   const tryLogin = async () => {
     loginAction(
@@ -65,36 +67,27 @@ const RepositoriesList = () => {
     await auth.login(password, loginF);
     // try {
     await auth.setUserFull(user);
-    //   const data = await AxiosCustom.get(
-    //     "http://127.0.0.1:" +
-    //       port +
-    //       "/",
+    const userDataUpdated = (await getProfileData(loginF)).payload;
+    const GetChatsObject = async () => {
+      let chatsObject: any = {};
+      for (let chatId of Object.keys(userDataUpdated.chats)) {
+        const chatData = await getChatByChatId(chatId, loginF);
+        chatsObject[chatId] = chatData.payload;
+      }
+      return chatsObject;
+    };
+    let chatsObject = await GetChatsObject();
+    console.log(
+      "SKJDB:KSADUB:AKBJD:KASJBDA:SJDBVABD",
+      chatsObject,
+      userDataUpdated
+    );
+    setUser(userDataUpdated);
+    setChats(chatsObject);
 
-    //     {
-    //       headers,
-    //     }
-    //   );
-    //   console.log("login was ", data.status);
-    // } catch (error) {
-    //   console.log("error", error);
-    // }
+    await auth.setUserFull(userDataUpdated);
 
-    // const loginRes: any = loginAction(user, setErrorMessage);
-
-    // if (loginRes.ok === true) {
     navigate("/map");
-
-    //   console.log("login", loginRes, login);
-
-    //   const headers = {
-    //     Authorization: `Token ${login.user.token}`,
-    //   };
-    //   // await insertLog(headers, {
-    //   // 	userEmail: user.userEmail,
-    //   // 	change: 'Login',
-    //   // 	object: {},
-    //   // })
-    // }
   };
   useEffect(() => {
     if (errorMessage) {

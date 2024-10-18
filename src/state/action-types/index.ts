@@ -3,6 +3,7 @@ export enum ActionType {
   GET_USERS = "get_users",
   LOGOUT = "logout",
   UPDATE_USER = "updateuser",
+  UPDATE_CHAT = "update_chat",
   USER = "user",
   SET_SESSION_VALIDITY = "user/setSessionValidity",
 

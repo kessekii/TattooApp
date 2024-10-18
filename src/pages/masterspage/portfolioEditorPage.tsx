@@ -5,6 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import useLocalStorage from "../../../src/hooks/useLocalStorage";
 import { useActions } from "../../../src/hooks/useActions";
 import { v4 as uuidv4 } from "uuid";
+import { getProfileData } from "../../../src/state/action-creators";
+import { getChatByChatId } from "../../../src/hooks/useChat";
 // Styled components
 const EditorContainer = styled.div`
   display: flex;
@@ -138,18 +140,19 @@ const ConfirmModal = styled(Modal)`
 // Component
 const PortfolioEditorPage = ({ setProfileData }) => {
   const [user, setUser] = useLocalStorage("user", null);
-  const { updateUser } = useActions();
+  const [chats, setChats] = useLocalStorage("chats", null);
+  const { updateUser, createChatByUsername } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
   const [profile, setProfile] = useState(user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNewImage, setIsNewImage] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [imageToDelete, setImageToDelete] = useState<number | null>(null);
+  const [editingIndex, setEditingIndex] = useState<string | null>(null);
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [newImage, setNewImage] = useState({ src: "", caption: "" });
   const navigate = useNavigate(); // For navigation
 
-  const openModal = (index: number | null = null) => {
+  const openModal = (index: string | null = null) => {
     setEditingIndex(index);
     if (index !== null) {
       setNewImage(user.posts[index]);
@@ -177,7 +180,7 @@ const PortfolioEditorPage = ({ setProfileData }) => {
   // Handle dragging and dropping images
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
-    const reorderedImages = [...user.posts];
+    const reorderedImages = { ...user.posts };
     const sourceIndex = result.source.index;
     const destinationIndex = result.destination.index;
     [reorderedImages[sourceIndex], reorderedImages[destinationIndex]] = [
@@ -191,7 +194,7 @@ const PortfolioEditorPage = ({ setProfileData }) => {
     setProfile({ ...user, posts: reorderedImages });
   };
 
-  const handleSavePortfolio = (navigateBack: boolean) => {
+  const handleSavePortfolio = async (navigateBack: boolean) => {
     const updatedProfileData = { ...user };
     const newUuid = uuidv4();
     if (isNewImage) {
@@ -202,15 +205,37 @@ const PortfolioEditorPage = ({ setProfileData }) => {
         shares: 0,
         user: { avatar: user.profilePicture, name: user.username },
         description: newImage.caption,
-        comments: [],
+        chatId: "",
       };
       console.log(user, newPost);
-      updatedProfileData.posts = [...user.posts, newPost];
-    }
+      updatedProfileData.posts = Object.assign({
+        ...user.posts,
+        [newUuid]: newPost,
+      });
+      createChatByUsername(
+        updatedProfileData,
 
-    setProfileData(updatedProfileData);
-    updateUser(updatedProfileData, setErrorMessage);
-    setUser(updatedProfileData);
+        setErrorMessage,
+        newUuid
+      );
+    }
+    const GetChatsObject = async () => {
+      let chatsObject: any = {};
+      for (let chatId of Object.keys(user.chats)) {
+        const chatData = await getChatByChatId(chatId, user.username);
+        chatsObject[chatId] = chatData.payload;
+      }
+      return chatsObject;
+    };
+    let chatsObject = await GetChatsObject();
+
+    setChats(chatsObject);
+    // updateUser(updatedProfileData, setErrorMessage);
+    const userDataUpdated = (await getProfileData(user.username)).payload;
+    setProfileData(userDataUpdated);
+
+    setUser(userDataUpdated);
+
     setIsNewImage(false);
     setProfile(updatedProfileData);
     if (navigateBack) {
@@ -222,9 +247,9 @@ const PortfolioEditorPage = ({ setProfileData }) => {
   // Delete image
   const handleDeleteImage = () => {
     const updatedProfileData = { ...user };
-    updatedProfileData.posts = user.posts.filter(
-      (el, index) => index !== imageToDelete
-    );
+
+    delete updatedProfileData.posts[imageToDelete];
+
     console.log(updatedProfileData);
     setProfileData(updatedProfileData);
     updateUser(updatedProfileData, setErrorMessage);
@@ -234,8 +259,8 @@ const PortfolioEditorPage = ({ setProfileData }) => {
   };
 
   // Open delete confirmation modal
-  const openDeleteModal = (index: number) => {
-    setImageToDelete(index);
+  const openDeleteModal = (id: string) => {
+    setImageToDelete(id);
     setIsDeleteModalOpen(true);
   };
 
@@ -250,10 +275,10 @@ const PortfolioEditorPage = ({ setProfileData }) => {
         <Droppable droppableId="image-grid">
           {(provided) => (
             <ImageGrid ref={provided.innerRef} {...provided.droppableProps}>
-              {user.posts.map((post, index) => (
+              {Object.keys(user.posts).map((postId, index) => (
                 <Draggable
-                  key={post.id}
-                  draggableId={String(post.id)}
+                  key={postId}
+                  draggableId={String(postId)}
                   index={index}
                 >
                   {(provided) => (
@@ -263,11 +288,11 @@ const PortfolioEditorPage = ({ setProfileData }) => {
                       {...provided.dragHandleProps}
                     >
                       <Image
-                        src={post.image}
-                        alt={`Image ${post.id}`}
-                        onClick={() => openModal(index)}
+                        src={user.posts[postId].image}
+                        alt={`Image ${postId}`}
+                        onClick={() => openModal(postId)}
                       />
-                      <DeleteButton onClick={() => openDeleteModal(index)}>
+                      <DeleteButton onClick={() => openDeleteModal(postId)}>
                         Delete
                       </DeleteButton>
                     </ImageBox>

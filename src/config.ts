@@ -182,7 +182,7 @@ export enum endpoints {
   AUTOSWITCH = "autoswitch",
   ADJUST = "adjust",
   VERSION = "version",
-  GETPROFILEDATA = "profile",
+  GETPROFILEDATA = "/users/getProfileData",
   PROFILEDATA_U = "profile/update",
   ADD_POINT = "users/addPoint",
   UPDATE_USER = "users/update",
