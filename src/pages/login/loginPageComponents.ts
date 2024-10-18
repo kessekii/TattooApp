@@ -1,113 +1,111 @@
-import styled from '@emotion/styled'
-import { Button, FormControlLabel, TextField, Typography } from '@mui/material'
-import theme from '../../utils/theme'
+import styled from 'styled-components';
+import { Button, FormControlLabel, TextField, Typography } from '@mui/material';
 
-export const TitleComponent = styled(Typography)(({ theme: Theme }) => ({
-	position: 'absolute',
-	color: theme.palette.primary.main,
-	fontFamily: theme.typography.fontFamily,
-	fontSize: '18px',
-	fontWeight: 'bold',
-	left: '2%',
-	top: '2%',
-	backgroundColor: theme.palette.secondary.main,
-}))
+// Use your theme instead of MUI's theme
+export const TitleComponent = styled(Typography)`
+  position: absolute;
+  color: ${(props) => props.theme.text};
+  font-family: 'Arial', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  left: 2%;
+  top: 2%;
+  background-color: ${(props) => props.theme.background};
+`;
 
-export const LoginPageWrapper = styled('div')(({ theme: Theme }) => ({
-	position: 'relative',
-	width: '100%',
-	height: '90%',
+export const LoginPageWrapper = styled('div')`
+  position: relative;
+  width: 100%;
+  
+  height: 100%;
+  background-color: ${(props) => props.theme.background};
+  text-align: center;
+  
+  padding-top: 10rem;
+`;
 
-	backgroundColor: theme.palette.secondary.main,
-	textAlign: 'center',
-	paddingTop: '10rem',
-}))
+export const LoginWrapper = styled('div')`
+background-color: ${(props) => props.theme.background};
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+`;
 
-export const LoginWrapper = styled('div')(({ theme: Theme }) => ({
-	backgroundColor: theme.palette.secondary.main,
-	margin: 'auto',
-	textAlign: 'center',
-	width: '25%',
-}))
+export const RememberMeComponent = styled(FormControlLabel)`
+  font-size: 12px;
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  margin: auto;
+  color: ${( props ) => props.theme.text};
+  text-align: center;
+  float: left;
+`;
 
-export const RememberMeComponent = styled(FormControlLabel)(
-	({ theme: Theme }) => ({
-		fontSize: '12px',
-		fontFamily: theme.typography.fontFamily,
-		fontWeight: 'bold',
-		margin: 'auto',
-		color: theme.palette.primary.dark,
-		textAlign: 'center',
-		float: 'left',
-	}),
-)
+export const LoginComponent = styled(TextField)`
+  font-family: 'Arial', sans-serif;
+  margin: auto;
+  color: ${( props ) => props.theme.text};
+  background-color: ${(props) => props.theme.background};
+  font-size: 18px;
+  display: flex;
+  border-bottom: 1px solid ${( props ) => props.theme.border};
+`;
 
-export const LoginComponent = styled(TextField)(({ theme: Theme }) => ({
-	fontFamily: theme.typography.fontFamily,
-	margin: 'auto',
-	color: theme.palette.primary.main,
-	backgroundColor: theme.palette.secondary.main,
-	fontSize: '18px',
-	flexDirection: 'column',
-	display: 'flex',
-	borderBottom: '1px solid ' + theme.palette.secondary.light,
-}))
+export const ForgotEmailComponent = styled(TextField)`
+  font-family: 'Arial', sans-serif;
+  margin: auto;
+  color: ${( props ) => props.theme.text};
+  background-color: transparent;
+  font-size: 18px;
+  display: flex;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+`;
 
-export const ForgotEmailComponent = styled(TextField)(({ theme: Theme }) => ({
-	fontFamily: theme.typography.fontFamily,
-	margin: 'auto',
-	color: 'white',
-	backgroundColor: 'transparent',
-	fontSize: '18px',
-	flexDirection: 'column',
-	display: 'flex',
-	borderBottom: '1px solid ' + theme.palette.secondary.light,
-}))
+export const LoginButton = styled(Button)`
+  font-family: 'Arial', sans-serif;
+  margin-top: 2rem;
+  margin-left: 65px;
+  margin-right: 65px;
+  width: 50%;
+  background: ${(props) => props.theme.buttonBackground};
+  border-radius: 25px;
+  color: ${( props ) => props.theme.text};
+`;
 
-export const LoginButton = styled(Button)(({ theme: Theme }) => ({
-	fontFamily: theme.typography.fontFamily,
-	marginTop: '2rem',
-	marginLeft: '65px',
-	marginRight: '65px',
-	width: '50%',
-	background: theme.colors.gradient,
-	borderRadius: '25px',
-	color: theme.palette.primary.main,
-}))
+export const ForgotPasswordComponent = styled(Typography)`
+  font-size: 12px;
+  font-family: 'Arial', sans-serif;
+  margin: auto;
+  padding-top: 0.8rem;
+  font-weight: bold;
+  height: 42px;
+  color: ${( props ) => props.theme.text};
+  text-align: center;
+  float: right;
+  cursor: pointer;
+`;
 
-export const ForgotPasswordComponent = styled(Typography)(
-	({ theme: Theme }) => ({
-		fontSize: '12px',
-		fontFamily: theme.typography.fontFamily,
-		margin: 'auto',
-		paddingTop: '0.8rem',
-		fontWeight: 'bold',
-		height: '42px',
-		color: theme.palette.primary.main,
-		textAlign: 'center',
-		float: 'right',
-		cursor: 'pointer',
-	}),
-)
-export const ForgotPasswordButton = styled(Button)(({ theme: Theme }) => ({
-	fontFamily: theme.typography.fontFamily,
-	marginTop: '2rem',
-	float: 'left',
-	width: '30%',
+export const ForgotPasswordButton = styled(Button)`
+  font-family: 'Arial', sans-serif;
+  margin-top: 2rem;
+  float: left;
+  width: 30%;
+  margin-left: 100px;
+  background: ${(props) => props.theme.buttonBackground};
+  border-radius: 25px;
+  color: ${( props ) => props.theme.text};
+`;
 
-	marginLeft: '100px',
-	background: theme.colors.gradient,
-	borderRadius: '25px',
-	color: theme.palette.primary.main,
-}))
-export const ForgotPasswordCancel = styled(Button)(({ theme: Theme }) => ({
-	fontFamily: theme.typography.fontFamily,
-	marginTop: '2rem',
-	float: 'right',
-	width: '30%',
-	marginRight: '100px',
-	background: 'transparent',
-	borderRadius: '25px',
-	color: theme.colors.black,
-}))
-
+export const ForgotPasswordCancel = styled(Button)`
+  font-family: 'Arial', sans-serif;
+  margin-top: 2rem;
+  float: right;
+  width: 30%;
+  margin-right: 100px;
+  background: transparent;
+  border-radius: 25px;
+  color: ${( props ) => props.theme.text};
+`;

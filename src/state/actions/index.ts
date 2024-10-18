@@ -89,6 +89,16 @@ interface UpdateUserInterfaceReducer {
   type: ActionType.UPDATE_USER;
   payload: any;
 }
+
+interface NewsInterfaceReducer {
+  type: ActionType.NEWS;
+  payload: any;
+}
+
+interface NewsMakeReducer {
+  type: ActionType.MAKEEVENT;
+  payload: any;
+}
 export type Action =
   | LoginInterfacrReducer
   | LogoutInterfaceReducer
@@ -108,4 +118,6 @@ export type Action =
   | ProfileDataInterfaceReducer
   | AddPointInterfaceReducer
   | InsertUserInterfaceReducer
-  | UpdateUserInterfaceReducer;
+  | UpdateUserInterfaceReducer
+  | NewsInterfaceReducer
+  | NewsMakeReducer

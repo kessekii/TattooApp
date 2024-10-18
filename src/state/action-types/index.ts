@@ -38,4 +38,7 @@ export enum ActionType {
   PROFILEDATA_U = "profile/update",
   ADD_POINT = "ADD_POINT",
   INSERT_USER = "INSERT_USER",
+
+  NEWS = "news/get",
+  MAKEEVENT = "news/makeEvent",
 }

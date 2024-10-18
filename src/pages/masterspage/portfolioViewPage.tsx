@@ -183,14 +183,9 @@ const CommentSubmitButton = styled.button`
   cursor: pointer;
 `;
 
-interface PortfolioViewProps {
-  profileData: any;
-  setProfileData: (data: any) => void;
-}
 
-const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
-  profileData,
-  setProfileData,
+const PortfolioViewPage: React.FC = ({
+
 }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const { updateUser } = useActions();
@@ -257,7 +252,7 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
             (post) => post.id !== selectedPostId
           );
           updatedProfileData.posts = [...otherPosts, newPost];
-          setProfileData(updatedProfileData);
+
           updateUser(updatedProfileData, setErrorMessage);
 
           setUser(updatedProfileData);
@@ -273,7 +268,7 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
           );
           updatedProfileData.posts = [...otherPosts, newPost];
           console.log(updatedProfileData);
-          setProfileData(updatedProfileData);
+
           updateUser(updatedProfileData, setErrorMessage);
 
           setUser(updatedProfileData);

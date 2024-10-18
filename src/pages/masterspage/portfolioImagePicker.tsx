@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box, Grid, Card, CardActionArea, CardMedia, Button } from '@mui/material';
+import { Box, Grid, Card, CardActionArea, CardMedia, Button, Typography } from '@mui/material';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import { EditButton } from './masterPage';
+
 
 // Styled components
 const PortfolioContainer = styled(Box)`
@@ -9,7 +12,7 @@ const PortfolioContainer = styled(Box)`
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background-color: white;
+   
     max-width: 935px;
     margin: 0 auto;
     color: black;
@@ -65,16 +68,16 @@ const PostImage = styled.img`
 `;
 
 interface PortfolioImagePickerProps {
-    profileData: any; // Array of image URLs
+
     onImageSelect: (image: string) => void; // Callback function to return the selected image
 }
 
-const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ profileData, onImageSelect }) => {
+const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ onImageSelect }) => {
+    const [user, setUser] = useLocalStorage("user", null);
+
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [confirmed, setConfirmed] = useState<boolean>(false);
-    const [profile, setProfile] = useState(profileData);
     const [index, setIndex] = useState<number>(0);
-    console.log("PROF : ", profile);
 
     // Handle image selection
     const handleImageClick = (image: string, id: number) => {
@@ -92,7 +95,7 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ profileData
 
     return (
         <PortfolioContainer>
-            <h2>Select an Image from Portfolio</h2>
+            <Typography style={{ fontSize: "12px" }}>Select image</Typography>
 
             {/* Show preview of selected image */}
 
@@ -100,9 +103,9 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ profileData
             {/* Grid of images */}
             {!confirmed &&
                 <ImageGrid container spacing={2}>
-                    {profile.posts.map((post) => (
+                    {user.posts && user.posts.map((post, i) => (
 
-                        <PostImage src={post.image} onClick={() => handleImageClick(post.image, post.id)} alt={`Post ${post.id}`} />
+                        <PostImage src={post.image} onClick={() => handleImageClick(post.image, i)} alt={`Post ${i}`} />
 
 
 
@@ -126,7 +129,7 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ profileData
 
                 )
             }
-            <ConfirmButton onClick={handleConfirmClick}>Confirm Selection</ConfirmButton>
+            <EditButton onClick={handleConfirmClick}>Confirm Selection</EditButton>
         </PortfolioContainer >
     );
 };

@@ -13,7 +13,7 @@ export const ForgotPasswordPopup = (props: {
 	setIsVisible: any
 	setErrorMessage: any
 }) => {
-	const { forgotPasswordAction, resetPassword } = useActions()
+
 	const [email, setEmail] = useState('')
 	const [code, setCode] = useState('')
 	const [codeHash, setCodeHash] = useState('')
@@ -98,8 +98,8 @@ export const ForgotPasswordPopup = (props: {
 				{codeView === false
 					? 'Enter your email address to recover your account'
 					: newPasswordView === false
-					? 'Enter code sent to your email'
-					: 'Enter new password'}
+						? 'Enter code sent to your email'
+						: 'Enter new password'}
 			</Typography>
 			<ForgotEmailComponent
 				variant='filled'
@@ -109,15 +109,15 @@ export const ForgotPasswordPopup = (props: {
 					codeView === false
 						? 'email'
 						: newPasswordView === false
-						? 'number'
-						: 'password'
+							? 'number'
+							: 'password'
 				}
 				label={
 					codeView === false
 						? 'Email'
 						: newPasswordView === false
-						? 'Code'
-						: 'New Password'
+							? 'Code'
+							: 'New Password'
 				}
 				placeholder={
 					codeView === false && newPasswordView === false
@@ -139,8 +139,8 @@ export const ForgotPasswordPopup = (props: {
 					codeView === false
 						? setEmail(e.target.value)
 						: newPasswordView === false
-						? setCode(e.target.value)
-						: setPwd(e.target.value)
+							? setCode(e.target.value)
+							: setPwd(e.target.value)
 				}}
 				value={
 					codeView === false ? email : newPasswordView === false ? code : pwd
@@ -189,15 +189,15 @@ export const ForgotPasswordPopup = (props: {
 					codeView === false
 						? tryReset
 						: newPasswordView === false
-						? tryCode
-						: trySavePassword
+							? tryCode
+							: trySavePassword
 				}
 			>
 				{codeView === false
 					? 'Reset Password'
 					: newPasswordView === false
-					? 'Verify'
-					: 'Save Password'}
+						? 'Verify'
+						: 'Save Password'}
 			</ForgotPasswordButton>
 		</Paper>
 	)
