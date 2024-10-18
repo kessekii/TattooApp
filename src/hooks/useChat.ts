@@ -9,15 +9,19 @@ export const useChat = () => {
   const getChatByChatId = async (id: string, email: string) => {
     try {
       console.log("id", id, email);
-      const response = await fetch("http://localhost:3000/chats/getChatByChatId", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ chatId: id, userEmail: email }),
-      });
+      const response = await fetch(
+        "http://localhost:4000/chats/getChatByChatId",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: JSON.stringify({ chatId: id, userEmail: email }),
+        }
+      );
       queryClient.invalidateQueries("chats");
       const result = await response.json();
       return result.payload;
@@ -29,14 +33,14 @@ export const useChat = () => {
   const sendMessage = async (id: string, message: string) => {
     try {
       const response = await fetch(
-        "http://localhost:3000/chats/addToChatByChatId",
+        "http://localhost:4000/chats/addToChatByChatId",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization:
               "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-              "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": "*",
           },
           body: JSON.stringify({
             chatId: id,

@@ -85,9 +85,7 @@ export interface CalendarEntry {
   hours: Array<string>;
 }
 
-
 //------------NEWS OPERATIONS ------------
-
 
 // --------- USERS OPERATION --------
 export const loginAction = (loginParams: any, setErrorMessage: any) => {
@@ -127,35 +125,85 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
     }
   };
 };
+export const addPoint = (user: any, setErrorMessage: any) => {
+  return async (dispatch: Dispatch<Action>) => {
+    try {
+      const headers = {
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+      };
 
+      const { data } = await AxiosCustom.post(endpoints.ADD_POINT, user, {
+        headers,
+      });
+
+      if (!data.successful) {
+        setErrorMessage(data.payload);
+        return;
+      }
+
+      dispatch({
+        type: ActionType.ADD_POINT,
+        payload: data.payload,
+      });
+    } catch (err) {
+      setErrorMessage(err);
+      console.error(err);
+    }
+  };
+};
 export const createLivestreamAction = (userEmail: string) => {
-	return async (dispatch: Dispatch<Action>) => {
-		try {
-			const headers = {
-				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + 'AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM',
-				'Access-Control-Allow-Origin': '*',
-			}
-			const user = JSON.stringify(userEmail)
+  return async (dispatch: Dispatch<Action>) => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      };
+      const user = JSON.stringify(userEmail);
 
+      const { data } = await AxiosCustom.post(
+        endpoints.LIVESTREAMCREATE,
+        JSON.stringify({ userEmail: userEmail }),
+        { headers }
+      );
+      dispatch({
+        type: ActionType.LIVESTREAMCREATE,
+        payload: data.payload,
+      });
+      if (!data.successful) {
+        return data.payload;
+      }
 
-			const { data } = await AxiosCustom.post(endpoints.LIVESTREAMCREATE, JSON.stringify({ userEmail: userEmail }), { headers })
-			dispatch({
-				type: ActionType.LIVESTREAMCREATE,
-				payload: data.payload,
-			})
-			if (!data.successful) {
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+};
+export const insertUser = (user: any, setErrorMessage: any) => {
+  return async (dispatch: Dispatch<Action>) => {
+    try {
+      const headers = {
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+      };
+      const { data } = await AxiosCustom.post(endpoints.REGISTER, user, {
+        headers,
+      });
 
-				return data.payload
-			}
-
-			return true
-		} catch (err) {
-			return false
-		}
-	}
-}
-
+      if (!data.successful) {
+        setErrorMessage(data.payload);
+        return;
+      }
+      dispatch({
+        type: ActionType.INSERT_USER,
+        payload: user,
+      });
+    } catch (err) {
+      setErrorMessage(err);
+      console.error(err);
+    }
+  };
+};
 export const logOutAction = () => {
   return async (dispatch: Dispatch<Action>) => {
     try {
@@ -172,22 +220,24 @@ export const logOutAction = () => {
 export const addNotificationAction = (message, type) => {
   return async (dispatch: Dispatch<Action>) => {
     try {
-      
-
       dispatch({
         type: ActionType.ADD_NOTIFICATION,
-        payload: {type: type, message: message, timeout: 5000, asPortal: false, withTimeout: true},
+        payload: {
+          type: type,
+          message: message,
+          timeout: 5000,
+          asPortal: false,
+          withTimeout: true,
+        },
       });
-     
-     
-      return ;
+
+      return;
     } catch (err) {
       console.log(err);
-      return ;
+      return;
     }
   };
 };
-
 
 export const getProfileData = (payload: any) => {
   return async (dispatch: Dispatch<Action>) => {
@@ -198,7 +248,7 @@ export const getProfileData = (payload: any) => {
       // const { data } = await AxiosCustom.get(endpoints.GETPROFILEDATA, {
       //   headers,
       // });
-      console.log("STROOONG ", payload)
+      console.log("STROOONG ", payload);
       dispatch({
         type: ActionType.GETPROFILEDATA,
         payload: payload,
@@ -208,9 +258,8 @@ export const getProfileData = (payload: any) => {
       console.log(err);
       return false;
     }
-  }
-}
-
+  };
+};
 
 export interface ModalData {
   content: object;
@@ -226,7 +275,10 @@ export const openModal = (modalData: ModalData) => ({
   payload: modalData,
 });
 
-export const closeModal = ({ shouldCancel = true, shouldRefocus = true }: { shouldCancel?: boolean; shouldRefocus?: boolean } = {}) => ({
+export const closeModal = ({
+  shouldCancel = true,
+  shouldRefocus = true,
+}: { shouldCancel?: boolean; shouldRefocus?: boolean } = {}) => ({
   type: ActionType.CLOSE_MODAL,
   payload: { shouldCancel, shouldRefocus },
 });

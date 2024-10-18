@@ -1,10 +1,9 @@
 // src/components/BottomNav.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaCog, FaUser, FaBell, FaEllipsisH } from "react-icons/fa";
+
 import { Button, Paper } from "@mui/material";
-import { GMapify } from "g-mapify";
-import "g-mapify/dist/index.css";
+
 import {
   AdvancedMarker,
   APIProvider,
@@ -20,7 +19,7 @@ import { User } from "../register/registerPage";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "../../hooks/useAuth";
 import { useActions } from "../../hooks/useActions";
-import { addPoint } from "../../state/action-creators";
+
 type Poi = {
   key: string;
   location: google.maps.LatLngLiteral;
@@ -167,7 +166,7 @@ const tryAddNewPoint = async (
   await auth.setUserFull(newUserFields);
 };
 
-export const HomePage = () => {
+export const MapPage = () => {
   // const [points, setPoints] = useState<Poi[]>([]);
   const { addPoint } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
