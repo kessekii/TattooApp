@@ -580,7 +580,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme
   };
   const posts = useMemo(
     () =>
-      Object.keys(user.posts).map((post) => (
+      user.posts && user.posts.length > 0 && Object.keys(user.posts).map((post) => (
         <Post key={post}>
           <PostImage
             src={user.posts[post].image}
@@ -737,8 +737,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme
   };
 
   const handleFollow = () => {
-    setIsFollowing(!isFollowing);
-    const updatedFriends = isFollowing ? user.friends.filter((friend) => friend.username !== username)
+    setIsFollowing(!(user.friends?.filter((friend) => friend.username === username).length > 0));
+
+    const updatedFriends = isFollowing ? user.friends && user.friends.length > 0 ? user.friends.filter((friend) => friend.username !== username)
       : [
         ...user.friends,
         {
@@ -746,7 +747,11 @@ const ProfilePageComponent: React.FC<any> = ({ theme
           nickname: user.name,
           username: user.username,
         },
-      ];
+      ] : [{
+        avatar: user.profilePicture,
+        nickname: user.name,
+        username: user.username,
+      }]
 
     // setProfileData((prevProfile) => ({
     //   ...prevProfile,
