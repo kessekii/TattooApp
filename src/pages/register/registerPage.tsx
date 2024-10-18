@@ -10,7 +10,10 @@ import { useToast } from "../../hooks/useToast";
 // import { Button } from "../components/Button";
 import { Form, Link, Outlet, useNavigate } from "react-router-dom";
 import { useActions } from "../../hooks/useActions";
-import { Button, Input } from "@mui/material";
+import { Button, Input, Typography } from "@mui/material";
+import { LoginButton, LoginComponent, LoginPageWrapper, LoginWrapper, TitleComponent } from "../login/loginPageComponents";
+import { useTheme } from "../../state/providers/themeProvider";
+
 export interface Comment {
   author: string;
   text: string;
@@ -79,6 +82,7 @@ export interface User {
 export const RegisterPage = () => {
   const auth = useAuth();
   const toast = useToast();
+  const { themevars } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -100,28 +104,85 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div>
-      <Input
-        type="email"
-        placeholder={"register.email"}
-        value={email}
-        onChange={(e: any) => setEmail(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder={"register.password"}
-        value={password}
-        onChange={(e: any) => setPassword(e.target.value)}
-      />
-      <Input
-        type="username"
-        placeholder={"register.username"}
-        value={username}
-        onChange={(e: any) => setUsername(e.target.value)}
-      />
-      <Button onClick={handleRegister}>{"register.register"}</Button>
-      <Link to="/login">{"register.login"}</Link>
-    </div>
+
+    <LoginPageWrapper>
+      <TitleComponent>TATTOO APP</TitleComponent>
+      <LoginWrapper>
+        <Typography style={{ marginBottom: '20px' }}>{"Register new account"}</Typography>
+        <LoginComponent
+          variant="filled"
+          id="login"
+          key="login-form"
+          label="Username"
+          placeholder="kiseki"
+          inputProps={{
+            style: {
+              color: themevars.text, // Access theme's text color
+            },
+          }}
+          InputLabelProps={{
+            style: {
+              color: themevars.text,
+              fontSize: "12px",
+            },
+          }}
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
+          value={email}
+        />
+        <LoginComponent
+          variant="filled"
+          id="standard-password-input"
+          label="Password"
+          type="password"
+          key="password-form"
+          inputProps={{
+            style: {
+              color: themevars.text, // Access theme's text color
+            },
+          }}
+          InputLabelProps={{
+            style: {
+              color: themevars.text,
+              fontSize: "12px",
+            },
+          }}
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+        />
+        <LoginComponent
+          variant="filled"
+          id="standard-username-input"
+          label="Username"
+          type="username"
+          key="username-form"
+          inputProps={{
+            style: {
+              color: themevars.text, // Access theme's text color
+            },
+          }}
+          InputLabelProps={{
+            style: {
+              color: themevars.text,
+              fontSize: "12px",
+            },
+          }}
+          onChange={(e) => setUsername(e.target.value)}
+          value={username}
+        />
+        <LoginButton variant="contained"
+          size="large" style={{ marginTop: '50px' }} onClick={handleRegister}>{"Sign Up"}</LoginButton>
+        <LoginButton
+          style={{ marginTop: '5px' }}
+          variant="contained"
+          size="large"
+          onClick={() => navigate("/")}
+        >
+          Log In
+        </LoginButton>
+      </LoginWrapper>
+    </LoginPageWrapper>
   );
 };
 export default RegisterPage;
