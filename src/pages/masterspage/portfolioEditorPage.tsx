@@ -154,7 +154,7 @@ const PortfolioEditorPage: React.FC = () => {
   const { updateUser } = useActions();
   const { themevars } = useTheme(); // Accessing the theme
   const [errorMessage, setErrorMessage] = useState("");
-  const [profile, setProfile] = useState(user);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNewImage, setIsNewImage] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -191,7 +191,7 @@ const PortfolioEditorPage: React.FC = () => {
   // Handle dragging and dropping images
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
-    const reorderedImages = [...user.posts];
+    const reorderedImages = user.posts;
     const sourceIndex = result.source.index;
     const destinationIndex = result.destination.index;
     [reorderedImages[sourceIndex], reorderedImages[destinationIndex]] = [
@@ -201,7 +201,7 @@ const PortfolioEditorPage: React.FC = () => {
 
     updateUser({ ...user, posts: reorderedImages }, setErrorMessage);
     setUser({ ...user, posts: reorderedImages });
-    setProfile({ ...user, posts: reorderedImages });
+    // setProfile({ ...user, posts: reorderedImages });
   };
 
   const handleSavePortfolio = (navigateBack: boolean) => {
@@ -217,13 +217,14 @@ const PortfolioEditorPage: React.FC = () => {
         description: newImage.caption,
         comments: [],
       };
-      updatedProfileData.posts = [...user.posts, newPost];
+      let pos = user.posts ? user.posts : [];
+      updatedProfileData.posts = pos.length > 0 ? [...pos, newPost] : [newPost];
     }
 
     updateUser(updatedProfileData, setErrorMessage);
     setUser(updatedProfileData);
     setIsNewImage(false);
-    setProfile(updatedProfileData);
+
     if (navigateBack) {
       navigate("/" + user.username);
       closeModal();
@@ -240,7 +241,7 @@ const PortfolioEditorPage: React.FC = () => {
     updateUser(updatedProfileData, setErrorMessage);
     setIsDeleteModalOpen(false); // Close confirmation modal
     setUser(updatedProfileData);
-    setProfile(updatedProfileData);
+
   };
 
   // Open delete confirmation modal
@@ -294,7 +295,7 @@ const PortfolioEditorPage: React.FC = () => {
 
         {isModalOpen && (
           <>
-            <PopupOverlay onClick={closeModal} >
+            <PopupOverlay  >
               <PopupContent theme={themevars.popup}>
                 <h2>{editingIndex === null ? "Add New Image" : "Edit Image"}</h2>
                 {editingIndex !== null && newImage.src && (
@@ -316,7 +317,7 @@ const PortfolioEditorPage: React.FC = () => {
                     setNewImage({ ...newImage, caption: e.target.value })
                   }
                 />
-                <SaveButton onClick={() => handleSavePortfolio(false)}>
+                <SaveButton onClick={() => handleSavePortfolio(true)}>
                   Save
                 </SaveButton>
                 <CancelButton onClick={closeModal}>Cancel</CancelButton>

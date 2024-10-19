@@ -4,184 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import useLocalStorage from "../../../src/hooks/useLocalStorage";
 import { useActions } from "../../../src/hooks/useActions";
+import { useTheme } from "../../state/providers/themeProvider";
+import { Caption, CommentAuthor, CommentInput, CommentItem, CommentList, CommentSection, CommentSubmitButton, CommentText, CommentsContent, CommentsPopup, Description, LikeButton, LikeIcon, LikeSection, PortfolioPage, PostDetails, PostImage, PostWrapper, UserAvatar, UserName, UserSection } from "./profileVIewPageComponents";
+import { EditButton } from "./masterPage";
 
-const PortfolioPage = styled.div`
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 90vh;
-  overflow-y: scroll;
-  background-color: #fafafa;
-  color: black;
-`;
-
-const PostWrapper = styled.div`
-  width: 100%;
-  max-width: 600px;
-  height: 100vh;
-  background: white;
-  border-bottom: 1px solid #dbdbdb;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  size: content-fit;
-  color: black;
-`;
-
-const PostImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  color: black;
-`;
-
-const PostDetails = styled.div`
-  padding: 10px 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
-  color: black;
-`;
-
-const UserSection = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  color: black;
-`;
-
-const UserAvatar = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-`;
-
-const UserName = styled.div`
-  font-weight: bold;
-  color: black;
-`;
-
-const Description = styled.p`
-  margin-top: 10px;
-  font-size: 14px;
-`;
-
-const Caption = styled.div`
-  font-size: 14px;
-  margin-top: 10px;
-  color: black;
-`;
-
-const CommentSection = styled.div`
-  font-size: 14px;
-  margin-top: 10px;
-  cursor: pointer;
-  color: #8e8e8e;
-`;
-
-const LikeSection = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-const LikeButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #262626;
-  display: flex;
-  align-items: center;
-`;
-
-const LikeIcon = styled.span`
-  font-size: 18px;
-  margin-right: 5px;
-`;
-
-const CommentsPopup = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const CommentsContent = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  position: relative;
-  color: black;
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-`;
-
-const CommentList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const CommentItem = styled.li`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #dbdbdb;
-  padding-bottom: 10px;
-`;
-
-const CommentAuthor = styled.span`
-  font-weight: bold;
-  margin-right: 5px;
-`;
-
-const CommentText = styled.p`
-  margin-top: 5px;
-  color: black;
-`;
-
-const CommentInput = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
-  border: 1px solid #dbdbdb;
-`;
-
-const CommentSubmitButton = styled.button`
-  margin-top: 10px;
-  padding: 10px 20px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-`;
 
 
 const PortfolioViewPage: React.FC = ({
@@ -196,7 +22,7 @@ const PortfolioViewPage: React.FC = ({
   );
   const [newComment, setNewComment] = useState(""); // To hold new comment input
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
-
+  const { themevars } = useTheme()
   const postData = useTypedSelector((state) =>
     state.profile.posts.find((post) => post.id === selectedPostId)
   );
@@ -234,8 +60,8 @@ const PortfolioViewPage: React.FC = ({
       //     }
       // })
 
-      const filteredPost = user.posts[selectedPostId];
-      const chat = chats[filteredPost.chatId];
+      const filteredPost = user && user.posts ? user.posts[selectedPostId] : [];
+      const chat = chats ? chats[filteredPost.chatId] : [];
       console.log(chat, selectedPostId);
       if (chat) {
         if (chat.messages && chat.messages?.length > 0) {
@@ -326,8 +152,8 @@ const PortfolioViewPage: React.FC = ({
                 {user.posts[post].description}
               </Caption>
 
-              {chats[user.posts[post].chatId] ? (
-                <CommentSection onClick={() => handleCommentsClick(post)}>
+              {chats && chats[user.posts[post].chatId] ? (
+                <CommentSection theme={themevars} onClick={() => handleCommentsClick(post)}>
                   {chats[user.posts[post].chatId].messages.length === 0 ? (
                     <>No comments yet</>
                   ) : (
@@ -364,12 +190,12 @@ const PortfolioViewPage: React.FC = ({
             {showCommentsPopup === post && (
               <CommentsPopup>
                 <CommentsContent>
-                  <CloseButton onClick={handleCloseCommentsPopup}>
+                  <EditButton onClick={handleCloseCommentsPopup}>
                     X
-                  </CloseButton>
-                  <h2 style={{ color: "black" }}>Comments</h2>
+                  </EditButton>
+                  <h2 style={{ color: themevars.text }}>Comments</h2>
                   <CommentList>
-                    {chats[user.posts[post].chatId]?.messages &&
+                    {chats && chats[user.posts[post].chatId]?.messages &&
                       chats[user.posts[post].chatId].messages.length > 0 ? (
                       chats[user.posts[post].chatId].messages.map(
                         (comment, index) => (

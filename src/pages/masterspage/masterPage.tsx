@@ -421,10 +421,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme
     location: "",
   });
   const [isFollowing, setIsFollowing] = useState<boolean>(
-    user.friends?.filter((friend) => friend.username === username).length > 0
+    user && user.friends && user.friends.length > 0 ? user.friends?.filter((friend) => friend.username === username).length > 0 : false
   );
-  const [friendFollowing, setFriendFollowing] = useState(
-    new Array(user.friends?.length).fill(false)
+  const [friendFollowing, setFriendFollowing] = useState(user && user.friends && user.friends.length > 0 ?
+    new Array(user.friends?.length).fill(false) : []
   );
 
   const { updateUser } = useActions();
@@ -467,10 +467,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme
   };
 
   const handleReviewSubmit = () => {
-    const updatedReviews = [
+    const updatedReviews = user.reviews && user.reviews.length > 0 ? [
       ...user.reviews,
       { photo: user.image, nickname: user.username, ...newReview },
-    ];
+    ] : [{ photo: user.image, nickname: user.username, ...newReview }];
     // setProfileData({
     //   ...user,
     //   reviews: updatedReviews,
@@ -580,7 +580,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme
   };
   const posts = useMemo(
     () =>
-      user.posts && user.posts.length > 0 && Object.keys(user.posts).map((post) => (
+      user && user.posts && user.posts.length > 0 && Object.keys(user.posts).map((post) => (
         <Post key={post}>
           <PostImage
             src={user.posts[post].image}
@@ -737,7 +737,14 @@ const ProfilePageComponent: React.FC<any> = ({ theme
   };
 
   const handleFollow = () => {
-    setIsFollowing(!(user.friends?.filter((friend) => friend.username === username).length > 0));
+    if (user && user.friends && user.friends.length > 0) {
+
+      setIsFollowing(!(user.friends?.filter((friend) => friend.username === username).length > 0))
+    } else {
+      setIsFollowing(false)
+    }
+
+
 
     const updatedFriends = isFollowing ? user.friends && user.friends.length > 0 ? user.friends.filter((friend) => friend.username !== username)
       : [
@@ -806,13 +813,13 @@ const ProfilePageComponent: React.FC<any> = ({ theme
             </InfoGrid>
           ) : (
             <InfoGrid>
-              <ProfilePicture theme={themevars} src={user.profilePicture} alt="Profile Picture" />
-              <div>
-                <h1>{user.name}</h1>
+              <ProfilePicture theme={themevars} src={user && user.profilePicture ? user.profilePicture : ""} alt="Profile Picture" />
+              {user && user.name && user.description && user.location && (<div>
+                <h1>{user && user.name}</h1>
 
                 <p style={{ color: "black" }}>{user.description}</p>
                 <p style={{ color: "black" }}>Location: {user.location}</p>
-              </div>
+              </div>)}
             </InfoGrid>
           )}
 
@@ -850,7 +857,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme
                     Social Media Links
                   </EditButton>
                   <EditButton theme={themevars} onClick={() => setShowReviews(true)}>
-                    Show Reviews ({user.reviews?.length})
+                    Show Reviews ({user && user.reviews && user.reviews?.length})
                   </EditButton>
                 </>
               )
@@ -860,7 +867,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme
                   master
                 </EditButton>
                 <EditButton theme={themevars} onClick={() => setShowReviews(true)}>
-                  Show Reviews ({user.reviews?.length})
+                  Show Reviews ({user && user.revies && user.reviews?.length > 0 ? user.reviews?.length : 0})
                 </EditButton>
 
                 <FollowButton theme={themevars} following={isFollowing} onClick={handleFollow}>
@@ -877,7 +884,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme
                 <FriendsSection theme={themevars} >
                   <h2>Friends</h2>
                   <FriendsAvatars theme={themevars}>
-                    {user.friends
+                    {user && user.reviews && user.reviews?.length && user.friends
                       ?.slice(0, 3)
                       .map((friend, index) => (
                         <FriendAvatar

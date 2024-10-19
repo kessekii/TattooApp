@@ -35,43 +35,49 @@ const RepositoriesList = () => {
 
 
   const tryLogin = async () => {
-    loginAction(
-      { username: loginF, password, setUser },
-      setErrorMessage
-    );
-    await auth.login(password, loginF);
-    await auth.setUserFull(user);
-    const userDataUpdated = (await getProfileData(loginF)).payload;
-    const GetChatsObject = async () => {
-      let chatsObject: any = {};
+    try {
 
-      for (let chatId of Object.keys(userDataUpdated.chats)) {
-        const chatData = await getChatByChatId(chatId, loginF);
-        chatsObject[chatId] = chatData.payload;
-      }
-      return chatsObject;
-    };
-    if (userDataUpdated.chats && userDataUpdated.chats.length > 0) {
-      let chatsObject = await GetChatsObject();
-      console.log(
-        "SKJDB:KSADUB:AKBJD:KASJBDA:SJDBVABD",
-        chatsObject,
-        userDataUpdated
+      loginAction(
+        { username: loginF, password, setUser },
+        setErrorMessage
       );
-      let pointsObject: any = {};
-      for (let pointId of Object.keys(userDataUpdated.points)) {
-        const pointData = await getPointByPointId(pointId);
-        pointsObject[pointId] = pointData.payload;
+      await auth.login(password, loginF);
+      await auth.setUserFull(user);
+      const userDataUpdated = (await getProfileData(loginF)).payload;
+      const GetChatsObject = async () => {
+        let chatsObject: any = {};
+
+        for (let chatId of Object.keys(userDataUpdated.chats)) {
+          const chatData = await getChatByChatId(chatId, loginF);
+          chatsObject[chatId] = chatData.payload;
+        }
+        return chatsObject;
+      };
+      if (userDataUpdated && userDataUpdated.chats && userDataUpdated.chats.length > 0) {
+        let chatsObject = await GetChatsObject();
+        console.log(
+          "SKJDB:KSADUB:AKBJD:KASJBDA:SJDBVABD",
+          chatsObject,
+          userDataUpdated
+        );
+        let pointsObject: any = {};
+        for (let pointId of Object.keys(userDataUpdated.points)) {
+          const pointData = await getPointByPointId(pointId);
+          pointsObject[pointId] = pointData.payload;
+        }
+
+        setUser(userDataUpdated);
+        setChats(chatsObject);
+        setPoints(pointsObject);
+        await auth.setUserFull(userDataUpdated);
+
+        navigate("/map");
       }
-
-      setUser(userDataUpdated);
-      setChats(chatsObject);
-      setPoints(pointsObject);
-      await auth.setUserFull(userDataUpdated);
-
       navigate("/map");
+    } catch (error) {
+      console.log("Error", error);
     }
-    navigate("/map");
+
   };
 
   useEffect(() => {
