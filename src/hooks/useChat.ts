@@ -24,10 +24,13 @@ export const getChatByChatId = async (chatId: string, username: string) => {
     console.log("error", error);
   }
 };
-export const getPointByPointId = async (pointId: string) => {
+export const getPointByQuadIdAndPointId = async (
+  quadId: string,
+  pointId: string
+) => {
   try {
     const response = await fetch(
-      "http://localhost:4000/points/getPointByPointId",
+      "http://localhost:4000/points/getPointByQuadIdAndPointId",
       {
         method: "POST",
         headers: {
@@ -35,7 +38,7 @@ export const getPointByPointId = async (pointId: string) => {
           Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ pointId: pointId }),
+        body: JSON.stringify({ quadId: quadId, pointId: pointId }),
       }
     );
 
@@ -93,7 +96,7 @@ export const getPointsInRadius = async (location: any, radius: any) => {
     console.log("error", error);
   }
 };
-export const deletePointbyPointId = async (pointId: string) => {
+export const deletePointbyPointId = async (quadId: string, pointId: string) => {
   try {
     const response = await fetch(
       "http://localhost:4000/points/deletePointbyPointId",
@@ -104,7 +107,7 @@ export const deletePointbyPointId = async (pointId: string) => {
           Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ pointId: pointId }),
+        body: JSON.stringify({ quadId: quadId, pointId: pointId }),
       }
     );
 

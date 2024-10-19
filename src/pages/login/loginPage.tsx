@@ -19,7 +19,10 @@ import {
 import AxiosCustom from "../../utils/Axios";
 import { useAuth } from "../../hooks/useAuth";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import { getChatByChatId, getPointByPointId } from "../../../src/hooks/useChat";
+import {
+  getChatByChatId,
+  getPointByQuadIdAndPointId,
+} from "../../../src/hooks/useChat";
 
 const RepositoriesList = () => {
   const auth = useAuth();
@@ -85,9 +88,11 @@ const RepositoriesList = () => {
       userDataUpdated
     );
     let pointsObject: any = {};
-    for (let pointId of Object.keys(userDataUpdated.points)) {
-      const pointData = await getPointByPointId(pointId);
-      pointsObject[pointId] = pointData.payload;
+    for (let quadId of Object.keys(userDataUpdated.points)) {
+      for (let pointId of userDataUpdated.points[quadId]) {
+        const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
+        pointsObject[pointId] = pointData.payload;
+      }
     }
 
     setUser(userDataUpdated);

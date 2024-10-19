@@ -22,7 +22,7 @@ import { useActions } from "../../hooks/useActions";
 import {
   createPointByUsername,
   deletePointbyPointId,
-  getPointByPointId,
+  getPointByQuadIdAndPointId,
   getPointsInRadius,
 } from "../../../src/hooks/useChat";
 
@@ -36,6 +36,7 @@ type Poi = {
 };
 const PoiMarker = (props: {
   point: any;
+  pointId: any;
   user: any;
   setUser: any;
   tryRemovingAPoint: any;
@@ -48,7 +49,7 @@ const PoiMarker = (props: {
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
-    if (props.point && props.focusedPoint === props.point.pointId) {
+    if (props.point && props.focusedPoint === props.point?.pointId) {
       setIsVisible(true);
     } else {
       setIsVisible(false);
@@ -61,11 +62,15 @@ const PoiMarker = (props: {
   console.log(props.point);
   return (
     <AdvancedMarker
-      key={props.point.pointId}
-      position={{
-        lat: props.point.location._latitude,
-        lng: props.point.location._longitude,
-      }}
+      key={props.pointId}
+      position={
+        props.point && props.point?.location
+          ? {
+              lng: props.point?.location?.lng,
+              lat: props.point?.location?.lat,
+            }
+          : undefined
+      }
       onMouseEnter={() => {
         if (props.focusedPoint === null) setIsVisible(true);
       }}
@@ -73,8 +78,7 @@ const PoiMarker = (props: {
         if (props.focusedPoint === null) setIsVisible(false);
       }}
       onClick={() => {
-        if (props.focusedPoint === null)
-          props.setfocusedPoint(props.point.pointId);
+        if (props.focusedPoint === null) props.setfocusedPoint(props.pointId);
       }}
     >
       <div
@@ -85,7 +89,7 @@ const PoiMarker = (props: {
           background: isVisible ? "white" : "black",
         }}
       >
-        {isVisible && props.point.icon !== "" && props.point.icon && (
+        {isVisible && props.point?.icon !== "" && (
           <Paper
             style={{
               zIndex: "1",
@@ -95,15 +99,15 @@ const PoiMarker = (props: {
             }}
             onClick={() => {
               if (props.focusedPoint === null)
-                props.setfocusedPoint(props.point.pointId);
+                props.setfocusedPoint(props.point?.pointId);
             }}
           ></Paper>
         )}
         {isVisible && (
           <>
-            <Typography color="black">{props.point.data?.name}</Typography>
+            <Typography color="black">{props.point?.data?.name}</Typography>
             <Typography color="black">
-              {props.point.data?.discription}
+              {props.point?.data?.discription}
             </Typography>
             <Button
               onClick={async () => {
@@ -139,14 +143,19 @@ const tryRemovingAPoint = async (
   const headers = {
     Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
   };
-
-  const userData = (await deletePointbyPointId(point.pointId)).payload;
-  console.log("EEEE", userData);
+  const point_lat = point.location.lat.toFixed(2).toString();
+  const point_lng = point.location.lng.toFixed(2).toString();
+  const coord = point_lat + ":" + point_lng;
+  const userData = (await deletePointbyPointId(coord, point.pointId)).payload;
+  // console.log("EEEE", userData);
   let pointsObject: any = {};
-  for (let pointId of Object.keys(userData.points)) {
-    const pointData = await getPointByPointId(pointId);
-    pointsObject[pointId] = pointData.payload;
+  for (let quadId of Object.keys(userData.points)) {
+    for (let pointId of userData.points[quadId]) {
+      const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
+      pointsObject[pointId] = pointData.payload;
+    }
   }
+
   setUser(userData);
   setPoints(pointsObject);
   await auth.setUserFull(userData);
@@ -163,17 +172,20 @@ const tryAddNewPoint = async (
   setPoints: any
 ) => {
   const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
-  // console.log(user);
-  const newUserData = await createPointByUsername(
-    userU.username,
-    ev.detail.latLng!
-  );
-  console.log(userU);
+  console.log("????????", user);
+  const newUserData = (
+    await createPointByUsername(user.username, ev.detail.latLng!)
+  ).payload;
+
   let pointsObject: any = {};
-  for (let pointId of Object.keys(newUserData.points)) {
-    const pointData = await getPointByPointId(pointId);
-    pointsObject[pointId] = pointData.data().payload;
+  console.log(newUserData.points);
+  for (let quadId of Object.keys(newUserData?.points || {})) {
+    for (let pointId of newUserData.points[quadId]) {
+      const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
+      pointsObject[pointId] = pointData.payload;
+    }
   }
+  console.log(newUserData, pointsObject);
   setUser(newUserData);
   setPoints(pointsObject);
   await auth.setUserFull(newUserData);
@@ -201,10 +213,11 @@ export const MapPage = () => {
 
   const pointsStates = useMemo(
     () =>
-      Object.keys(points).map((pointId: any) => {
+      Object.keys(points || {}).map((pointId: any) => {
         return (
           <PoiMarker
             key={pointId}
+            pointId={pointId}
             point={points[pointId]}
             user={user}
             setUser={setUser}
@@ -252,21 +265,18 @@ export const MapPage = () => {
               ev.detail.zoom
             );
             setCameraLocation(ev.detail.center);
-            const pointsInRadius = await getPointsInRadius(
-              ev.detail.center,
-              1.1
-            );
+
+            const pointsInRadius = (
+              await getPointsInRadius(ev.detail.center, 1.8)
+            ).payload;
             console.log("pointsInRadius", pointsInRadius);
             let inumeratel = user;
-            inumeratel.points = pointsInRadius.payload;
+            inumeratel.points = pointsInRadius;
             setUser(inumeratel);
-            setPoints(pointsInRadius.payload);
+            setPoints(pointsInRadius);
           }}
           onClick={(ev) => {
-            const userRef = {};
-            Object.assign(userRef, user);
             if (focusedPoint === null) {
-              console.log("user", user);
               tryAddNewPoint(
                 ev,
                 user,
