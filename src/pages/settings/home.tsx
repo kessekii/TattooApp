@@ -55,11 +55,11 @@ const PoiMarker = (props: {
       setIsVisible(false);
     }
   }, [props.focusedPoint]);
-  console.log(JSON.stringify(props.point));
+  // console.log(JSON.stringify(props.point));
   // if (!props.point.location) {
   //   return <></>;
   // }
-  console.log(props.point);
+  // console.log(props.point);
   return (
     <AdvancedMarker
       key={props.pointId}
@@ -161,7 +161,25 @@ const tryRemovingAPoint = async (
   await auth.setUserFull(userData);
   // setFocusedPoint(null);
 };
+const calcCrow = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  var R = 6371; // km
+  var dLat = toRad(lat2 - lat1);
+  var dLon = toRad(lon2 - lon1);
+  var lat1 = toRad(lat1);
+  var lat2 = toRad(lat2);
 
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c;
+  return d;
+};
+
+// Converts numeric degrees to radians
+const toRad = (value: number) => {
+  return (value * Math.PI) / 180;
+};
 const tryAddNewPoint = async (
   ev: any,
   user: any,
@@ -169,23 +187,25 @@ const tryAddNewPoint = async (
   setErrorMessage: any,
   auth: any,
   addPoint: any,
-  setPoints: any
+  setPoints: any,
+  setCameraUpdateLock: any
 ) => {
   const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
-  console.log("????????", user);
+  // console.log("????????", user);
   const newUserData = (
     await createPointByUsername(user.username, ev.detail.latLng!)
   ).payload;
 
-  let pointsObject: any = {};
-  console.log(newUserData.points);
-  for (let quadId of Object.keys(newUserData?.points || {})) {
-    for (let pointId of newUserData.points[quadId]) {
-      const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
-      pointsObject[pointId] = pointData.payload;
-    }
-  }
-  console.log(newUserData, pointsObject);
+  // let pointsObject: any = {};
+  // console.log(newUserData.points);
+  const pointsObject = await getPointsInRadius(ev.detail.latLng!, false);
+  // for (let quadId of Object.keys(newUserData?.points || {})) {
+  //   for (let pointId of newUserData.points[quadId]) {
+  //     const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
+  //     pointsObject[pointId] = pointData.payload;
+  //   }
+  // }
+
   setUser(newUserData);
   setPoints(pointsObject);
   await auth.setUserFull(newUserData);
@@ -197,14 +217,51 @@ export const MapPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [user, setUser] = useLocalStorage("user", {});
   const [points, setPoints] = useLocalStorage("points", {});
+  const [cameraUpdateLock, setCameraUpdateLock] = useState(false);
   const [focusedPoint, setfocusedPoint] = useState<any>(null);
   const [cameraLocation, setCameraLocation] = useState({
     lat: 32.02119878251853,
     lng: 34.74333323660794,
   });
+  // useEffect(() => {
+  //   setCameraUpdateLock(false);
+  // }, [cameraLocation]);
 
   const auth = useAuth();
+  const handleCameraRefresh = async (
+    ev: MapCameraChangedEvent,
+    cameraUpdateLock: boolean,
+    setCameraUpdateLock: any
+  ) => {
+    if (cameraUpdateLock) {
+      return;
+    }
 
+    // console.log("camera changed:", ev.detail.center, "zoom:", ev.detail.zoom);
+    const distance = calcCrow(
+      ev.detail.center.lat,
+      ev.detail.center.lng,
+      cameraLocation.lat,
+      cameraLocation.lng
+    );
+    // console.log(distance);
+    if (distance > 0.7) {
+      setCameraUpdateLock(true);
+
+      const pointsInRadius = (
+        await getPointsInRadius(ev.detail.center, cameraUpdateLock)
+      ).payload;
+      // console.log("pointsInRadius", pointsInRadius);
+      // let inumeratel = user;
+      // inumeratel.points = pointsInRadius;
+      if (pointsInRadius) {
+        setCameraUpdateLock(false);
+      }
+      setUser(user);
+      setPoints(pointsInRadius);
+      setCameraLocation(ev.detail.center);
+    }
+  };
   // useEffect(() => {
   //   if (!user) {
   //     setUser(Object.assign({}, user));
@@ -257,23 +314,14 @@ export const MapPage = () => {
           defaultZoom={15}
           mapId={"d4d9dfa4fa686c88"}
           defaultCenter={{ lat: 32.02119878251853, lng: 34.74333323660794 }}
-          onCameraChanged={async (ev: MapCameraChangedEvent) => {
-            console.log(
-              "camera changed:",
-              ev.detail.center,
-              "zoom:",
-              ev.detail.zoom
-            );
-            setCameraLocation(ev.detail.center);
-
-            const pointsInRadius = (
-              await getPointsInRadius(ev.detail.center, 1.8)
-            ).payload;
-            console.log("pointsInRadius", pointsInRadius);
-            // let inumeratel = user;
-            // inumeratel.points = pointsInRadius;
-            setUser(user);
-            setPoints(pointsInRadius);
+          onCameraChanged={async (e) => {
+            if (!cameraUpdateLock) {
+              await handleCameraRefresh(
+                e,
+                cameraUpdateLock,
+                setCameraUpdateLock
+              );
+            }
           }}
           onClick={(ev) => {
             if (focusedPoint === null) {
@@ -285,7 +333,8 @@ export const MapPage = () => {
                 setErrorMessage,
                 auth,
                 addPoint,
-                setPoints
+                setPoints,
+                setCameraUpdateLock
               );
             } else {
               setfocusedPoint(null);

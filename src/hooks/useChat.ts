@@ -74,7 +74,7 @@ export const createPointByUsername = async (
     console.log("error", error);
   }
 };
-export const getPointsInRadius = async (location: any, radius: any) => {
+export const getPointsInRadius = async (location: any, blocked: any) => {
   try {
     const response = await fetch(
       "http://localhost:4000/points/getPointsInRadius",
@@ -85,12 +85,13 @@ export const getPointsInRadius = async (location: any, radius: any) => {
           Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ coordOfCenter: location, radius: radius }),
+        body: JSON.stringify({ coordOfCenter: location, blocked: blocked }),
       }
     );
 
     const result = await response.json();
-    console.log(result);
+
+    // console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
