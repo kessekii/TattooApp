@@ -183,14 +183,9 @@ const CommentSubmitButton = styled.button`
   cursor: pointer;
 `;
 
-interface PortfolioViewProps {
-  profileData: any;
-  setProfileData: (data: any) => void;
-}
 
-const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
-  profileData,
-  setProfileData,
+const PortfolioViewPage: React.FC = ({
+
 }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
@@ -245,13 +240,27 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
       if (chat) {
         if (chat.messages && chat.messages?.length > 0) {
           console.log("not first");
+          const newPost = {
+            ...filteredPost,
+            comments: [
+              ...filteredPost.comments,
+              { author: user.username, text: newComment },
+            ],
+          };
+          const updatedProfileData = { ...user };
+          const otherPosts = user.posts.filter(
+            (post) => post.id !== selectedPostId
+          );
+          updatedProfileData.posts = [...otherPosts, newPost];
+
+          updateUser(updatedProfileData, setErrorMessage);
 
           chat.messages.push({
             author: user.username,
             text: newComment,
           });
 
-          const updatedProfileData = { ...user };
+
 
           updatedProfileData.posts[selectedPostId];
           // setProfileData(updatedProfileData);
@@ -263,11 +272,18 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
           setChats(chats);
         } else if (chats && !chats.messages) {
           console.log("first");
-          chat.messages = [{ author: user.username, text: newComment }];
-
+          const newPost = {
+            ...filteredPost,
+            comments: [{ author: user.username, text: newComment }],
+          };
           const updatedProfileData = { ...user };
-
+          const otherPosts = user.posts.filter(
+            (post) => post.id !== selectedPostId
+          );
+          updatedProfileData.posts = [...otherPosts, newPost];
           console.log(updatedProfileData);
+
+
           // setProfileData(updatedProfileData);
           updateUser(updatedProfileData, setErrorMessage);
           updateChat(chat, filteredPost.chatId, setErrorMessage);
@@ -354,7 +370,7 @@ const PortfolioViewPage: React.FC<PortfolioViewProps> = ({
                   <h2 style={{ color: "black" }}>Comments</h2>
                   <CommentList>
                     {chats[user.posts[post].chatId]?.messages &&
-                    chats[user.posts[post].chatId].messages.length > 0 ? (
+                      chats[user.posts[post].chatId].messages.length > 0 ? (
                       chats[user.posts[post].chatId].messages.map(
                         (comment, index) => (
                           <CommentItem key={index}>

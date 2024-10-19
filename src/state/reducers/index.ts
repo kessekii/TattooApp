@@ -13,11 +13,12 @@ import userReducer from "./userReducer";
 import notifyReducer from "./notifyReducer";
 import modalReducer from "./modalReducer";
 import profileDataReducer from "./profileDataReducer";
+import newsReducer from "./newsReducer";
 
 const persistConfig = {
   key: "root",
   storage: storage,
-  whitelist: ["login", "livestreams", "livestreams/createStream", "profile", "device", "device/setCurrentBreakpoint", "device/toggleProfileMenu", "device/addMobileOverlay", "device/removeMobileOverlay", "device/setCurrentBreakpoint", "device/toggleProfileMenu", "device/addMobileOverlay", "device/removeMobileOverlay", "chat", "chat/init_messages", "chat/add_message", "chat/delete_message", "chat/delete_messages_by_user_id", "chat/set_connection_state", "chat/set_chat_capabilities", 'user', 'user/setSessionValidity', 'user/setUserData', 'notify', 'notify/addNotification', 'notify/removeNotification'],
+  whitelist: ["login", "livestreams", "livestreams/createStream", "profile", "device", "device/setCurrentBreakpoint", "device/toggleProfileMenu", "device/addMobileOverlay", "device/removeMobileOverlay", "device/setCurrentBreakpoint", "device/toggleProfileMenu", "device/addMobileOverlay", "device/removeMobileOverlay", "chat", "chat/init_messages", "chat/add_message", "chat/delete_message", "chat/delete_messages_by_user_id", "chat/set_connection_state", "chat/set_chat_capabilities", 'user', 'user/setSessionValidity', 'user/setUserData', 'notify', 'notify/addNotification', 'notify/removeNotification', 'news/get', 'news/makeEvent'],
 };
 
 export const rootReducer: Reducer<any, Action> = combineReducers({
@@ -28,6 +29,7 @@ export const rootReducer: Reducer<any, Action> = combineReducers({
   user: userReducer,
   notify: notifyReducer,
   modal: modalReducer,
+  news: newsReducer,
 });
 
 export const persistedReducer = persistReducer(persistConfig, rootReducer);

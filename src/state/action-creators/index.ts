@@ -42,6 +42,7 @@ export interface ProfileData {
   posts: Array<Post>;
   reviews: Array<Review>;
   friends: Array<Friend>;
+  events: Array<NewsItem>;
   socialLinks: Array<SocialLink>;
   calendar: Array<CalendarEntry>;
   map: Array<any>;
@@ -85,7 +86,95 @@ export interface CalendarEntry {
   hours: Array<string>;
 }
 
+export interface NewsItem {
+  id?: string;
+  title: string;
+  image: string;
+  time: string;
+  due: string;
+  category: string;
+  views: number;
+  likes: number;
+  comments: Array<{ author: string; text: string }>;
+  shares: number;
+}
+
 //------------NEWS OPERATIONS ------------
+export const getNewsAction = () => {
+  return async (dispatch: Dispatch<Action>) => {
+    try {
+      const headers = {
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+      };
+      
+     
+      // const loggetting = await AxiosCustom.post(
+      //   "http://localhost:8000",
+      //   loginParams,
+      //   {
+      //     headers,
+      //   }
+      // );
+      // console.log(loggetting.request);
+      const { data } = await AxiosCustom.get(endpoints.NEWS, {
+        headers,
+      });
+    
+
+      dispatch({
+        type: ActionType.NEWS,
+        payload: data.payload,
+      });
+      if (!data.successful) {
+        
+        return data.payload;
+      }
+     
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  };
+};
+
+export const makeEventAction = (payload: any) => {
+  return async (dispatch: Dispatch<Action>) => {
+    try {
+      const headers = {
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+      };
+      
+      
+      // const loggetting = await AxiosCustom.post(
+      //   "http://localhost:8000",
+      //   loginParams,
+      //   {
+      //     headers,
+      //   }
+      // );
+      // console.log(loggetting.request);
+      const { data } = await AxiosCustom.post(endpoints.MAKEEVENT, payload, {
+        headers,
+      });
+    
+
+      dispatch({
+        type: ActionType.MAKEEVENT,
+        payload: data.payload,
+      });
+      if (!data.successful) {
+        
+        return data.payload;
+      }
+     
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  };
+};
 
 // --------- USERS OPERATION --------
 export const loginAction = (loginParams: any, setErrorMessage: any) => {

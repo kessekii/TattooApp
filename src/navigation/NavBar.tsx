@@ -1,71 +1,85 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AppBar, Toolbar, IconButton, Box } from '@mui/material';
 import { Home, Search, Explore, FavoriteBorder, AccountCircle } from '@mui/icons-material';
 import { Outlet, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { useTypedSelector } from '../hooks/useTypedSelector';
+import { createGlobalStyle } from 'styled-components';
+import { useTheme } from '../state/providers/themeProvider';
+import { NavContainer, NavIcons } from './NavBarComponents';
+import { EditButton, PopupContent, PopupOverlay } from '../pages/masterspage/masterPage';
 
-// Styled components
-const NavContainer = styled("div")`
-  background-color: white;
-  position: fixed; /* Fixed position at the bottom */
-  bottom: 0; /* Stick to the bottom */
-  width: 100%; /* Full width */
-  
-max-height: 60px;
-  z-index: 1100;
-  box-shadow: none;
-  border-top: 1px solid #dbdbdb;
-`;
 
-const NavIcons = styled(Box)`
-  display: flex;
-  justify-content: space-around;
-  width: 100%; /* Full width for better icon spacing on mobile */
-  @media (max-width: 768px) {
-    width: 100%; /* Adjust for mobile view */
-  }
-`;
+
+// Styled components using your custom theme
+const SettingsPopupComponent = ({ onClose, toggleTheme, isDarkMode, }) => {
+  const { themevars } = useTheme()
+  return (
+    <PopupOverlay>
+      <PopupContent theme={themevars}>
+        <h2>Settings</h2>
+        <p>Choose a theme:</p>
+        <EditButton onClick={toggleTheme}>
+          {isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme"}
+        </EditButton>
+        <br />
+        <EditButton onClick={() => onClose(false)}>Close</EditButton>
+      </PopupContent>
+    </PopupOverlay >
+  );
+};
 
 const NavBar: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useTypedSelector((state) => state);
-
+  const { theme, themevars, toggleTheme } = useTheme()
+  const [openSettings, setOpenSettings] = useState(false)
   const handleNavigation = (path: string) => {
     navigate(path);
   };
 
-  return (
-    <div style={{height: "auto"}}>
-      {/* Navigation bar fixed at the bottom */}
 
-      <NavContainer position="fixed">
-        <Toolbar>
-          <NavIcons>
+
+
+
+
+  return (
+    <div style={{
+      background: themevars.background,
+      position: 'fixed',
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "top", height: '100vh', width: '100vw', margin: "auto", top: 0, left: 0,
+    }}>
+      <NavContainer theme={themevars}>
+        <Toolbar >
+          <NavIcons theme={themevars}>
             <IconButton onClick={() => handleNavigation('/')}>
-              <Home style={{ color: 'black' }} />
+              <Home style={{ color: themevars.icons.color }} />
             </IconButton>
             <IconButton onClick={() => handleNavigation('/map')}>
-              <Search style={{ color: 'black' }} />
+              <Search style={{ color: themevars.icons.color }} />
             </IconButton>
-            <IconButton onClick={() => handleNavigation('/explore')}>
-              <Explore style={{ color: 'black' }} />
+            <IconButton onClick={() => handleNavigation('/news')}>
+              <Explore style={{ color: themevars.icons.color }} />
             </IconButton>
             <IconButton onClick={() => handleNavigation('/notifications')}>
-              <FavoriteBorder style={{ color: 'black' }} />
+              <FavoriteBorder style={{ color: themevars.icons.color }} />
             </IconButton>
             <IconButton onClick={() => handleNavigation('/profile')}>
-              <AccountCircle style={{ color: 'black' }} />
+              <AccountCircle style={{ color: themevars.icons.color }} />
             </IconButton>
+            <IconButton onClick={() => setOpenSettings(true)}>
+              <AccountCircle style={{ color: themevars.icons.color }} />
+            </IconButton>
+
           </NavIcons>
         </Toolbar>
       </NavContainer>
-	<Outlet />
-      {/* Renders the content above the nav bar */}
-      
-    </div>
+      {
+        openSettings &&
+        <SettingsPopupComponent onClose={setOpenSettings} toggleTheme={toggleTheme} isDarkMode={theme == 'light'} />
+      }
+      <Outlet />
+    </div >
   );
 };
 
 export default NavBar;
-
