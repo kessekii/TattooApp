@@ -4,7 +4,7 @@ import useLocalStorage from "./useLocalStorage";
 
 export const useAuth = () => {
   const [user, setUser] = useLocalStorage("user", null);
-  const [chats, setChats] = useLocalStorage("chats", null);
+
   const login = async (username: string, password: string) => {
     try {
       setUser({ username, password });

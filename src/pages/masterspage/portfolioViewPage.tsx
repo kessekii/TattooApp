@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import useLocalStorage from "../../../src/hooks/useLocalStorage";
-import { useActions } from "../../../src/hooks/useActions";
+
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { useActions } from "../../hooks/useActions";
 import { useTheme } from "../../state/providers/themeProvider";
 import { Caption, CommentAuthor, CommentInput, CommentItem, CommentList, CommentSection, CommentSubmitButton, CommentText, CommentsContent, CommentsPopup, Description, LikeButton, LikeIcon, LikeSection, PortfolioPage, PostDetails, PostImage, PostWrapper, UserAvatar, UserName, UserSection } from "./profileVIewPageComponents";
 import { EditButton } from "./masterPage";
+import ChatComponent from "../components/chat";
+
 
 
 
@@ -23,9 +25,7 @@ const PortfolioViewPage: React.FC = ({
   const [newComment, setNewComment] = useState(""); // To hold new comment input
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
   const { themevars } = useTheme()
-  const postData = useTypedSelector((state) =>
-    state.profile.posts.find((post) => post.id === selectedPostId)
-  );
+
   const navigate = useNavigate();
 
   const handleCommentsClick = (postId: string) => {
@@ -129,7 +129,7 @@ const PortfolioViewPage: React.FC = ({
   };
 
   return (
-    <PortfolioPage>
+    <PortfolioPage theme={themevars}>
       {user &&
         Object.keys(user.posts).map((post) => (
           <PostWrapper key={post}>
@@ -189,28 +189,12 @@ const PortfolioViewPage: React.FC = ({
 
             {showCommentsPopup === post && (
               <CommentsPopup>
-                <CommentsContent>
-                  <EditButton onClick={handleCloseCommentsPopup}>
+                <CommentsContent theme={themevars.popup}>
+                  <EditButton theme={themevars.popup} onClick={handleCloseCommentsPopup}>
                     X
                   </EditButton>
                   <h2 style={{ color: themevars.text }}>Comments</h2>
-                  <CommentList>
-                    {chats && chats[user.posts[post].chatId]?.messages &&
-                      chats[user.posts[post].chatId].messages.length > 0 ? (
-                      chats[user.posts[post].chatId].messages.map(
-                        (comment, index) => (
-                          <CommentItem key={index}>
-                            <CommentAuthor>{comment?.author}</CommentAuthor>
-                            <CommentText>{comment?.text}</CommentText>
-                          </CommentItem>
-                        )
-                      )
-                    ) : (
-                      <CommentItem>
-                        <CommentText>No comments yet</CommentText>
-                      </CommentItem>
-                    )}
-                  </CommentList>
+
 
                   {/* Add New Comment */}
                   <CommentInput
@@ -226,8 +210,9 @@ const PortfolioViewPage: React.FC = ({
               </CommentsPopup>
             )}
           </PostWrapper>
-        ))}
-    </PortfolioPage>
+        ))
+      }
+    </PortfolioPage >
   );
 };
 

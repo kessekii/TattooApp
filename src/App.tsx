@@ -26,16 +26,17 @@ import PortfolioEditorPage from "./pages/masterspage/portfolioEditorPage";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { useDispatch } from "react-redux";
-import { getProfileData } from "./state/action-creators";
-import { get } from "video.js/dist/types/tech/middleware";
+
 import { MapPage } from "./pages/settings/home";
 import RegisterPage from "./pages/register/registerPage";
 import NewsFeed from "./pages/news/newsPage";
 import { createGlobalStyle, styled } from "styled-components";
 import { useTheme } from "./state/providers/themeProvider";
 
-export const GlobalStyle = createGlobalStyle<{ theme; children }>`
+
+
+
+export const GlobalStyle = createGlobalStyle < ({ theme, children }) > `
 root {
   background: ${(props) => props.theme.background};
   color: ${(props) => props.theme.text};
@@ -77,6 +78,7 @@ const App: React.FC = () => {
   // const { themevars } = useTheme()
   const [profileData, setProfileData] = useState(user);
 
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isErrorPromptOpened, setIsErrorPromptOpened] = useState(false);
 
@@ -101,15 +103,15 @@ const App: React.FC = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoutes />}>
         <Route element={<ResponsiveDrawer />}>
-          {/* NewStreamPage Route */}
+          {/* NewStreamPage Route
           <Route
             path="/newstream"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={!!user.id}>
+              <ProtectedRoute redirectPath="/login" isAllowed={user[0] && user[0].id && user[0].id}>
                 <NewStreamPage />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route path="/map" element={<MapPage />} />
           {/* Dynamic Route for Username Pages */}
           <Route
@@ -125,7 +127,7 @@ const App: React.FC = () => {
           <Route
             path="/:username/portfolioeditor"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 <PortfolioEditorPage />
               </ProtectedRoute>
             }
@@ -156,7 +158,7 @@ const App: React.FC = () => {
           <Route
             path="/news"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 <NewsFeed />
               </ProtectedRoute>
             }

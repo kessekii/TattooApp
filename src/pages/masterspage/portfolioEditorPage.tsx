@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useNavigate } from "react-router-dom";
-import useLocalStorage from "../../../src/hooks/useLocalStorage";
-import { useActions } from "../../../src/hooks/useActions";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { useActions } from "../../hooks/useActions";
 import { v4 as uuidv4 } from "uuid";
 import { useTheme } from "../../state/providers/themeProvider";
 import { PopupContent, PopupOverlay } from "./masterPage";
@@ -317,7 +317,7 @@ const PortfolioEditorPage: React.FC = () => {
                     setNewImage({ ...newImage, caption: e.target.value })
                   }
                 />
-                <SaveButton onClick={() => handleSavePortfolio(true)}>
+                <SaveButton onClick={() => handleSavePortfolio(false)}>
                   Save
                 </SaveButton>
                 <CancelButton onClick={closeModal}>Cancel</CancelButton>

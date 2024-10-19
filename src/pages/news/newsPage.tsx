@@ -268,7 +268,7 @@ const NewsFeed: React.FC = () => {
   };
 
   const [user, setUser] = useLocalStorage('user', null);
-  const news = useTypedSelector((state) => state.news);
+  const [news, setNews] = useLocalStorage('news', null);
   const { themevars } = useTheme()
   const { makeEventAction, getNewsAction } = useActions();
   const [newEvent, setNewEvent] = useState(initialNews);
@@ -307,12 +307,13 @@ const NewsFeed: React.FC = () => {
   };
 
   const handleSaveEvent = () => {
-    const newEventData = [{ ...newEvent, comments: [{ author: '', text: '' }], username: user.username, name: user.name, time: new Date() }];
+    const newEventData = { ...newEvent, comments: [{ author: '', text: '' }], username: user.username, name: user.name, time: new Date() };
     makeEventAction(newEventData);
     closeModal();
   };
 
   useEffect(() => {
+    getNewsAction();
     const slider = sliderRef.current;
     if (!slider) return;
 
@@ -377,7 +378,7 @@ const NewsFeed: React.FC = () => {
                   <DatePicker
                     label="Select Date"
                     value={selectedDate}
-                    onChange={setSelectedDate}
+                    onChange={handleDueChange}
                     renderInput={(params) => <StyledTextField  {...params} />
 
 

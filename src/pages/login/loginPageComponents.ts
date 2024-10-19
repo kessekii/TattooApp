@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Button, FormControlLabel, TextField, Typography } from '@mui/material';
 
 // Use your theme instead of MUI's theme
-export const TitleComponent = styled(Typography)`
+export const TitleComponent = styled(Typography)<({ theme })>`
   position: absolute;
   color: ${(props) => props.theme.text};
   font-family: 'Arial', sans-serif;
@@ -13,7 +13,7 @@ export const TitleComponent = styled(Typography)`
   background-color: ${(props) => props.theme.background};
 `;
 
-export const LoginPageWrapper = styled('div')`
+export const LoginPageWrapper = styled('div')<({ theme })>`
   position: relative;
   width: 100%;
   
@@ -24,7 +24,7 @@ export const LoginPageWrapper = styled('div')`
   padding-top: 10rem;
 `;
 
-export const LoginWrapper = styled('div')`
+export const LoginWrapper = styled('div')<({ theme })>`
 background-color: ${(props) => props.theme.background};
   display:flex;
   flex-direction: column;

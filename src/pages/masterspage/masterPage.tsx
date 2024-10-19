@@ -13,39 +13,56 @@ import { useActions } from "../../hooks/useActions";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { getChatByChatId } from "src/hooks/useChat";
 import { useTheme } from "../../state/providers/themeProvider";
+import { CalendarMonth, PinDrop, Reviews, Link, Add } from '@mui/icons-material';
+import { IconButton, Typography } from "@mui/material";
+import { useEditing } from "../../hooks/useEditing";
+import AngledBackgroundComponent from "../masterspage/backgroundComponent";
+import Backdrop from "../masterspage/backgroundComponent";
 
 // ProfilePage styling with dynamic background and text color
 export const ProfilePage = styled.div <({ theme }) >`
   font-family: Arial, sans-serif;
-  max-width: 935px;
+  max-width: 100%;
   margin: 0 auto;
+  width: 98%;
   padding: 5px;
   color: ${(props) => props.theme.text};
-  background-color: ${(props) => props.theme.background};
+  background: transparent;
+
+ 
 `;
 
 // ProfileHeader styling
 export const ProfileHeader = styled.div <({ theme }) >`
-  display: flex;
+  
   margin-top: 30px;
-  margin-bottom: 44px;
-  justify-content: center;
-  align-items: center;
+ 
+  min-width: 100%;
   color: ${(props) => props.theme.text};
 `;
 
 // Profile Picture with dynamic border and background
 export const ProfilePicture = styled.img<({ theme }) >`
-  width: 150px;
-  height: 150px;
+  width: 90px;
+  margin-left: 4%;
+  height: 90px;
   border-radius: 50%;
-  margin-right: 30px;
+  left: 15px;
   background-color: ${(props) => props.theme.background};
 `;
 
 // Profile Info with centered text and colors
 export const ProfileInfo = styled.div<({ theme }) >`
-  display: flex;
+
+  
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: ${(props) => props.theme.text};
+`;
+export const ProfileDescription = styled.div<({ theme }) >`
+
+  padding: 6px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -55,10 +72,10 @@ export const ProfileInfo = styled.div<({ theme }) >`
 // Edit Input with dynamic border and background
 export const EditInput = styled.input<({ theme }) >`
   border: 1px solid ${(props) => props.theme.border};
-  padding: 5px;
-  border-radius: 5px;
   margin-top: 5px;
-  max-width: 30vw;
+  border-radius: 5px;
+  
+  max-width:100%;
   background-color: ${(props) => props.theme.background};
   color: ${(props) => props.theme.text};
 `;
@@ -66,28 +83,47 @@ export const EditInput = styled.input<({ theme }) >`
 // EditButton for all buttons with dynamic background and text colors
 export const EditButton = styled.button<({ theme }) >`
   background-color: ${(props) => props.theme.buttonBackground};
-  color: ${(props) => props.theme.buttonText};
-  padding: 5px 10px;
+  color: ${(props) => props.theme.text};
+ 
   border: none;
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
-  height:50px;
-  max-height: 50px;
+  height:30px;
+  max-height: 30px;
   &:hover {
     background-color: ${(props) => props.theme.buttonText};
     color: ${(props) => props.theme.buttonBackground};
   }
 `;
 
+export const IcoButton = styled.button<({ theme }) >`
+  background-color: ${(props) => props.theme.buttonBackground};
+  color: ${(props) => props.theme.text};
+  padding: 2px 2px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  height:30px;
+  max-height: 30px;
+  margin-inline: 5px;
+  &:hover {
+    background-color: ${(props) => props.theme.buttonBackground};
+    color: ${(props) => props.theme.text};
+  }
+`;
+
 // SaveButton inheriting from EditButton with specific background
 export const SaveButton = styled(EditButton) <({ theme }) >`
   background-color: #28a745;
+  color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
 export const CancelButton = styled(EditButton) <({ theme }) >`
   background-color: #dc3545;
+  color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
@@ -98,6 +134,7 @@ export const FollowButton = styled(EditButton) <({ following }) >`
 // ProfilePosts for flex-wrapping posts
 export const ProfilePosts = styled.div`
   display: flex;
+  margin-top: 10px;
   flex-wrap: wrap;
   justify-content: space-between;
 `;
@@ -188,7 +225,14 @@ export const SocialMediaLink = styled.a`
 
 // Friends section containing avatars of friends
 export const FriendsSection = styled.div`
-  margin-top: 20px;
+  
+  display: grid;
+  gap: 10px;
+  align-items: bottom;
+  padding-inline: 5px;
+
+  justify-content: space-between;
+  grid-template-columns: repeat(2, 1fr);
 `;
 
 // Friends avatar styling
@@ -196,14 +240,28 @@ export const FriendsAvatars = styled.div`
   display: flex;
   justify-content: start;
   margin-top: 10px;
+  align-items: center;
 `;
+export const FriendsAvatarsBackdrop = styled.div`
+justify-content: start;
+margin-top: 10px;
+width: fit-content;
+height: fit-content;
+border-radius: 25px;
+background: ${({ theme }) => theme.buttonBackground};
+color: ${({ theme }) => theme.buttonText};
+
+align-items: center;
+`;
+
 
 // Individual friend avatar with circular borders
 export const FriendAvatar = styled.img`
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 7px;
+  padding: 5px;
   cursor: pointer;
 `;
 
@@ -380,18 +438,74 @@ export const ImageGrid = styled.div<({ theme }) >`
 // Info grid layout for two-column display
 export const InfoGrid = styled.div<({ theme }) >`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2 ,1fr);
   gap: 20px;
   margin-top: 20px;
+  justify-content: center;
+  align-items: center;
+  justify-items; start;
 `;
+
+export const ProfileGrid = styled.div<({ theme }) >`
+  display: grid;
+  grid-template-columns: 50% 50%;
+
+  margin-right: 5px;
+  
+  justify-content: center;
+  align-items: center;
+  justify-items; start;
+`;
+
+export const GridCell = styled.div<({ theme }) >`
+  display: grid;
+  flex-direction: row;
+  padding: 5px;
+  
+  justify-content: start;
+  margin-left: -17vw;
+  align-items: center;
+`;
+
+export const GridTwo = styled.div<({ theme }) >`
+  display: grid;
+  flex-direction: row;
+ 
+  background: ${(props) => props.theme.background};
+  grid-template-columns: 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+`;
+
 
 // Upload Input for uploading files
 export const UploadInput = styled.input<({ theme }) >`
   margin: 20px 0;
+  max-width: fit-content;
   color: ${(props) => props.theme.text};
-  background-color: ${(props) => props.theme.background};
+  background-color: ${(props) => props.theme.buttonBackground};
 `;
 
+export const IcButton = styled(IconButton) <({ theme }) >`
+  
+  color: ${(props) => props.theme.text};
+  background-color: ${(props) => props.theme.backgroundButton} !important;
+  display: flex;
+  border: 1px solid #000000,
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  background: ${(props) => props.theme.background};
+  border-radius: 50%;
+  .MuiButtonBase-root {
+    background: ${(props) => props.theme.background};
+  }
+`;
+
+export const Typefield = styled(Typography) <({ theme, bold?}) >`
+  font-weight: ${(props) => props.bold ? '700' : '500'};
+  color: ${(props) => props.theme.text};
+`;
 
 // Sample user data and login state
 
@@ -405,7 +519,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme
 
   const [loggedInUser, setLoggedInUser] = useState(false);
   const { username, postId } = useParams();
-  const [isEditing, setIsEditing] = useState(false);
+  const { isEditing, setIsEditing } = useEditing();
 
   const [editProfile, setEditProfile] = useState(user ? {
     name: user.name,
@@ -782,187 +896,216 @@ const ProfilePageComponent: React.FC<any> = ({ theme
 
   return (
     <ProfilePage theme={themevars}>
+
+      <Backdrop />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
-          {isEditing ? (
-            <InfoGrid>
-              <ProfilePicture theme={themevars} src={newImage.src} alt="Profile Picture" />
-              <UploadInput
-                theme={themevars}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-              <EditInput
-                theme={themevars}
-                type="text"
-                name="name"
-                value={editProfile.name}
-                onChange={handleInputChange}
-              />
-              <EditInput
-                theme={themevars}
-                type="text"
-                name="description"
-                value={editProfile.description}
-                onChange={handleInputChange}
-              />
-              <EditButton theme={themevars} onClick={handleLocationEditClick}>
-                Edit Location
-              </EditButton>
-            </InfoGrid>
-          ) : (
-            <InfoGrid>
-              <ProfilePicture theme={themevars} src={user && user.profilePicture ? user.profilePicture : ""} alt="Profile Picture" />
-              {user && user.name && user.description && user.location && (<div>
-                <h1>{user && user.name}</h1>
 
-                <p style={{ color: "black" }}>{user.description}</p>
-                <p style={{ color: "black" }}>Location: {user.location}</p>
-              </div>)}
-            </InfoGrid>
+          {isEditing ? (
+            <ProfileGrid>
+              <ProfilePicture theme={themevars} src={newImage.src} alt="Profile Picture" />
+              <GridCell >
+                <UploadInput
+                  theme={themevars}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <EditInput
+                  theme={themevars}
+                  type="text"
+                  name="name"
+                  value={editProfile.name}
+                  onChange={handleInputChange}
+                />
+                <EditInput
+                  theme={themevars}
+                  type="text"
+                  name="description"
+                  value={editProfile.description}
+                  onChange={handleInputChange}
+                />
+
+                <EditButton theme={themevars} onClick={handleLocationEditClick}>
+                  Edit Location
+                </EditButton>
+              </GridCell>
+            </ProfileGrid>
+          ) : (
+            <ProfileGrid>
+
+              <div>
+                <ProfilePicture theme={themevars} src={user && user.profilePicture ? user.profilePicture : ""} alt="Profile Picture" />
+
+              </div>
+
+              <GridCell>
+                {user && user.name && user.description && user.location && (<div style={{ justifyContent: "start" }}>
+
+
+
+
+                </div>)}
+              </GridCell>
+
+
+            </ProfileGrid>
           )}
 
-          <ImageGrid theme={themevars}>
-            {loggedInUser ? (
-              isEditing ? (
-                <>
-                  <SaveButton theme={themevars}
-                    onClick={async () =>
-                      await handleSaveClick(updateUser, setErrorMessage)
-                    }
-                  >
-                    Save
-                  </SaveButton>
-                  <CancelButton theme={themevars} onClick={handleCancelClick}>
-                    Cancel
-                  </CancelButton>
-                </>
-              ) : (
-                <>
-                  <EditButton theme={themevars} onClick={() => setLoggedInUser(!loggedInUser)}>
-                    master
-                  </EditButton>
-                  <EditButton theme={themevars} onClick={handleEditClick}>
-                    Edit Profile
-                  </EditButton>
-                  <EditButton theme={themevars} onClick={handleAddPhotoClick}>
-                    Add New Photo
-                  </EditButton>
-                  <EditButton theme={themevars} onClick={handleMapClick}>Open Map</EditButton>
-                  <EditButton theme={themevars} onClick={handleCalendarClick}>
-                    Open Calendar
-                  </EditButton>
-                  <EditButton theme={themevars} onClick={handleLinksClick}>
-                    Social Media Links
-                  </EditButton>
-                  <EditButton theme={themevars} onClick={() => setShowReviews(true)}>
-                    Show Reviews ({user && user.reviews && user.reviews?.length})
-                  </EditButton>
-                </>
-              )
-            ) : (
-              <>
-                <EditButton theme={themevars} onClick={() => setLoggedInUser(!loggedInUser)}>
-                  master
-                </EditButton>
-                <EditButton theme={themevars} onClick={() => setShowReviews(true)}>
-                  Show Reviews ({user && user.revies && user.reviews?.length > 0 ? user.reviews?.length : 0})
-                </EditButton>
+          <           ProfileDescription>
+            {user && user.name && user.description && user.location && (<div style={{ justifyContent: "start" }}>
+              <Typefield style={{ fontWeight: "700" }}>{user && user.name}</Typefield>
+              <Typefield style={{ fontWeight: "400", opacity: "0.5" }}>{user.location}</Typefield>
+              <Typefield style={{ color: themevars.text }}>{user.description}</Typefield>
 
-                <FollowButton theme={themevars} following={isFollowing} onClick={handleFollow}>
-                  {isFollowing ? "Unfollow" : "Follow"}
-                </FollowButton>
-                <EditButton theme={themevars} onClick={handleMapClick}>Open Map</EditButton>
-                <EditButton theme={themevars} onClick={handleCalendarClick}>
-                  Open Calendar
-                </EditButton>
-                <EditButton theme={themevars} onClick={handleLinksClick}>
-                  Social Media Links
-                </EditButton>
+            </div>)}
+          </ProfileDescription>
 
-                <FriendsSection theme={themevars} >
-                  <h2>Friends</h2>
-                  <FriendsAvatars theme={themevars}>
-                    {user && user.reviews && user.reviews?.length && user.friends
-                      ?.slice(0, 3)
-                      .map((friend, index) => (
-                        <FriendAvatar
-                          theme={themevars}
-                          key={index}
-                          src={friend.avatar}
-                          alt={friend.nickname}
-                          onClick={() => setShowFriends(true)}
-                        />
-                      ))}
-                  </FriendsAvatars>
-                </FriendsSection>
-              </>
-            )}
-          </ImageGrid>
+          {isEditing ? (
+
+
+            <GridTwo>
+              <SaveButton theme={themevars}
+                onClick={async () =>
+                  await handleSaveClick(updateUser, setErrorMessage)
+
+                }
+              >
+                Save
+              </SaveButton>
+              <CancelButton theme={themevars} onClick={handleCancelClick}>
+                Cancel
+              </CancelButton>
+            </GridTwo>
+          ) :
+            loggedInUser ?
+              <GridTwo theme={themevars}>
+
+                <IcoButton theme={themevars} onClick={handleCalendarClick} >
+                  <CalendarMonth style={{ color: themevars.icons.color }} />
+                </IcoButton>
+                <IcoButton theme={themevars} onClick={() => setShowReviews(true)} >
+                  <Reviews style={{ color: themevars.icons.color }} />
+                </IcoButton>
+
+                <IcoButton theme={themevars} onClick={handleAddPhotoClick} >
+                  <Add style={{ color: themevars.icons.color }} />
+                </IcoButton>
+                <IcoButton theme={themevars} onClick={handleMapClick} >
+                  <PinDrop style={{ color: themevars.icons.color }} />
+                </IcoButton>
+
+                <IcoButton theme={themevars} onClick={handleLinksClick} >
+                  <Link style={{ color: themevars.icons.color }} />
+                </IcoButton>
+              </GridTwo>
+
+              :
+              <GridTwo theme={themevars}>
+
+                <IcoButton theme={themevars} onClick={handleCalendarClick} >
+                  <CalendarMonth style={{ color: themevars.icons.color }} />
+                </IcoButton>
+                <IcoButton theme={themevars} onClick={() => setShowReviews(true)} >
+                  <Reviews style={{ color: themevars.icons.color }} />
+                </IcoButton>
+
+
+                <IcoButton theme={themevars} onClick={handleMapClick} >
+                  <PinDrop style={{ color: themevars.icons.color }} />
+                </IcoButton>
+                <IcoButton theme={themevars} onClick={handleLinksClick} >
+                  <Link style={{ color: themevars.icons.color }} />
+                </IcoButton>
+
+              </GridTwo>
+
+
+          }
+
         </ProfileInfo>
       </ProfileHeader>
+      <FriendsSection theme={themevars} >
+        <FriendsAvatarsBackdrop theme={themevars}>
+
+
+          <FriendsAvatars style={{ marginTop: 'unset' }} theme={themevars}>
+            <Typefield style={{ fontWeight: '700', marginLeft: "10px", padding: "5px" }}>Friends</Typefield>
+            {/* {user && user.reviews && user.reviews?.length && user.friends */}
+            {[{ nickname: 'wdwdwd', avatar: user.profilePicture }, { nickname: 'wdwdwd', avatar: user.profilePicture }, { nickname: 'wdwdwd', avatar: user.profilePicture }]
+              .map((friend, index) => (
+                <FriendAvatar
+                  theme={themevars}
+                  key={index}
+                  src={friend.avatar}
+                  alt={friend.nickname}
+                  onClick={() => setShowFriends(true)}
+                />
+              ))}
+          </FriendsAvatars>
+        </FriendsAvatarsBackdrop>
+        <FollowButton style={{ justifyItems: "end" }} theme={themevars} following={isFollowing} onClick={handleFollow}>
+          {isFollowing ? "Unfollow" : "Follow"}
+        </FollowButton>
+      </FriendsSection>
+
+
 
       <ProfilePosts>{posts}</ProfilePosts>
 
+      {
+        showReviews && (
+          <PopupOverlay >
+            <PopupContent theme={themevars.popup}>
+              {showReviews && (
 
+                <ReviewContent>
+                  <EditButton theme={themevars} onClick={() => setShowReviews(false)}>X</EditButton>
+                  <h2>Client Reviews</h2>
+                  <ReviewList>
+                    {user.reviews && user.reviews.length > 0 && user.reviews.map((review, index) => (
+                      <ReviewItem key={index}>
+                        <ReviewPhoto src={review.photo} alt={`Client ${index + 1}`} />
+                        <ReviewText>{review.text}</ReviewText>
+                        <ReviewMark>{review.mark}/5</ReviewMark>
+                      </ReviewItem>
+                    ))}
+                  </ReviewList>
+                  {!loggedInUser && (
+                    <CalendarButton theme={themevars} onClick={handleAddReviewClick}>
+                      + Add New Review
+                    </CalendarButton>
+                  )}
+                </ReviewContent>
+              )}
 
-      {/* Add new review button */}
-
-
-      {/* New Review Form */}
-      {showReviews && (
-        <PopupOverlay >
-          <PopupContent theme={themevars.popup}>
-            {showReviews && (
-
-              <ReviewContent>
-                <EditButton theme={themevars} onClick={() => setShowReviews(false)}>X</EditButton>
-                <h2>Client Reviews</h2>
-                <ReviewList>
-                  {user.reviews && user.reviews.length > 0 && user.reviews.map((review, index) => (
-                    <ReviewItem key={index}>
-                      <ReviewPhoto src={review.photo} alt={`Client ${index + 1}`} />
-                      <ReviewText>{review.text}</ReviewText>
-                      <ReviewMark>{review.mark}/5</ReviewMark>
-                    </ReviewItem>
-                  ))}
-                </ReviewList>
-                {!loggedInUser && (
-                  <CalendarButton theme={themevars} onClick={handleAddReviewClick}>
-                    + Add New Review
-                  </CalendarButton>
-                )}
-              </ReviewContent>
-            )}
-
-            {showAddReview && <NewReviewForm theme={themevars}>
-              <ReviewInput
-                theme={themevars}
-                name="text"
-                placeholder="Enter your review"
-                value={newReview.text}
-                onChange={handleNewReviewChange}
-              />
-              <ReviewSelect
-                theme={themevars}
-                name="mark"
-                value={newReview.mark}
-                onChange={handleNewReviewChange}
-              >
-                <option value="5">5 - Excellent</option>
-                <option value="4">4 - Good</option>
-                <option value="3">3 - Average</option>
-                <option value="2">2 - Poor</option>
-                <option value="1">1 - Terrible</option>
-              </ReviewSelect>
-              <ReviewSubmitButton theme={themevars} onClick={handleReviewSubmit}>
-                Submit Review
-              </ReviewSubmitButton>
-            </NewReviewForm>}
-          </PopupContent>
-        </PopupOverlay>
-      )
+              {showAddReview && <NewReviewForm theme={themevars}>
+                <ReviewInput
+                  theme={themevars}
+                  name="text"
+                  placeholder="Enter your review"
+                  value={newReview.text}
+                  onChange={handleNewReviewChange}
+                />
+                <ReviewSelect
+                  theme={themevars}
+                  name="mark"
+                  value={newReview.mark}
+                  onChange={handleNewReviewChange}
+                >
+                  <option value="5">5 - Excellent</option>
+                  <option value="4">4 - Good</option>
+                  <option value="3">3 - Average</option>
+                  <option value="2">2 - Poor</option>
+                  <option value="1">1 - Terrible</option>
+                </ReviewSelect>
+                <ReviewSubmitButton theme={themevars} onClick={handleReviewSubmit}>
+                  Submit Review
+                </ReviewSubmitButton>
+              </NewReviewForm>}
+            </PopupContent>
+          </PopupOverlay>
+        )
       }
 
 
@@ -1079,6 +1222,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme
           </PopupOverlay>
         )
       }
+
     </ProfilePage >
   );
 };
