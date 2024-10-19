@@ -270,9 +270,9 @@ export const MapPage = () => {
               await getPointsInRadius(ev.detail.center, 1.8)
             ).payload;
             console.log("pointsInRadius", pointsInRadius);
-            let inumeratel = user;
-            inumeratel.points = pointsInRadius;
-            setUser(inumeratel);
+            // let inumeratel = user;
+            // inumeratel.points = pointsInRadius;
+            setUser(user);
             setPoints(pointsInRadius);
           }}
           onClick={(ev) => {

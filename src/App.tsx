@@ -9,7 +9,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import "./App.css";
+
 import { useTypedSelector } from "./hooks/useTypedSelector";
 import ResponsiveDrawer from "./navigation/NavBar";
 
@@ -30,7 +30,33 @@ import { useDispatch } from "react-redux";
 import { getProfileData } from "./state/action-creators";
 import { get } from "video.js/dist/types/tech/middleware";
 import { MapPage } from "./pages/settings/home";
-import RegisterPage from "../src/pages/register/registerPage";
+import RegisterPage from "./pages/register/registerPage";
+import NewsFeed from "./pages/news/newsPage";
+import { createGlobalStyle, styled } from "styled-components";
+import { useTheme } from "./state/providers/themeProvider";
+
+export const GlobalStyle = createGlobalStyle<{ theme; children }>`
+root {
+  background: ${(props) => props.theme.background};
+  color: ${(props) => props.theme.text};
+  font-family: 'Arial', sans-serif;
+  height: 100vh;
+  width: 100vw;
+ transition: background-color 0.3s ease; /* Smooth transition when theme changes */
+}
+`;
+
+export const GlobalStyled = createGlobalStyle<{ theme }>`
+body {
+ 
+  background: ${(props) => props.theme.background};
+  color: ${(props) => props.theme.text};
+  font-family: 'Arial', sans-serif;
+  height: 100vh;
+  width: 100vw;
+  transition: background-color 0.3s ease; /* Smooth transition when theme changes */
+}
+`;
 
 const firebaseConfig = {
   apiKey: "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
@@ -47,8 +73,8 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app, "streaminai");
 
 const App: React.FC = () => {
-  const { user } = useTypedSelector((state) => state);
-
+  const { login, user } = useTypedSelector((state) => state);
+  // const { themevars } = useTheme()
   const [profileData, setProfileData] = useState(user);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -72,7 +98,7 @@ const App: React.FC = () => {
       <Route path="/" element={<Login />} />
       <Route path="/notlogged" element={<NotLogged />} />
       <Route path="*" element={<NotFound />} />
-
+      <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoutes />}>
         <Route element={<ResponsiveDrawer />}>
           {/* NewStreamPage Route */}
@@ -90,10 +116,7 @@ const App: React.FC = () => {
             path="/:username"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                <ProfilePageComponent
-                  profileData={profileData}
-                  setProfileData={setProfileData}
-                />
+                <ProfilePageComponent theme />
               </ProtectedRoute>
             }
           />
@@ -102,8 +125,8 @@ const App: React.FC = () => {
           <Route
             path="/:username/portfolioeditor"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                <PortfolioEditorPage setProfileData={setProfileData} />
+              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+                <PortfolioEditorPage />
               </ProtectedRoute>
             }
           />
@@ -113,10 +136,7 @@ const App: React.FC = () => {
             path="/:username/portfolio"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                <PortfolioViewPage
-                  profileData={profileData}
-                  setProfileData={setProfileData}
-                />
+                <PortfolioViewPage />
               </ProtectedRoute>
             }
           />
@@ -136,17 +156,11 @@ const App: React.FC = () => {
           <Route
             path="/news"
             element={
-              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                <NewsPage
-                  setErrorMessage={setErrorMessage}
-                  errorMessage={errorMessage}
-                  isErrorPromptOpened={isErrorPromptOpened}
-                  setIsErrorPromptOpened={setIsErrorPromptOpened}
-                />
+              <ProtectedRoute redirectPath="/login" isAllowed={login}>
+                <NewsFeed />
               </ProtectedRoute>
             }
           />
-          <Route path="/register" element={<RegisterPage />} />
         </Route>
       </Route>
     </Routes>

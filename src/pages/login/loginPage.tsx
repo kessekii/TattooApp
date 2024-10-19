@@ -1,12 +1,9 @@
-import { Checkbox, ThemeProvider, Typography } from "@mui/material";
+import { Checkbox, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../assets/LogoSmall.png";
 import { useActions } from "../../hooks/useActions";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { getProfileData, loginParams } from "../../state/action-creators";
-import { theme } from "../../utils/theme";
-import { ForgotPasswordPopup } from "./forgotPasswordComponent";
+import { useAuth } from "../../hooks/useAuth";
+import useLocalStorage from "../../hooks/useLocalStorage";
 import {
   ForgotPasswordComponent,
   LoginButton,
@@ -17,53 +14,29 @@ import {
   TitleComponent,
 } from "./loginPageComponents";
 import AxiosCustom from "../../utils/Axios";
-import { useAuth } from "../../hooks/useAuth";
-import useLocalStorage from "../../hooks/useLocalStorage";
+
+import { ForgotPasswordPopup } from "./forgotPasswordComponent";
+import { useTheme } from "../../state/providers/themeProvider";
 import {
-  getChatByChatId,
   getPointByQuadIdAndPointId,
-} from "../../../src/hooks/useChat";
+  getChatByChatId,
+} from "../../hooks/useChat";
+import { getProfileData } from "../../state/action-creators";
 
 const RepositoriesList = () => {
-  const auth = useAuth();
+  const { theme, themevars, toggleTheme } = useTheme(); // Access custom theme
   const [loginF, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [port, setPort] = useState(2);
-  const [devLink, setDevLink] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { loginAction } = useActions();
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
-
+  const auth = useAuth();
   const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
 
-  const batchPromisesResolver = async (i: number) => {
-    try {
-      const headers = {
-        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-      };
-      const batchPromises: any = [];
-      for (let j = 0; j < 10; j++) {
-        batchPromises.push(
-          new Promise((resolve, reject) => {
-            resolve(
-              AxiosCustom.get(
-                "http://127.0.0.1:" + (i + j) + "/",
-
-                {
-                  headers,
-                }
-              )
-            );
-          })
-        );
-      }
-      const data = await Promise.all(batchPromises);
-      console.log("data", data);
-    } catch (err) {}
-  };
   const tryLogin = async () => {
     loginAction(
       { username: loginF, password: password, setUser: setUser },
@@ -88,20 +61,15 @@ const RepositoriesList = () => {
       userDataUpdated
     );
     let pointsObject: any = {};
-    for (let quadId of Object.keys(userDataUpdated.points)) {
-      for (let pointId of userDataUpdated.points[quadId]) {
-        const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
-        pointsObject[pointId] = pointData.payload;
+    if (Object.keys(userDataUpdated.points).length > 0)
+      for (let quadId of Object.keys(userDataUpdated.points)) {
+        for (let pointId of userDataUpdated.points[quadId]) {
+          const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
+          pointsObject[pointId] = pointData.payload;
+        }
       }
-    }
-
-    setUser(userDataUpdated);
-    setChats(chatsObject);
-    setPoints(pointsObject);
-    await auth.setUserFull(userDataUpdated);
-
-    navigate("/map");
   };
+
   useEffect(() => {
     if (errorMessage) {
       setIsVisible(false);
@@ -109,97 +77,106 @@ const RepositoriesList = () => {
   }, [errorMessage]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <LoginPageWrapper>
-        <TitleComponent>AI STREAMING</TitleComponent>
-        <LoginWrapper>
-          <Typography>{"Login to Your Account"}</Typography>
-          <LoginComponent
-            variant="filled"
-            id="login"
-            key="login-form"
-            label="Username"
-            placeholder="kiseki"
-            inputProps={{
-              style: {
-                color: theme.palette.primary.main,
-              },
-            }}
-            InputLabelProps={{
-              style: {
-                color: theme.palette.primary.dark,
-                fontSize: "12px",
-              },
-            }}
-            onChange={(e) => {
-              setLogin(e.target.value);
-            }}
-            value={loginF}
-          />
-          <LoginComponent
-            variant="filled"
-            id="standard-password-input"
-            label="Password"
-            type="password"
-            key="password-form"
-            inputProps={{
-              style: {
-                color: theme.palette.primary.main,
-              },
-            }}
-            InputLabelProps={{
-              style: {
-                color: theme.palette.primary.dark,
-                fontSize: "12px",
-              },
-            }}
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-          />
+    <LoginPageWrapper>
+      <TitleComponent>TATTOO APP</TitleComponent>
+      <LoginWrapper>
+        <Typography style={{ marginBottom: "20px" }}>
+          {"Login to Your Account"}
+        </Typography>
+        <LoginComponent
+          variant="filled"
+          id="login"
+          key="login-form"
+          label="Username"
+          placeholder="kiseki"
+          inputProps={{
+            style: {
+              color: themevars.text, // Access theme's text color
+            },
+          }}
+          InputLabelProps={{
+            style: {
+              color: themevars.text,
+              fontSize: "12px",
+            },
+          }}
+          onChange={(e) => {
+            setLogin(e.target.value);
+          }}
+          value={loginF}
+        />
+        <LoginComponent
+          variant="filled"
+          id="standard-password-input"
+          label="Password"
+          type="password"
+          key="password-form"
+          inputProps={{
+            style: {
+              color: themevars.text, // Access theme's text color
+            },
+          }}
+          InputLabelProps={{
+            style: {
+              color: themevars.text,
+              fontSize: "12px",
+            },
+          }}
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+        />
 
-          <RememberMeComponent
-            control={
-              <Checkbox
-                style={{
-                  stroke: theme.palette.primary.dark,
-                  color: "white",
-                }}
-                color="secondary"
-              />
-            }
-            label={<Typography style={{ fontSize: "12px" }}>{port}</Typography>}
-          />
-          <ForgotPasswordComponent
-            style={{ fontSize: "12px", fontWeight: "semi-bold" }}
-            onClick={() => setIsVisible(true)}
-          >
-            Forgot Password?
-          </ForgotPasswordComponent>
-          <LoginButton
-            variant="contained"
-            size="large"
-            onClick={() => tryLogin()}
-          >
-            Login
-          </LoginButton>
-        </LoginWrapper>
-        {/* {errorMessage && (
-          <div style={{ marginTop: "8%", color: "red" }}>
-            Error: {errorMessage}
-          </div>
-        )} */}
-        {/* <Logo>
-					<img src={logo} alt='aistream' />
-				</Logo> */}
-        {isVisible && (
-          <ForgotPasswordPopup
-            isVisible
-            setIsVisible={setIsVisible}
-            setErrorMessage={setErrorMessage}
-          ></ForgotPasswordPopup>
-        )}
-      </LoginPageWrapper>
-    </ThemeProvider>
+        <RememberMeComponent
+          control={
+            <Checkbox
+              style={{
+                stroke: themevars.text,
+                color: themevars.text, // Access theme's text color
+              }}
+            />
+          }
+          label={
+            <Typography style={{ fontSize: "12px" }}>
+              Keep me logged in
+            </Typography>
+          }
+        />
+        <ForgotPasswordComponent
+          style={{ fontSize: "12px", fontWeight: "semi-bold" }}
+          onClick={() => setIsVisible(true)}
+        >
+          Forgot Password?
+        </ForgotPasswordComponent>
+        <LoginButton
+          variant="contained"
+          size="large"
+          onClick={() => tryLogin()}
+          style={{ marginBottom: "5px" }}
+        >
+          Login
+        </LoginButton>
+        <LoginButton
+          variant="contained"
+          size="large"
+          onClick={() => navigate("/register")}
+        >
+          Sign Up
+        </LoginButton>
+      </LoginWrapper>
+      {errorMessage && (
+        <div style={{ marginTop: "8%", color: "red" }}>
+          Error: {errorMessage}
+        </div>
+      )}
+
+      {isVisible ? (
+        <ForgotPasswordPopup
+          isVisible
+          setIsVisible={setIsVisible}
+          setErrorMessage={setErrorMessage}
+        />
+      ) : null}
+    </LoginPageWrapper>
   );
 };
 
