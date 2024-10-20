@@ -46,6 +46,7 @@ const PoiMarker = (props: {
   auth: any;
   addPoint: any;
   setPoints: any;
+  cameraLocation: any;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
@@ -118,7 +119,8 @@ const PoiMarker = (props: {
 
                   props.auth,
 
-                  props.setPoints
+                  props.setPoints,
+                  props.cameraLocation
                 );
                 props.setfocusedPoint(null);
               }}
@@ -138,7 +140,8 @@ const tryRemovingAPoint = async (
 
   auth: any,
 
-  setPoints: any
+  setPoints: any,
+  cameraLocation: any
 ) => {
   const headers = {
     Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
@@ -146,19 +149,15 @@ const tryRemovingAPoint = async (
   const point_lat = point.location.lat.toFixed(2).toString();
   const point_lng = point.location.lng.toFixed(2).toString();
   const coord = point_lat + ":" + point_lng;
-  const userData = (await deletePointbyPointId(coord, point.pointId)).payload;
+  const newUserData = (await deletePointbyPointId(coord, point.pointId))
+    .payload;
   // console.log("EEEE", userData);
-  let pointsObject: any = {};
-  for (let quadId of Object.keys(userData.points)) {
-    for (let pointId of userData.points[quadId]) {
-      const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
-      pointsObject[pointId] = pointData.payload;
-    }
-  }
 
-  setUser(userData);
-  setPoints(pointsObject);
-  await auth.setUserFull(userData);
+  const pointsObject = await getPointsInRadius(cameraLocation, false);
+
+  setUser(newUserData);
+  setPoints(pointsObject.payload);
+  await auth.setUserFull(newUserData);
   // setFocusedPoint(null);
 };
 const calcCrow = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -188,27 +187,21 @@ const tryAddNewPoint = async (
   auth: any,
   addPoint: any,
   setPoints: any,
-  setCameraUpdateLock: any
+  cameraLocation: any
 ) => {
-  const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
-  // console.log("????????", user);
-  const newUserData = (
-    await createPointByUsername(user.username, ev.detail.latLng!)
-  ).payload;
+  if (user) {
+    const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
 
-  // let pointsObject: any = {};
-  // console.log(newUserData.points);
-  const pointsObject = await getPointsInRadius(ev.detail.latLng!, false);
-  // for (let quadId of Object.keys(newUserData?.points || {})) {
-  //   for (let pointId of newUserData.points[quadId]) {
-  //     const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
-  //     pointsObject[pointId] = pointData.payload;
-  //   }
-  // }
+    const newUserData = (
+      await createPointByUsername(userU.username, ev.detail.latLng!)
+    ).payload;
 
-  setUser(newUserData);
-  setPoints(pointsObject);
-  await auth.setUserFull(newUserData);
+    const pointsObject = await getPointsInRadius(cameraLocation, false);
+
+    setUser(newUserData);
+    setPoints(pointsObject.payload);
+    await auth.setUserFull(newUserData);
+  }
 };
 
 export const MapPage = () => {
@@ -285,6 +278,7 @@ export const MapPage = () => {
             auth={auth}
             addPoint={addPoint}
             setPoints={setPoints}
+            cameraLocation={cameraLocation}
           ></PoiMarker>
         );
       }) || [],
@@ -325,6 +319,7 @@ export const MapPage = () => {
           }}
           onClick={(ev) => {
             if (focusedPoint === null) {
+              // if (cameraUpdateLock) {
               tryAddNewPoint(
                 ev,
                 user,
@@ -334,7 +329,7 @@ export const MapPage = () => {
                 auth,
                 addPoint,
                 setPoints,
-                setCameraUpdateLock
+                cameraLocation
               );
             } else {
               setfocusedPoint(null);
