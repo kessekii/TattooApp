@@ -22,6 +22,7 @@ import {
   getChatByChatId,
 } from "../../hooks/useChat";
 import { getProfileData } from "../../state/action-creators";
+import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 
 const RepositoriesList = () => {
   const { theme, themevars, toggleTheme } = useTheme(); // Access custom theme
@@ -38,36 +39,57 @@ const RepositoriesList = () => {
   const navigate = useNavigate();
 
   const tryLogin = async () => {
-    loginAction(
-      { username: loginF, password: password, setUser: setUser },
-      setErrorMessage
-    );
-    await auth.login(password, loginF);
-    // try {
-    await auth.setUserFull(user);
-    const userDataUpdated = (await getProfileData(loginF)).payload;
-    const GetChatsObject = async () => {
-      let chatsObject: any = {};
-      for (let chatId of Object.keys(userDataUpdated.chats)) {
-        const chatData = await getChatByChatId(chatId, loginF);
-        chatsObject[chatId] = chatData.payload;
-      }
-      return chatsObject;
-    };
-    let chatsObject = await GetChatsObject();
-    console.log(
-      "SKJDB:KSADUB:AKBJD:KASJBDA:SJDBVABD",
-      chatsObject,
-      userDataUpdated
-    );
-    let pointsObject: any = {};
-    if (Object.keys(userDataUpdated.points).length > 0)
-      for (let quadId of Object.keys(userDataUpdated.points)) {
-        for (let pointId of userDataUpdated.points[quadId]) {
-          const pointData = await getPointByQuadIdAndPointId(quadId, pointId);
-          pointsObject[pointId] = pointData.payload;
+    try {
+      if (loginF && password) {
+
+        loginAction(
+          { username: loginF, password: password },
+          setErrorMessage
+        );
+        await auth.login(password, loginF);
+        await auth.setUserFull(user);
+        const payload = await getProfileData(loginF);
+        console.log("1", payload.event);
+        const temp = { ...payload.event, events: [], chats: [], points: [] };
+        const GetChatsObject = async () => {
+          let chatsObject: any = {};
+
+          if (temp && temp.chats && temp.length > 0) {
+            for (let chatId of Object.keys(temp.chats ? temp.chats : {})) {
+              const chatData = await getChatByChatId(chatId, loginF);
+
+              chatsObject[chatId] = chatData.payload;
+            }
+            console.log("2", chatsObject);
+          };
+          return chatsObject.length > 0 ? chatsObject : [];
+        };
+
+        let chatsObject = await GetChatsObject();
+        console.log("3", temp);
+
+
+
+        let pointsObject: any = {};
+        if (temp && temp.points && temp.points.length > 0) {
+          for (let pointId of Object.keys(temp.points)) {
+            const pointData = await getPointByPointId(pointId);
+            pointsObject[pointId] = pointData.payload;
+          }
         }
+        console.log("4", temp, chatsObject, pointsObject);
+        setUser(temp);
+        setChats(chatsObject);
+        setPoints([pointsObject]);
+        await auth.setUserFull(temp);
+
+        navigate("/" + loginF);
       }
+
+    } catch (error) {
+      console.log("Error", error);
+    }
+
   };
 
   useEffect(() => {
@@ -78,6 +100,7 @@ const RepositoriesList = () => {
 
   return (
     <LoginPageWrapper>
+
       <TitleComponent>TATTOO APP</TitleComponent>
       <LoginWrapper>
         <Typography style={{ marginBottom: "20px" }}>

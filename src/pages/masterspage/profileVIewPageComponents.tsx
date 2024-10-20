@@ -118,7 +118,7 @@ export const CommentsPopup = styled.div`
 `;
 
 export const CommentsContent = styled.div`
-  background: white;
+  background: ${({ theme }) => theme.background};
   padding: 20px;
   border-radius: 10px;
   width: 500px;
@@ -154,10 +154,10 @@ export const CommentItem = styled.li`
   color:   ${({ theme }) => theme.text};
 `;
 
-export const CommentAuthor = styled.span`
+export const CommentAuthor = styled.span<({ theme }) >`
   font-weight: bold;
   margin-right: 5px;
-  color:   ${({ theme }) => theme.text};
+  color: ${(props) => props.theme.text};
 `;
 
 export const CommentText = styled.p`
@@ -166,7 +166,7 @@ export const CommentText = styled.p`
 `;
 
 export const CommentInput = styled.input`
-  width: 100%;
+  width: 95%;
   padding: 10px;
   margin-top: 10px;
   border-radius: 5px;
@@ -177,8 +177,8 @@ export const CommentSubmitButton = styled.button`
   margin-top: 10px;
   padding: 10px 20px;
   border: none;
-  background-color: #007bff;
-  color: white;
+  background-color: ${({ theme }) => theme.backgroundButton};
+  color: ${({ theme }) => theme.text};
   border-radius: 5px;
   cursor: pointer;
 `;
