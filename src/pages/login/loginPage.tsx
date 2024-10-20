@@ -20,6 +20,7 @@ import { useTheme } from "../../state/providers/themeProvider";
 import {
   getPointByQuadIdAndPointId,
   getChatByChatId,
+  getPointsInRadius,
 } from "../../hooks/useChat";
 import { getProfileData } from "../../state/action-creators";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
@@ -41,14 +42,10 @@ const RepositoriesList = () => {
   const tryLogin = async () => {
     try {
       if (loginF && password) {
-
-        loginAction(
-          { username: loginF, password: password },
-          setErrorMessage
-        );
+        loginAction({ username: loginF, password: password }, setErrorMessage);
         await auth.login(password, loginF);
         await auth.setUserFull(user);
-        const payload = await getProfileData(loginF);
+        const payload = (await getProfileData(loginF)).payload;
         console.log("1", payload.event);
         const temp = { ...payload.event, events: [], chats: [], points: [] };
         const GetChatsObject = async () => {
@@ -61,35 +58,30 @@ const RepositoriesList = () => {
               chatsObject[chatId] = chatData.payload;
             }
             console.log("2", chatsObject);
-          };
+          }
           return chatsObject.length > 0 ? chatsObject : [];
         };
 
         let chatsObject = await GetChatsObject();
         console.log("3", temp);
 
-
-
-        let pointsObject: any = {};
-        if (temp && temp.points && temp.points.length > 0) {
-          for (let pointId of Object.keys(temp.points)) {
-            const pointData = await getPointByPointId(pointId);
-            pointsObject[pointId] = pointData.payload;
-          }
-        }
-        console.log("4", temp, chatsObject, pointsObject);
-        setUser(temp);
+        const pointsObject = await getPointsInRadius(
+          {
+            lat: 32.02119878251853,
+            lng: 34.74333323660794,
+          },
+          false
+        );
+        setUser(payload);
         setChats(chatsObject);
-        setPoints([pointsObject]);
-        await auth.setUserFull(temp);
+        setPoints(pointsObject.payload);
+        await auth.setUserFull(payload);
 
         navigate("/" + loginF);
       }
-
     } catch (error) {
       console.log("Error", error);
     }
-
   };
 
   useEffect(() => {
@@ -100,7 +92,6 @@ const RepositoriesList = () => {
 
   return (
     <LoginPageWrapper>
-
       <TitleComponent>TATTOO APP</TitleComponent>
       <LoginWrapper>
         <Typography style={{ marginBottom: "20px" }}>
