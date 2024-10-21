@@ -78,8 +78,8 @@ const PoiMarker = (props: {
   // console.log(props.point);
   const isAvailableEdit = Object.keys(props.user?.points).includes(
     props.point?.location?.lat.toFixed(2) +
-      ":" +
-      props.point?.location?.lng.toFixed(2)
+    ":" +
+    props.point?.location?.lng.toFixed(2)
   );
   // console.log(props.point.data);
   return (
@@ -110,9 +110,9 @@ const PoiMarker = (props: {
         position={
           props.point && props.point?.location
             ? {
-                lng: props.point?.location?.lng,
-                lat: props.point?.location?.lat,
-              }
+              lng: props.point?.location?.lng,
+              lat: props.point?.location?.lat,
+            }
             : undefined
         }
         onMouseEnter={() => {
@@ -200,25 +200,25 @@ const PoiMarker = (props: {
                   EDIT
                 </Button>
               )) || (
-                <Button
-                  onClick={async () => {
-                    const firned = (await getUserById(props.point.owner))
-                      .payload;
-                    setFriend(firned);
-                    setFriendPosts(
-                      (await getPostsByUserId(props.point.owner)).payload
-                    );
-                    setFriendChats(
-                      (await getChatsByUserId(props.point.owner)).payload
-                    );
+                  <Button
+                    onClick={async () => {
+                      const firned = (await getUserById(props.point.owner))
+                        .payload;
+                      setFriend(firned);
+                      setFriendPosts(
+                        (await getPostsByUserId(props.point.owner)).payload
+                      );
+                      setFriendChats(
+                        (await getChatsByUserId(props.point.owner)).payload
+                      );
 
-                    navigate("../" + props.point.owner);
-                  }}
-                  style={{ width: "20px", height: "20px", background: "gray" }}
-                >
-                  TO OWNER PAGE
-                </Button>
-              )}
+                      navigate("../" + props.point.owner);
+                    }}
+                    style={{ width: "20px", height: "20px", background: "gray" }}
+                  >
+                    TO OWNER PAGE
+                  </Button>
+                )}
             </>
           )}
         </div>
@@ -421,8 +421,8 @@ export const MapPage = () => {
     >
       <Paper
         style={{
-          width: isMobile ? "100vw" : "900px",
-          height: isMobile ? "80vh" : "600px",
+          width: isMobile ? "100vw" : "100%",
+          height: isMobile ? "100vh" : "100%",
         }}
       >
         <Map
@@ -460,6 +460,6 @@ export const MapPage = () => {
           {pointsStates}
         </Map>
       </Paper>
-    </APIProvider>
+    </APIProvider >
   );
 };

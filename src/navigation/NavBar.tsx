@@ -8,18 +8,18 @@ import { AvatarContainer, Menu, MenuItem, NavContainer, NavIcons } from './NavBa
 import { EditButton, PopupContent, PopupOverlay } from '../pages/masterspage/masterPage';
 import { useEditing } from '../hooks/useEditing';
 import { FaCog, FaUserEdit, FaUser } from 'react-icons/fa';
-import useLocalStorage from '../hooks/useLocalStorage';
+import { useAuth } from '../hooks/useAuth';
 
 
 
 // Styled components using your custom theme
 
-const NavBar = () => {
-  const [user] = useLocalStorage('user', null);
+const NavBar = ({ setIsEditingProfile }) => {
+  const { user } = useAuth()
 
   const [isShrunk, setIsShrunk] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
-  const { isEditing, setIsEditing } = useEditing();
+
   const handleUserInteraction = () => {
     setLastInteractionTime(Date.now());
     if (isShrunk) {
@@ -28,7 +28,7 @@ const NavBar = () => {
   }
 
   const navigate = useNavigate();
-  const { theme, themevars, toggleTheme } = useTheme()
+  const { themevars } = useTheme()
   const [openSettings, setOpenSettings] = useState(false)
   const [isOpen, setIsOpen] = useState(false);
 
@@ -41,8 +41,10 @@ const NavBar = () => {
   };
 
   const handleGoEdit = () => {
-    setIsEditing(true);
-    navigate("/" + user.username);
+    setIsEditingProfile()
+    navigate("/" + "qwe");
+
+
   };
 
 
@@ -80,9 +82,7 @@ const NavBar = () => {
         <PopupContent theme={themevars.popup}>
           <h2>Settings</h2>
           <p>Choose a theme:</p>
-          <EditButton theme={themevars} onClick={handleGoEdit}>
-            Edit Profile
-          </EditButton>
+
           <EditButton onClick={toggleTheme}>
             {theme == 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
           </EditButton>
@@ -121,7 +121,7 @@ const NavBar = () => {
                 </IconButton>
                 <AvatarContainer>
                   <Avatar
-                    src={user.profilePicture} // Replace with actual avatar URL
+                    src={user && user.profilePicture ? user.profilePicture : "public/blankPicture.png"} // Replace with actual avatar URL
                     alt="User Avatar"
                     onClick={toggleMenu}
                   />
@@ -130,7 +130,7 @@ const NavBar = () => {
                       <MenuItem theme={themevars} onClick={() => navigate('/' + user.username)}>
                         <FaUser /> Profile
                       </MenuItem>
-                      <MenuItem theme={themevars} onClick={() => setIsEditing(true)}>
+                      <MenuItem theme={themevars} onClick={() => setIsEditingProfile(true)}>
                         <FaUserEdit /> Edit Profile
                       </MenuItem>
                       <MenuItem theme={themevars} onClick={() => setOpenSettings(true)}>

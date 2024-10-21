@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useActionData, useNavigate, useParams } from "react-router-dom";
 import CalendarComponent from "./calendarComponent";
@@ -120,19 +120,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton)<{ theme }>`
+export const SaveButton = styled(EditButton) <{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton)<{ theme }>`
+export const CancelButton = styled(EditButton) <{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(EditButton)<{ following }>`
+export const FollowButton = styled(EditButton) <{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -489,7 +489,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton)<{ theme }>`
+export const IcButton = styled(IconButton) <{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -505,7 +505,7 @@ export const IcButton = styled(IconButton)<{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography)<{ theme; bold? }>`
+export const Typefield = styled(Typography) <{ theme; bold?}>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -514,7 +514,11 @@ export const Typefield = styled(Typography)<{ theme; bold? }>`
 
 // Simulating that the user is logged in on this device
 
-const ProfilePageComponent: React.FC<any> = ({ theme }) => {
+
+const ProfilePageComponent: React.FC<any> = (props: {
+  theme,
+  setIsEditingProfile, isEditingProfile
+}) => {
   const { toggleTheme, themevars } = useTheme();
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
@@ -526,24 +530,24 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   const loggedInUser = user.username === friend.username;
   const { username, postId } = useParams();
-  const { isEditing, setIsEditing } = useEditing();
+
 
   const [editProfile, setEditProfile] = useState(
     user
       ? {
-          name: user.name,
-          username: user.username,
-          description: user.description,
-          profilePicture: user.profilePicture,
-          location: user.location,
-        }
+        name: user.name,
+        username: user.username,
+        description: user.description,
+        profilePicture: user.profilePicture,
+        location: user.location,
+      }
       : {
-          name: "",
-          username: "",
-          description: "",
-          profilePicture: "",
-          location: "",
-        }
+        name: "",
+        username: "",
+        description: "",
+        profilePicture: "",
+        location: "",
+      }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     user && user.friends && Object.keys(user.friends).length > 0
@@ -565,8 +569,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [calendarUpdated, setCalendarUpdated] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [newImage, setNewImage] = useState({ src: "", caption: "" });
-  const [isSettingsPopup, setSettingsPopup] = useState(false);
+
+  const [newImage, setNewImage] = useState({ src: user && user.profilePicture ? user.profilePicture : "", caption: "" });
+  const [isSettingsPopup, setSettingsPopup] = useState(false)
+
   const portfolioImages = [
     "https://via.placeholder.com/150/0000FF", // Replace these placeholders with actual portfolio images
     "https://via.placeholder.com/150/FF0000",
@@ -595,13 +601,18 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     }));
   };
 
+  useEffect(() => {
+    console.log(props.isEditingProfile)
+  }, [props.isEditingProfile])
+
+
   const handleReviewSubmit = () => {
     const updatedReviews =
       user.reviews && user.reviews.length > 0
         ? [
-            ...user.reviews,
-            { photo: user.image, nickname: user.username, ...newReview },
-          ]
+          ...user.reviews,
+          { photo: user.image, nickname: user.username, ...newReview },
+        ]
         : [{ photo: user.image, nickname: user.username, ...newReview }];
     // setProfileData({
     //   ...user,
@@ -625,9 +636,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   const navigate = useNavigate();
   // Toggle edit mode
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+
 
   // Save changes
   const handleSaveClick = async (updateUser: any, setErrorMessage: any) => {
@@ -641,7 +650,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     };
     // setProfileData(newProfileData);
     updateUser(newProfileData, setErrorMessage);
-    setIsEditing(false);
+    props.setIsEditingProfile(false);
     setUser(newProfileData);
 
     setChats(newProfileData.chats);
@@ -656,7 +665,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       profilePicture: user.profilePicture,
       location: user.location,
     });
-    setIsEditing(false);
+    props.setIsEditingProfile(false);
   };
 
   // Handle input changes for editable fields
@@ -855,7 +864,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
     updateUser(user, setErrorMessage);
     setUser(user);
-    setIsEditing(false);
+    props.setIsEditingProfile(false);
 
     console.log("Updated Calendar:", user);
     return user.calendar;
@@ -868,6 +877,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
         setNewImage({ ...newImage, src: reader.result as string });
       };
       reader.readAsDataURL(event.target.files[0]);
+
     }
   };
 
@@ -913,7 +923,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       <Backdrop />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
-          {isEditing ? (
+
+
+          {props.isEditingProfile ? (
+
             <ProfileGrid>
               <ProfilePicture
                 theme={themevars}
@@ -950,38 +963,33 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
           ) : (
             <ProfileGrid>
               <div>
-                <ProfilePicture
-                  theme={themevars}
-                  src={user && user.profilePicture ? user.profilePicture : ""}
-                  alt="Profile Picture"
-                />
-              </div>
+                <ProfilePicture theme={themevars} src={user && user.profilePicture ? user.profilePicture : "public/blankPicture.png"} alt="Profile Picture" />
+
+              </div >
 
               <GridCell>
                 {user && user.name && user.description && user.location && (
                   <div style={{ justifyContent: "start" }}></div>
                 )}
               </GridCell>
-            </ProfileGrid>
+            </ProfileGrid >
           )}
 
-          <ProfileDescription>
+          <           ProfileDescription>
             {user && user.name && user.description && user.location && (
               <div style={{ justifyContent: "start" }}>
-                <Typefield style={{ fontWeight: "700" }}>
-                  {user && user.name}
-                </Typefield>
-                <Typefield style={{ fontWeight: "400", opacity: "0.5" }}>
-                  {user.location}
-                </Typefield>
-                <Typefield style={{ color: themevars.text }}>
-                  {user.description}
-                </Typefield>
-              </div>
-            )}
+                <Typefield style={{ fontWeight: "700" }}>{user && user.name}</Typefield>
+                <Typefield style={{ fontWeight: "400", opacity: "0.5" }}>{user && user.location}</Typefield>
+                <Typefield style={{
+                  color: themevars.text
+                }}>{user && user.description}</Typefield>
+
+              </div>)}
           </ProfileDescription>
 
-          {isEditing ? (
+          {props.isEditingProfile ? (
+
+
             <GridTwo>
               <SaveButton
                 theme={themevars}
@@ -1031,27 +1039,27 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
                 <Link style={{ color: themevars.icons.color }} />
               </IcoButton>
             </GridTwo>
-          )}
-        </ProfileInfo>
-      </ProfileHeader>
+          )
+          }
+        </ProfileInfo >
+      </ProfileHeader >
       <FriendsSection theme={themevars}>
         <FriendsAvatarsBackdrop theme={themevars}>
-          <FriendsAvatars style={{ marginTop: "unset" }} theme={themevars}>
-            <Typefield
-              style={{ fontWeight: "700", marginLeft: "10px", padding: "5px" }}
-            >
-              Friends
-            </Typefield>
-            {/* {user && user.reviews && user.reviews?.length && user.friends */}
-            {Object.keys(user.friends).map((friendKey, index) => (
-              <FriendAvatar
-                theme={themevars}
-                key={index}
-                src={user.friends[friendKey].avatar}
-                alt={user.friends[friendKey].nickname}
-                onClick={() => setShowFriends(true)}
-              />
-            ))}
+
+
+          <FriendsAvatars style={{ marginTop: 'unset' }} theme={themevars}>
+            <Typefield style={{ fontWeight: '700', marginLeft: "10px", padding: "5px" }}>Friends</Typefield>
+            {/* {user && user.reviews && user.reviews?.length && user.friends && */}
+            {[{ nickname: 'wdwdwd', avatar: user && user.profilePicture && user.profilePicture }, { nickname: 'wdwdwd', avatar: user && user.profilePicture && user.profilePicture }, { nickname: 'wdwdwd', avatar: user && user.profilePicture && user.profilePicture }]
+              .map((friend, index) => (
+                <FriendAvatar
+                  theme={themevars}
+                  key={index}
+                  src={friend.avatar}
+                  alt={friend.nickname}
+                  onClick={() => setShowFriends(true)}
+                />
+              ))}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
         <FollowButton
@@ -1062,211 +1070,221 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
         >
           {isFollowing ? "Unfollow" : "Follow"}
         </FollowButton>
-      </FriendsSection>
+      </FriendsSection >
 
       <ProfilePosts>{postsComponents}</ProfilePosts>
 
-      {showReviews && (
-        <PopupOverlay>
-          <PopupContent theme={themevars.popup}>
-            {showReviews && (
-              <ReviewContent>
-                <EditButton
-                  theme={themevars}
-                  onClick={() => setShowReviews(false)}
-                >
-                  X
-                </EditButton>
-                <h2>Client Reviews</h2>
-                <ReviewList>
-                  {user.reviews &&
-                    user.reviews.length > 0 &&
-                    user.reviews.map((review, index) => (
-                      <ReviewItem key={index}>
-                        <ReviewPhoto
-                          src={review.photo}
-                          alt={`Client ${index + 1}`}
-                        />
-                        <ReviewText>{review.text}</ReviewText>
-                        <ReviewMark>{review.mark}/5</ReviewMark>
-                      </ReviewItem>
-                    ))}
-                </ReviewList>
-                {!loggedInUser && (
-                  <CalendarButton
+      {
+        showReviews && (
+          <PopupOverlay>
+            <PopupContent theme={themevars.popup}>
+              {showReviews && (
+                <ReviewContent>
+                  <EditButton
                     theme={themevars}
-                    onClick={handleAddReviewClick}
+                    onClick={() => setShowReviews(false)}
                   >
-                    + Add New Review
-                  </CalendarButton>
-                )}
-              </ReviewContent>
-            )}
+                    X
+                  </EditButton>
+                  <h2>Client Reviews</h2>
+                  <ReviewList>
+                    {user.reviews &&
+                      user.reviews.length > 0 &&
+                      user.reviews.map((review, index) => (
+                        <ReviewItem key={index}>
+                          <ReviewPhoto
+                            src={review.photo}
+                            alt={`Client ${index + 1}`}
+                          />
+                          <ReviewText>{review.text}</ReviewText>
+                          <ReviewMark>{review.mark}/5</ReviewMark>
+                        </ReviewItem>
+                      ))}
+                  </ReviewList>
+                  {!loggedInUser && (
+                    <CalendarButton
+                      theme={themevars}
+                      onClick={handleAddReviewClick}
+                    >
+                      + Add New Review
+                    </CalendarButton>
+                  )}
+                </ReviewContent>
+              )}
 
-            {showAddReview && (
-              <NewReviewForm theme={themevars}>
-                <ReviewInput
-                  theme={themevars}
-                  name="text"
-                  placeholder="Enter your review"
-                  value={newReview.text}
-                  onChange={handleNewReviewChange}
-                />
-                <ReviewSelect
-                  theme={themevars}
-                  name="mark"
-                  value={newReview.mark}
-                  onChange={handleNewReviewChange}
-                >
-                  <option value="5">5 - Excellent</option>
-                  <option value="4">4 - Good</option>
-                  <option value="3">3 - Average</option>
-                  <option value="2">2 - Poor</option>
-                  <option value="1">1 - Terrible</option>
-                </ReviewSelect>
-                <ReviewSubmitButton
-                  theme={themevars}
-                  onClick={handleReviewSubmit}
-                >
-                  Submit Review
-                </ReviewSubmitButton>
-              </NewReviewForm>
-            )}
-          </PopupContent>
-        </PopupOverlay>
-      )}
-
-      {showFriends && (
-        <FriendsPopup>
-          <FriendsContent theme={themevars}>
-            <EditButton theme={themevars} onClick={() => handleClose(false)}>
-              X
-            </EditButton>
-            <h2>Friends List</h2>
-            <FriendsList theme={themevars}>
-              {Object.keys(user.friends)?.map((friend, index) => (
-                <FriendItem
-                  theme={themevars}
-                  key={index}
-                  onClick={async () =>
-                    await handleFriendClick(user.friends[friend].username)
-                  }
-                >
-                  <FriendPhoto
+              {showAddReview && (
+                <NewReviewForm theme={themevars}>
+                  <ReviewInput
                     theme={themevars}
-                    src={user.friends[friend].avatar}
-                    alt={user.friends[friend].nickname}
+                    name="text"
+                    placeholder="Enter your review"
+                    value={newReview.text}
+                    onChange={handleNewReviewChange}
                   />
-                  <FriendNickname theme={themevars}>
-                    {user.friends[friend].nickname}
-                  </FriendNickname>
-                  <FollowButton
+                  <ReviewSelect
                     theme={themevars}
-                    following={user.friends[friend]}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleFriendFollowClick(
-                        index,
-                        user.friends[friend],
-                        user.friends[friend] ? true : false
-                      );
-                    }}
+                    name="mark"
+                    value={newReview.mark}
+                    onChange={handleNewReviewChange}
                   >
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </FollowButton>
-                </FriendItem>
-              ))}
-            </FriendsList>
-          </FriendsContent>
-        </FriendsPopup>
-      )}
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="1">1 - Terrible</option>
+                  </ReviewSelect>
+                  <ReviewSubmitButton
+                    theme={themevars}
+                    onClick={handleReviewSubmit}
+                  >
+                    Submit Review
+                  </ReviewSubmitButton>
+                </NewReviewForm>
+              )}
+            </PopupContent>
+          </PopupOverlay>
+        )
+      }
 
-      {showLinksPopup && (
-        <PopupOverlay>
-          <PopupContent theme={themevars.popup}>
-            <EditButton
-              theme={themevars}
-              onClick={() => handleCloseLinksPopup()}
-            >
-              X
-            </EditButton>
-            <h2>Social Media Links</h2>
-            <SocialMediaLinks theme={themevars.popup}>
-              {user &&
-                user.socialLinks &&
-                user.socialLinks.map((link, index) => (
-                  <SocialMediaLink key={index} href={link.url} target="_blank">
-                    {link.platform}
-                  </SocialMediaLink>
+      {
+        showFriends && (
+          <FriendsPopup>
+            <FriendsContent theme={themevars}>
+              <EditButton theme={themevars} onClick={() => handleClose(false)}>
+                X
+              </EditButton>
+              <h2>Friends List</h2>
+              <FriendsList theme={themevars}>
+                {Object.keys(user.friends)?.map((friend, index) => (
+                  <FriendItem
+                    theme={themevars}
+                    key={index}
+                    onClick={async () =>
+                      await handleFriendClick(user.friends[friend].username)
+                    }
+                  >
+                    <FriendPhoto
+                      theme={themevars}
+                      src={user.friends[friend].avatar}
+                      alt={user.friends[friend].nickname}
+                    />
+                    <FriendNickname theme={themevars}>
+                      {user.friends[friend].nickname}
+                    </FriendNickname>
+                    <FollowButton
+                      theme={themevars}
+                      following={user.friends[friend]}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFriendFollowClick(
+                          index,
+                          user.friends[friend],
+                          user.friends[friend] ? true : false
+                        );
+                      }}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </FollowButton>
+                  </FriendItem>
                 ))}
-            </SocialMediaLinks>
-          </PopupContent>
-        </PopupOverlay>
-      )}
-      {showCalendarPopup && (
-        <PopupOverlay>
-          <PopupContent theme={themevars.popup}>
-            <EditButton
-              theme={themevars}
-              onClick={() => setCalendarPopup(false)}
-            >
-              X
-            </EditButton>
-            {!loggedInUser ? (
-              <>
-                <PortfolioImagePicker onImageSelect={handleImageSelect} />{" "}
-                <CalendarComponent
-                  setClosePopup={handleCalendarClick}
-                  availableHours={user.calendar}
-                  setClientDate={setClientDate}
-                />{" "}
-              </>
-            ) : (
-              <DateHourSelector
-                setScheduleUpdated={setCalendarUpdated}
-                setMasterDate={setMasterDate}
-              />
-            )}
+              </FriendsList>
+            </FriendsContent>
+          </FriendsPopup>
+        )
+      }
 
-            <div>
-              <CancelButton onClick={() => setCalendarPopup(false)}>
-                {calendarUpdated ? "Back" : "Cancel"}
-              </CancelButton>
-            </div>
-          </PopupContent>
-        </PopupOverlay>
-      )}
+      {
+        showLinksPopup && (
+          <PopupOverlay>
+            <PopupContent theme={themevars.popup}>
+              <EditButton
+                theme={themevars}
+                onClick={() => handleCloseLinksPopup()}
+              >
+                X
+              </EditButton>
+              <h2>Social Media Links</h2>
+              <SocialMediaLinks theme={themevars.popup}>
+                {user &&
+                  user.socialLinks &&
+                  user.socialLinks.map((link, index) => (
+                    <SocialMediaLink key={index} href={link.url} target="_blank">
+                      {link.platform}
+                    </SocialMediaLink>
+                  ))}
+              </SocialMediaLinks>
+            </PopupContent>
+          </PopupOverlay>
+        )
+      }
+      {
+        showCalendarPopup && (
+          <PopupOverlay>
+            <PopupContent theme={themevars.popup}>
+              <EditButton
+                theme={themevars}
+                onClick={() => setCalendarPopup(false)}
+              >
+                X
+              </EditButton>
+              {!loggedInUser ? (
+                <>
+                  <PortfolioImagePicker onImageSelect={handleImageSelect} />{" "}
+                  <CalendarComponent
+                    setClosePopup={handleCalendarClick}
+                    availableHours={user.calendar}
+                    setClientDate={setClientDate}
+                  />{" "}
+                </>
+              ) : (
+                <DateHourSelector
+                  setScheduleUpdated={setCalendarUpdated}
+                  setMasterDate={setMasterDate}
+                />
+              )}
 
-      {showLocationPopup && (
-        <PopupOverlay>
-          <PopupContent theme={themevars.popup}>
-            <CloseButton
-              theme={themevars}
-              onClick={handleLocationCancelClick}
-            />
-            <h2>Edit Location</h2>
-            <EditInput
-              theme={themevars}
-              type="text"
-              name="location"
-              value={editProfile.location}
-              onChange={handleInputChange}
-            />
-            <div>
-              <SaveButton theme={themevars} onClick={handleLocationSaveClick}>
-                Save
-              </SaveButton>
-              <CancelButton
+              <div>
+                <CancelButton onClick={() => setCalendarPopup(false)}>
+                  {calendarUpdated ? "Back" : "Cancel"}
+                </CancelButton>
+              </div>
+            </PopupContent>
+          </PopupOverlay>
+        )
+      }
+
+      {
+        showLocationPopup && (
+          <PopupOverlay>
+            <PopupContent theme={themevars.popup}>
+              <CloseButton
                 theme={themevars}
                 onClick={handleLocationCancelClick}
-              >
-                Cancel
-              </CancelButton>
-            </div>
-          </PopupContent>
-        </PopupOverlay>
-      )}
-    </ProfilePage>
+              />
+              <h2>Edit Location</h2>
+              <EditInput
+                theme={themevars}
+                type="text"
+                name="location"
+                value={editProfile.location}
+                onChange={handleInputChange}
+              />
+              <div>
+                <SaveButton theme={themevars} onClick={handleLocationSaveClick}>
+                  Save
+                </SaveButton>
+                <CancelButton
+                  theme={themevars}
+                  onClick={handleLocationCancelClick}
+                >
+                  Cancel
+                </CancelButton>
+              </div>
+            </PopupContent>
+          </PopupOverlay>
+        )
+      }
+    </ProfilePage >
   );
 };
 

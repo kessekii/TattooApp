@@ -104,7 +104,7 @@ const App: React.FC = () => {
       <Route path="*" element={<NotFound />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoutes />}>
-        <Route element={<ResponsiveDrawer />}>
+        <Route element={<ResponsiveDrawer setIsEditingProfile={setIsEditingProfile} />}>
           {/* NewStreamPage Route
           <Route
             path="/newstream"
@@ -122,7 +122,7 @@ const App: React.FC = () => {
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 {(Object.keys(user).length > 0 &&
                   !(Object.keys(friend).length > 0)) ||
-                (user && friend && user.username === friend.username) ? (
+                  (user && friend && user.username === friend.username) ? (
                   <ProfilePageComponent theme />
                 ) : (
                   <FriendPageComponent theme />
@@ -148,7 +148,7 @@ const App: React.FC = () => {
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 {(Object.keys(user).length > 0 &&
                   !(Object.keys(friend).length > 0)) ||
-                (user && friend && user.username === friend.username) ? (
+                  (user && friend && user.username === friend.username) ? (
                   <PortfolioViewPage />
                 ) : (
                   <FriendPortfolioViewPage />
