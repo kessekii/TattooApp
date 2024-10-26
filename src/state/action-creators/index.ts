@@ -106,8 +106,7 @@ export const getNewsAction = () => {
       const headers = {
         Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
       };
-      
-     
+
       // const loggetting = await AxiosCustom.post(
       //   "http://localhost:8000",
       //   loginParams,
@@ -119,17 +118,15 @@ export const getNewsAction = () => {
       const { data } = await AxiosCustom.get(endpoints.NEWS, {
         headers,
       });
-    
 
       dispatch({
         type: ActionType.NEWS,
         payload: data.payload,
       });
       if (!data.successful) {
-        
         return data.payload;
       }
-     
+
       return true;
     } catch (err) {
       console.log(err);
@@ -144,8 +141,7 @@ export const makeEventAction = (payload: any) => {
       const headers = {
         Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
       };
-      
-      
+
       // const loggetting = await AxiosCustom.post(
       //   "http://localhost:8000",
       //   loginParams,
@@ -157,17 +153,15 @@ export const makeEventAction = (payload: any) => {
       const { data } = await AxiosCustom.post(endpoints.MAKEEVENT, payload, {
         headers,
       });
-    
 
       dispatch({
         type: ActionType.MAKEEVENT,
         payload: data.payload,
       });
       if (!data.successful) {
-        
         return data.payload;
       }
-     
+
       return true;
     } catch (err) {
       console.log(err);
@@ -215,41 +209,37 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
   };
 };
 
-export const createChatByUsername = (
+export const createChatByUsername = async (
   user: any,
 
   setErrorMessage: any,
   postId?: string
 ) => {
-  return async (dispatch: Dispatch<Action>) => {
-    try {
-      const headers = {
-        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-      };
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
 
-      const { data } = await AxiosCustom.post(
-        "chats/openPostAndChatByUserAndPostId",
-        { user, postId },
-        {
-          headers,
-        }
-      );
-
-      if (!data.successful) {
-        setErrorMessage(data.payload);
-        return;
+    const { data } = await AxiosCustom.post(
+      "chats/openPostAndChatByUserAndPostId",
+      { user, postId },
+      {
+        headers,
       }
+    );
 
-      dispatch({
-        type: ActionType.ADD_POINT,
-        payload: data.payload,
-      });
-    } catch (err) {
-      setErrorMessage(err);
-      console.error(err);
+    if (!data.successful) {
+      setErrorMessage(data.payload);
+      return;
     }
-  };
+
+    return data;
+  } catch (err) {
+    setErrorMessage(err);
+    console.error(err);
+  }
 };
+
 export const updateUser = (user: any, setErrorMessage: any) => {
   return async (dispatch: Dispatch<Action>) => {
     try {
@@ -306,6 +296,27 @@ export const updateChat = (chat: any, chatId: string, setErrorMessage: any) => {
     }
   };
 };
+
+export const updateChatStraight = async (chat: any, chatId: string) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+
+    const { data } = await AxiosCustom.post(
+      "chats/updateChat",
+      { chat, chatId },
+      {
+        headers,
+      }
+    );
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const addPoint = (user: any, setErrorMessage: any) => {
   return async (dispatch: Dispatch<Action>) => {
     try {

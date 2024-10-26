@@ -6,7 +6,7 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import { useActions } from "../../hooks/useActions";
 import { v4 as uuidv4 } from "uuid";
 import { useTheme } from "../../state/providers/themeProvider";
-import { PopupContent, PopupOverlay } from "./masterPage";
+import { PopupContent, PopupOverlay } from "./friendPage";
 import { createChatByUsername } from "../../state/action-creators";
 
 // Styled components

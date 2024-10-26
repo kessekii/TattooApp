@@ -1,8 +1,8 @@
 // src/components/BottomNav.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { Button, Paper } from "@mui/material";
+import { Box, Button, InputLabel, Paper, TextField } from "@mui/material";
 
 import {
   AdvancedMarker,
@@ -22,9 +22,16 @@ import { useActions } from "../../hooks/useActions";
 import {
   createPointByUsername,
   deletePointbyPointId,
+  getChatsByUserId,
   getPointByQuadIdAndPointId,
   getPointsInRadius,
+  getPostsByUserId,
+  getUserById,
+  updatePoint,
+  updatePointbyPointId,
 } from "../../../src/hooks/useChat";
+import { PostImage } from "../masterspage/masterPage";
+import zIndex from "@mui/material/styles/zIndex";
 
 type Poi = {
   key: string;
@@ -47,8 +54,16 @@ const PoiMarker = (props: {
   addPoint: any;
   setPoints: any;
   cameraLocation: any;
+  tryEditingAPoint: any;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [friend, setFriend] = useLocalStorage("friend", {});
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", {});
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", {});
+  const [isEdit, setIsEdit] = useState(false);
+  const [name, setName] = useState<string>(props.point?.data?.name || "");
+  const [desc, setDesc] = useState<string>(props.point?.data?.desc || "");
+  const navigate = useNavigate();
   useEffect(() => {
     if (props.point && props.focusedPoint === props.point?.pointId) {
       setIsVisible(true);
@@ -61,76 +76,155 @@ const PoiMarker = (props: {
   //   return <></>;
   // }
   // console.log(props.point);
+  const isAvailableEdit = Object.keys(props.user?.points).includes(
+    props.point?.location?.lat.toFixed(2) +
+      ":" +
+      props.point?.location?.lng.toFixed(2)
+  );
+  // console.log(props.point.data);
   return (
-    <AdvancedMarker
-      key={props.pointId}
-      position={
-        props.point && props.point?.location
-          ? {
-              lng: props.point?.location?.lng,
-              lat: props.point?.location?.lat,
-            }
-          : undefined
-      }
-      onMouseEnter={() => {
-        if (props.focusedPoint === null) setIsVisible(true);
-      }}
-      onMouseLeave={() => {
-        if (props.focusedPoint === null) setIsVisible(false);
-      }}
-      onClick={() => {
-        if (props.focusedPoint === null) props.setfocusedPoint(props.pointId);
-      }}
-    >
-      <div
-        style={{
-          width: isVisible ? "200px" : "40px",
-          height: isVisible ? "200px" : "40px",
-          zIndex: "1",
-          background: isVisible ? "white" : "black",
+    <>
+      {isVisible && isAvailableEdit && isEdit && (
+        <Box style={{ zIndex: 10000 }}>
+          <textarea
+            onChange={(e) => {
+              console.log(e);
+              setName(e.target.value);
+            }}
+            value={name}
+            className={"textarea"}
+          >
+            {/* {name} */}
+          </textarea>
+          <textarea
+            onChange={(e) => setDesc(e.target.value)}
+            value={desc}
+            className={"textarea"}
+          >
+            {/* {desc} */}
+          </textarea>
+        </Box>
+      )}
+      <AdvancedMarker
+        key={props.pointId}
+        position={
+          props.point && props.point?.location
+            ? {
+                lng: props.point?.location?.lng,
+                lat: props.point?.location?.lat,
+              }
+            : undefined
+        }
+        onMouseEnter={() => {
+          if (props.focusedPoint === null) setIsVisible(true);
+        }}
+        onMouseLeave={() => {
+          if (props.focusedPoint === null) setIsVisible(false);
+        }}
+        onClick={() => {
+          if (props.focusedPoint === null) props.setfocusedPoint(props.pointId);
         }}
       >
-        {isVisible && props.point?.icon !== "" && (
-          <Paper
-            style={{
-              zIndex: "1",
-              background: "black",
-              width: "40px",
-              height: "40px",
-            }}
-            onClick={() => {
-              if (props.focusedPoint === null)
-                props.setfocusedPoint(props.point?.pointId);
-            }}
-          ></Paper>
-        )}
-        {isVisible && (
-          <>
-            <Typography color="black">{props.point?.data?.name}</Typography>
-            <Typography color="black">
-              {props.point?.data?.discription}
-            </Typography>
-            <Button
-              onClick={async () => {
-                await props.tryRemovingAPoint(
-                  props.point,
-
-                  props.setUser,
-
-                  props.auth,
-
-                  props.setPoints,
-                  props.cameraLocation
-                );
-                props.setfocusedPoint(null);
+        <div
+          style={{
+            width: isVisible ? "200px" : "40px",
+            height: isVisible ? "200px" : "40px",
+            zIndex: "1",
+            background: isVisible ? "white" : "black",
+          }}
+        >
+          {(isVisible && props.point?.data?.icon && (
+            <Paper
+              style={{
+                zIndex: "1",
+                background: "black",
+                width: "40px",
+                height: "40px",
               }}
-              style={{ width: "20px", height: "20px", background: "red" }}
-            ></Button>
-          </>
-        )}
-      </div>
-      {/* </Pin> */}
-    </AdvancedMarker>
+              onClick={() => {
+                if (props.focusedPoint === null)
+                  props.setfocusedPoint(props.point?.pointId);
+              }}
+            ></Paper>
+          )) || <PostImage src={props.point?.data?.icon}></PostImage>}
+          {isVisible && (
+            <>
+              <Button
+                onClick={async () => {
+                  await props.tryRemovingAPoint(
+                    props.point,
+
+                    props.setUser,
+
+                    props.auth,
+
+                    props.setPoints,
+                    props.cameraLocation
+                  );
+                  props.setfocusedPoint(null);
+                }}
+                style={{ width: "20px", height: "20px", background: "red" }}
+              >
+                REMOVE
+              </Button>
+              {isVisible && !isEdit && (
+                <>
+                  <Typography color="black">
+                    {props.point?.data?.name}
+                  </Typography>
+                  <Typography color="black">
+                    {props.point?.data?.desc}
+                  </Typography>
+                </>
+              )}
+              {(isVisible && isAvailableEdit && (
+                <Button
+                  onClick={async () => {
+                    setIsEdit(!isEdit);
+                    await props.tryEditingAPoint(
+                      {
+                        ...props.point,
+                        data: { ...props.point.data, name: name, desc: desc },
+                      },
+
+                      props.setUser,
+
+                      props.auth,
+
+                      props.setPoints,
+                      props.cameraLocation
+                    );
+                  }}
+                  style={{ width: "20px", height: "20px", background: "gray" }}
+                >
+                  EDIT
+                </Button>
+              )) || (
+                <Button
+                  onClick={async () => {
+                    const firned = (await getUserById(props.point.owner))
+                      .payload;
+                    setFriend(firned);
+                    setFriendPosts(
+                      (await getPostsByUserId(props.point.owner)).payload
+                    );
+                    setFriendChats(
+                      (await getChatsByUserId(props.point.owner)).payload
+                    );
+
+                    navigate("../" + props.point.owner);
+                  }}
+                  style={{ width: "20px", height: "20px", background: "gray" }}
+                >
+                  TO OWNER PAGE
+                </Button>
+              )}
+            </>
+          )}
+        </div>
+        {/* </Pin> */}
+      </AdvancedMarker>
+    </>
   );
 };
 const tryRemovingAPoint = async (
@@ -151,6 +245,32 @@ const tryRemovingAPoint = async (
   const coord = point_lat + ":" + point_lng;
   const newUserData = (await deletePointbyPointId(coord, point.pointId))
     .payload;
+  // console.log("EEEE", userData);
+
+  const pointsObject = await getPointsInRadius(cameraLocation, false);
+
+  setUser(newUserData);
+  setPoints(pointsObject.payload);
+  await auth.setUserFull(newUserData);
+  // setFocusedPoint(null);
+};
+const tryEditingAPoint = async (
+  point: any,
+
+  setUser: any,
+
+  auth: any,
+
+  setPoints: any,
+  cameraLocation: any
+) => {
+  const headers = {
+    Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+  };
+  const point_lat = point.location.lat.toFixed(2).toString();
+  const point_lng = point.location.lng.toFixed(2).toString();
+  const coord = point_lat + ":" + point_lng;
+  const newUserData = (await updatePointbyPointId(coord, point)).payload;
   // console.log("EEEE", userData);
 
   const pointsObject = await getPointsInRadius(cameraLocation, false);
@@ -279,6 +399,7 @@ export const MapPage = () => {
             addPoint={addPoint}
             setPoints={setPoints}
             cameraLocation={cameraLocation}
+            tryEditingAPoint={tryEditingAPoint}
           ></PoiMarker>
         );
       }) || [],

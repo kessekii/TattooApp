@@ -32,11 +32,11 @@ import RegisterPage from "./pages/register/registerPage";
 import NewsFeed from "./pages/news/newsPage";
 import { createGlobalStyle, styled } from "styled-components";
 import { useTheme } from "./state/providers/themeProvider";
+import useLocalStorage from "./hooks/useLocalStorage";
+import FriendPageComponent from "./pages/friendpage/friendPage";
+import FriendPortfolioViewPage from "./pages/friendpage/portfolioViewPage";
 
-
-
-
-export const GlobalStyle = createGlobalStyle < ({ theme, children }) > `
+export const GlobalStyle = createGlobalStyle<{ theme; children }>`
 root {
   background: ${(props) => props.theme.background};
   color: ${(props) => props.theme.text};
@@ -74,8 +74,10 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app, "streaminai");
 
 const App: React.FC = () => {
-  const { login, user } = useTypedSelector((state) => state);
+  // const { login, user } = useTypedSelector((state) => state);
   // const { themevars } = useTheme()
+  const [user, setUser] = useLocalStorage("user", {});
+  const [friend, setFriend] = useLocalStorage("friend", {});
   const [profileData, setProfileData] = useState(user);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -118,7 +120,13 @@ const App: React.FC = () => {
             path="/:username"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                <ProfilePageComponent theme />
+                {(Object.keys(user).length > 0 &&
+                  !(Object.keys(friend).length > 0)) ||
+                (user && friend && user.username === friend.username) ? (
+                  <ProfilePageComponent theme />
+                ) : (
+                  <FriendPageComponent theme />
+                )}
               </ProtectedRoute>
             }
           />
@@ -138,7 +146,13 @@ const App: React.FC = () => {
             path="/:username/portfolio"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                <PortfolioViewPage />
+                {(Object.keys(user).length > 0 &&
+                  !(Object.keys(friend).length > 0)) ||
+                (user && friend && user.username === friend.username) ? (
+                  <PortfolioViewPage />
+                ) : (
+                  <FriendPortfolioViewPage />
+                )}
               </ProtectedRoute>
             }
           />

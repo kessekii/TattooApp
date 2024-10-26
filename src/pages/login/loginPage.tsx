@@ -21,6 +21,8 @@ import {
   getPointByQuadIdAndPointId,
   getChatByChatId,
   getPointsInRadius,
+  getChatsByUserId,
+  getPostsByUserId,
 } from "../../hooks/useChat";
 import { getProfileData } from "../../state/action-creators";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
@@ -35,6 +37,10 @@ const RepositoriesList = () => {
   const { loginAction } = useActions();
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
+  const [friend, setFriend] = useLocalStorage("friend", null);
+  const [posts, setPosts] = useLocalStorage("posts", null);
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const auth = useAuth();
   const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
@@ -45,25 +51,12 @@ const RepositoriesList = () => {
         loginAction({ username: loginF, password: password }, setErrorMessage);
         await auth.login(password, loginF);
         await auth.setUserFull(user);
-        const payload = (await getProfileData(loginF)).payload;
-        console.log("1", payload.event);
-        const temp = { ...payload.event, events: [], chats: [], points: [] };
-        const GetChatsObject = async () => {
-          let chatsObject: any = {};
+        const userData = await getProfileData(loginF);
+        // console.log("1", payload.event);
+        // const temp = { ...userData.payload.event, events: [], chats: [], points: [] };
 
-          if (temp && temp.chats && temp.length > 0) {
-            for (let chatId of Object.keys(temp.chats ? temp.chats : {})) {
-              const chatData = await getChatByChatId(chatId, loginF);
-
-              chatsObject[chatId] = chatData.payload;
-            }
-            console.log("2", chatsObject);
-          }
-          return chatsObject.length > 0 ? chatsObject : [];
-        };
-
-        let chatsObject = await GetChatsObject();
-        console.log("3", temp);
+        const chatData = await getChatsByUserId(loginF);
+        const postsData = await getPostsByUserId(loginF);
 
         const pointsObject = await getPointsInRadius(
           {
@@ -72,10 +65,14 @@ const RepositoriesList = () => {
           },
           false
         );
-        setUser(payload);
-        setChats(chatsObject);
+        setUser(userData.payload);
+        setFriend(userData.payload);
+        setPosts(postsData.payload);
+        setChats(chatData.payload);
+        setFriendChats(chatData.payload);
+        setFriendPosts(postsData.payload);
         setPoints(pointsObject.payload);
-        await auth.setUserFull(payload);
+        await auth.setUserFull(userData.payload);
 
         navigate("/" + loginF);
       }

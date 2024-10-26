@@ -11,12 +11,7 @@ import { loginAction } from "src/state/action-creators";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import {
-  getChatByChatId,
-  getChatsByUserId,
-  getPostsByUserId,
-  getUserById,
-} from "../../../src/hooks/useChat";
+import { getChatByChatId } from "src/hooks/useChat";
 import { useTheme } from "../../state/providers/themeProvider";
 import {
   CalendarMonth,
@@ -510,32 +505,30 @@ export const Typefield = styled(Typography)<{ theme; bold? }>`
   color: ${(props) => props.theme.text};
 `;
 
-// Sample user data and login state
+// Sample friend data and login state
 
-// Simulating that the user is logged in on this device
+// Simulating that the friend is logged in on this device
 
-const ProfilePageComponent: React.FC<any> = ({ theme }) => {
+const FriendPageComponent: React.FC<any> = ({ theme }) => {
   const { toggleTheme, themevars } = useTheme();
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
-  const [posts, setPosts] = useLocalStorage("posts", null);
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+  const [posts, setPosts] = useLocalStorage("friendPosts", null);
   const [openedUser, setOpenedUser] = useLocalStorage("openedUser", null);
-  const [chats, setChats] = useLocalStorage("chats", null);
+  const [chats, setChats] = useLocalStorage("friendChats", null);
 
   const loggedInUser = user.username === friend.username;
   const { username, postId } = useParams();
   const { isEditing, setIsEditing } = useEditing();
 
   const [editProfile, setEditProfile] = useState(
-    user
+    friend
       ? {
-          name: user.name,
-          username: user.username,
-          description: user.description,
-          profilePicture: user.profilePicture,
-          location: user.location,
+          name: friend.name,
+          username: friend.username,
+          description: friend.description,
+          profilePicture: friend.profilePicture,
+          location: friend.location,
         }
       : {
           name: "",
@@ -546,13 +539,13 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
         }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
-    user && user.friends && Object.keys(user.friends).length > 0
-      ? user.friends[username]
+    friend && friend.friends && Object.keys(friend.friends).length > 0
+      ? friend.friends[username]
       : false
   );
   const [friendFollowing, setFriendFollowing] = useState(
-    user && user.friends && Object.keys(user.friends).length > 0
-      ? user.friends[username]
+    friend && friend.friends && Object.keys(friend.friends).length > 0
+      ? friend.friends[username]
       : false
   );
 
@@ -597,26 +590,26 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   const handleReviewSubmit = () => {
     const updatedReviews =
-      user.reviews && user.reviews.length > 0
+      friend.reviews && friend.reviews.length > 0
         ? [
-            ...user.reviews,
-            { photo: user.image, nickname: user.username, ...newReview },
+            ...friend.reviews,
+            { photo: friend.image, nickname: friend.username, ...newReview },
           ]
-        : [{ photo: user.image, nickname: user.username, ...newReview }];
+        : [{ photo: friend.image, nickname: friend.username, ...newReview }];
     // setProfileData({
-    //   ...user,
+    //   ...friend,
     //   reviews: updatedReviews,
     // });
 
     updateUser(
       {
-        ...user,
+        ...friend,
         reviews: updatedReviews,
       },
       setErrorMessage
     );
-    setUser({
-      ...user,
+    setFriend({
+      ...friend,
       reviews: updatedReviews,
     });
     setNewReview({ text: "", mark: 5 }); // Reset form
@@ -632,17 +625,18 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   // Save changes
   const handleSaveClick = async (updateUser: any, setErrorMessage: any) => {
     const newProfileData = {
-      ...user,
+      ...friend,
       name: editProfile.name,
       //   username: username,
       description: editProfile.description,
-      profilePicture: newImage.src !== "" ? newImage.src : user.profilePicture,
+      profilePicture:
+        newImage.src !== "" ? newImage.src : friend.profilePicture,
       location: editProfile.location,
     };
     // setProfileData(newProfileData);
     updateUser(newProfileData, setErrorMessage);
     setIsEditing(false);
-    setUser(newProfileData);
+    setFriend(newProfileData);
 
     setChats(newProfileData.chats);
   };
@@ -650,11 +644,11 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   // Cancel editing
   const handleCancelClick = () => {
     setEditProfile({
-      name: user.name,
+      name: friend.name,
       username: username,
-      description: user.description,
-      profilePicture: user.profilePicture,
-      location: user.location,
+      description: friend.description,
+      profilePicture: friend.profilePicture,
+      location: friend.location,
     });
     setIsEditing(false);
   };
@@ -691,24 +685,24 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       username: friend.username,
     };
 
-    console.log("New Post:", friend, user.friends, username, friend.username);
-    const updatedProfileData = { ...user };
+    console.log("New Post:", friend, friend.friends, username, friend.username);
+    // const updatedProfileData = { ...user };
 
-    if (updatedProfileData.friends[user.username]) {
-      delete updatedProfileData.friends[user.username];
+    if (user.friends[friend.username]) {
+      delete user.friends[friend.username];
     }
 
     if (!isFollowing) {
-      updatedProfileData.friends[username] = newFriend;
+      user.friends[username] = newFriend;
     }
 
     // setProfileData(updatedProfileData);
-    updateUser(updatedProfileData, setErrorMessage);
-    setUser(updatedProfileData);
+    updateUser(user, setErrorMessage);
+    setUser(user);
   };
   const postsComponents = useMemo(
     () =>
-      user &&
+      friend &&
       posts &&
       Object.keys(posts).length > 0 &&
       Object.keys(posts).map((post) => (
@@ -722,7 +716,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
           />
         </Post>
       )),
-    [user]
+    [friend]
   );
   const handleMapClick = () => {
     window.location.href = "/map";
@@ -736,11 +730,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     setShowLinksPopup(false);
   };
 
-  const handleFriendClick = async (profileLink: string) => {
-    const firned = (await getUserById(profileLink)).payload;
-    setFriend(firned);
-    setFriendPosts((await getPostsByUserId(profileLink)).payload);
-    setFriendChats((await getChatsByUserId(profileLink)).payload);
+  const handleFriendClick = (profileLink: string) => {
     window.location.href = profileLink;
   };
 
@@ -750,19 +740,19 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   const handleLocationSaveClick = () => {
     const newUserData = {
-      ...user,
+      ...friend,
       location: editProfile.location,
     };
     // setProfileData(newUserData);
     updateUser(newUserData, setErrorMessage);
-    setUser(newUserData);
+    setFriend(newUserData);
     setShowLocationPopup(false);
   };
 
   const handleLocationCancelClick = () => {
     setEditProfile((prevProfile) => ({
       ...prevProfile,
-      location: user.location,
+      location: friend.location,
     }));
     setShowLocationPopup(false);
   };
@@ -784,7 +774,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     let index = -1;
 
     // Check if the date already exists in the calendar
-    const filteredDates = user.calendar.filter((d, i) => {
+    const filteredDates = friend.calendar.filter((d, i) => {
       if (d.date === date.date) {
         index = i;
         return true;
@@ -794,46 +784,46 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
     if (index !== -1) {
       // If the date exists, remove the selected time if it exists, otherwise, add it
-      const existingHours = user.calendar[index].hours;
+      const existingHours = friend.calendar[index].hours;
 
       // Check if the selected time exists in the hours array
       const hourIndex = existingHours.indexOf(date.time);
 
       if (hourIndex !== -1) {
         // Remove the hour if it exists
-        user.calendar[index].hours = existingHours.filter(
+        friend.calendar[index].hours = existingHours.filter(
           (hour) => hour !== date.time
         );
         console.log(
           `Time ${date.time} removed from the existing date`,
-          user.calendar[index].hours
+          friend.calendar[index].hours
         );
       } else {
         // Add the new hour if it doesn't exist
-        user.calendar[index].hours.push(date.time);
+        friend.calendar[index].hours.push(date.time);
         console.log(
           `Time ${date.time} added to the existing date`,
-          user.calendar[index].hours
+          friend.calendar[index].hours
         );
       }
 
       // Update the state
-      const updatedProfileData = { ...user };
+      const updatedProfileData = { ...friend };
       updatedProfileData.calendar[index].hours = [
-        ...user.calendar[index].hours,
+        ...friend.calendar[index].hours,
       ];
       // setProfileData(updatedProfileData);
       updateUser(updatedProfileData, setErrorMessage);
-      setUser(updatedProfileData);
+      setFriend(updatedProfileData);
     } else {
       // If the date doesn't exist, add it to the calendar
       console.log("Date not found, adding new date", date);
 
-      const updatedProfileData = { ...user };
+      const updatedProfileData = { ...friend };
       updatedProfileData.calendar.push({ date: date.date, hours: [date.time] });
       // setProfileData(updatedProfileData);
       updateUser(updatedProfileData, setErrorMessage);
-      setUser(updatedProfileData);
+      setFriend(updatedProfileData);
     }
   };
 
@@ -850,15 +840,15 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
     console.log("Date already found in calendar", finalDates);
 
-    user.calendar = finalDates;
-    // setProfileData(user);
+    friend.calendar = finalDates;
+    // setProfileData(friend);
 
-    updateUser(user, setErrorMessage);
-    setUser(user);
+    updateUser(friend, setErrorMessage);
+    setFriend(friend);
     setIsEditing(false);
 
-    console.log("Updated Calendar:", user);
-    return user.calendar;
+    console.log("Updated Calendar:", friend);
+    return friend.calendar;
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -872,36 +862,36 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   };
 
   const handleFollow = () => {
-    if (user && user.friends && Object.keys(user.friends).length > 0) {
+    const user = JSON.parse(window.localStorage.getItem("user") || "{}");
+    if (
+      user &&
+      user.friends &&
+      Object.keys(user.friends).length > 0 &&
+      user.friends[username]
+    ) {
       setIsFollowing(!user.friends[username]);
     } else {
       setIsFollowing(false);
     }
-
-    const updatedFriends = user.friends;
-    if (!isFollowing && user.friends) {
-      updatedFriends[username] = {
-        avatar: user.profilePicture,
-        nickname: user.name,
-        username: user.username,
+    if (Object.keys(user.friends).length === 0) {
+      user.friends = {};
+    }
+    if (!isFollowing && !user.friends[username]) {
+      user.friends[username] = {
+        avatar: friend.profilePicture,
+        nickname: friend.name,
+        username: friend.username,
       };
     }
+    console.log(user);
     // setProfileData((prevProfile) => ({
     //   ...prevProfile,
     //   friends: updatedFriends,
     // }));
 
-    updateUser(
-      (prevProfile) => ({
-        ...prevProfile,
-        friends: updatedFriends,
-      }),
-      setErrorMessage
-    );
-    setUser((prevProfile) => ({
-      ...prevProfile,
-      friends: updatedFriends,
-    }));
+    updateUser(user, setErrorMessage);
+
+    setUser(user);
   };
 
   const handleClose = (value: boolean) => {
@@ -952,30 +942,35 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={user && user.profilePicture ? user.profilePicture : ""}
+                  src={
+                    friend && friend.profilePicture ? friend.profilePicture : ""
+                  }
                   alt="Profile Picture"
                 />
               </div>
 
               <GridCell>
-                {user && user.name && user.description && user.location && (
-                  <div style={{ justifyContent: "start" }}></div>
-                )}
+                {friend &&
+                  friend.name &&
+                  friend.description &&
+                  friend.location && (
+                    <div style={{ justifyContent: "start" }}></div>
+                  )}
               </GridCell>
             </ProfileGrid>
           )}
 
           <ProfileDescription>
-            {user && user.name && user.description && user.location && (
+            {friend && friend.name && friend.description && friend.location && (
               <div style={{ justifyContent: "start" }}>
                 <Typefield style={{ fontWeight: "700" }}>
-                  {user && user.name}
+                  {friend && friend.name}
                 </Typefield>
                 <Typefield style={{ fontWeight: "400", opacity: "0.5" }}>
-                  {user.location}
+                  {friend.location}
                 </Typefield>
                 <Typefield style={{ color: themevars.text }}>
-                  {user.description}
+                  {friend.description}
                 </Typefield>
               </div>
             )}
@@ -1042,13 +1037,17 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             >
               Friends
             </Typefield>
-            {/* {user && user.reviews && user.reviews?.length && user.friends */}
-            {Object.keys(user.friends).map((friendKey, index) => (
+            {/* {friend && friend.reviews && friend.reviews?.length && friend.friends */}
+            {[
+              { nickname: "wdwdwd", avatar: friend.profilePicture },
+              { nickname: "wdwdwd", avatar: friend.profilePicture },
+              { nickname: "wdwdwd", avatar: friend.profilePicture },
+            ].map((friend, index) => (
               <FriendAvatar
                 theme={themevars}
                 key={index}
-                src={user.friends[friendKey].avatar}
-                alt={user.friends[friendKey].nickname}
+                src={friend.avatar}
+                alt={friend.nickname}
                 onClick={() => setShowFriends(true)}
               />
             ))}
@@ -1079,9 +1078,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
                 </EditButton>
                 <h2>Client Reviews</h2>
                 <ReviewList>
-                  {user.reviews &&
-                    user.reviews.length > 0 &&
-                    user.reviews.map((review, index) => (
+                  {friend.reviews &&
+                    friend.reviews.length > 0 &&
+                    friend.reviews.map((review, index) => (
                       <ReviewItem key={index}>
                         <ReviewPhoto
                           src={review.photo}
@@ -1144,31 +1143,31 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             </EditButton>
             <h2>Friends List</h2>
             <FriendsList theme={themevars}>
-              {Object.keys(user.friends)?.map((friend, index) => (
+              {Object.keys(friend.friends)?.map((friendusername, index) => (
                 <FriendItem
                   theme={themevars}
                   key={index}
-                  onClick={async () =>
-                    await handleFriendClick(user.friends[friend].username)
+                  onClick={() =>
+                    handleFriendClick(friend.friends[friendusername].username)
                   }
                 >
                   <FriendPhoto
                     theme={themevars}
-                    src={user.friends[friend].avatar}
-                    alt={user.friends[friend].nickname}
+                    src={friend.friends[friendusername].image}
+                    alt={friend.friends[friendusername].nickname}
                   />
                   <FriendNickname theme={themevars}>
-                    {user.friends[friend].nickname}
+                    {friend.friends[friendusername].nickname}
                   </FriendNickname>
                   <FollowButton
                     theme={themevars}
-                    following={user.friends[friend]}
+                    following={friend.friends[friendusername]}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleFriendFollowClick(
                         index,
-                        user.friends[friend],
-                        user.friends[friend] ? true : false
+                        friend.friends[friendusername],
+                        friend.friends[friendusername] ? true : false
                       );
                     }}
                   >
@@ -1192,9 +1191,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             </EditButton>
             <h2>Social Media Links</h2>
             <SocialMediaLinks theme={themevars.popup}>
-              {user &&
-                user.socialLinks &&
-                user.socialLinks.map((link, index) => (
+              {friend &&
+                friend.socialLinks &&
+                friend.socialLinks.map((link, index) => (
                   <SocialMediaLink key={index} href={link.url} target="_blank">
                     {link.platform}
                   </SocialMediaLink>
@@ -1217,7 +1216,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
                 <PortfolioImagePicker onImageSelect={handleImageSelect} />{" "}
                 <CalendarComponent
                   setClosePopup={handleCalendarClick}
-                  availableHours={user.calendar}
+                  availableHours={friend.calendar}
                   setClientDate={setClientDate}
                 />{" "}
               </>
@@ -1270,4 +1269,4 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   );
 };
 
-export default ProfilePageComponent;
+export default FriendPageComponent;

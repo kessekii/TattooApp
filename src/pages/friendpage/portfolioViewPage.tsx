@@ -28,15 +28,16 @@ import {
   UserName,
   UserSection,
 } from "./profileVIewPageComponents";
-import { EditButton } from "./masterPage";
+import { EditButton } from "./friendPage";
 import ChatComponent from "../components/chat";
 import { updateChatStraight } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
 
-const PortfolioViewPage: React.FC = ({}) => {
+const FriendPortfolioViewPage: React.FC = ({}) => {
+  const [friend, setFriend] = useLocalStorage("friend", null);
   const [user, setUser] = useLocalStorage("user", null);
-  const [chats, setChats] = useLocalStorage("chats", null);
-  const [posts, setPosts] = useLocalStorage("posts", null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const { updateUser, updateChat } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
   const [showCommentsPopup, setShowCommentsPopup] = useState<string | null>(
@@ -64,31 +65,36 @@ const PortfolioViewPage: React.FC = ({}) => {
 
   const handleCommentSubmit = async (chatss: any, users: any) => {
     if (selectedPostId !== null && newComment.trim() !== "") {
-      const user = JSON.parse(window.localStorage.getItem("user") || "{}");
-      const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
-      const posts = JSON.parse(window.localStorage.getItem("posts") || "{}");
+      const friend = JSON.parse(window.localStorage.getItem("friend") || "{}");
+      const friendChats = JSON.parse(
+        window.localStorage.getItem("friendChats") || "{}"
+      );
+      const friendPosts = JSON.parse(
+        window.localStorage.getItem("friendPosts") || "{}"
+      );
       // Find the selected post
-      // const updatedPosts = user.posts.map((post) => {
+      // const updatedPosts = friend.friendPosts.map((post) => {
       //     post.id === selectedPostId && post.comments && post.comments.length > 0) {
       //         // Add the new comment to the selected post
       //         return {
       //             ...post,
-      //             comments: [...post.comments, { author: user.username, text: newComment }],
+      //             comments: [...post.comments, { author: friend.username, text: newComment }],
       //         };
       //     }
       //     return {
       //         ...post,
-      //         comments: [{ author: user.username, text: newComment }],
+      //         comments: [{ author: friend.username, text: newComment }],
 
       //     }
       // })
 
-      const filteredPost = user && posts ? posts[selectedPostId] : [];
+      const filteredPost =
+        friend && friendPosts ? friendPosts[selectedPostId] : [];
 
       const chat =
-        chats && Object.keys(chats).length === 0
+        friendChats && Object.keys(friendChats).length === 0
           ? {}
-          : chats[filteredPost.chatId];
+          : friendChats[filteredPost.chatId];
 
       console.log(chat, selectedPostId);
 
@@ -101,41 +107,41 @@ const PortfolioViewPage: React.FC = ({}) => {
 
         await updateChatStraight(chat, filteredPost.chatId);
 
-        if (!chats[filteredPost.chatId]) {
-          chats[filteredPost.chatId] = {};
+        if (!friendChats[filteredPost.chatId]) {
+          friendChats[filteredPost.chatId] = {};
         }
-        const postsData = (await getPostsByUserId(user.username)).payload;
-        chats[filteredPost.chatId].messages = chat.messages;
-        setUser(user);
-        setChats(chats);
-        setPosts(postsData);
+        const postsData = (await getPostsByUserId(friend.username)).payload;
+        friendChats[filteredPost.chatId].messages = chat.messages;
+        setFriend(friend);
+        setFriendChats(friendChats);
+        setFriendPosts(postsData);
       } else if (
-        !chats ||
+        !friendChats ||
         (chat && (!chat.messages || chat.messages.length === 0))
       ) {
         console.log("first");
 
         chat.messages = [
           {
-            author: user.username,
+            author: friend.username,
             text: newComment,
           },
         ];
 
         await updateChatStraight(chat, filteredPost.chatId);
-        const postsData = (await getPostsByUserId(user.username)).payload;
-        if (!chats[filteredPost.chatId]) {
-          chats[filteredPost.chatId] = {};
+        const postsData = (await getPostsByUserId(friend.username)).payload;
+        if (!friendChats[filteredPost.chatId]) {
+          friendChats[filteredPost.chatId] = {};
         }
-        chats[filteredPost.chatId].messages = chat.messages;
-        setUser(user);
-        setChats(chats);
-        setPosts(postsData);
+        friendChats[filteredPost.chatId].messages = chat.messages;
+        setFriend(friend);
+        setFriendChats(friendChats);
+        setFriendPosts(postsData);
       }
 
       console.log();
 
-      // Update user with the new comments
+      // Update friend with the new comments
 
       // Clear the input and close the popup
       setNewComment("");
@@ -145,48 +151,55 @@ const PortfolioViewPage: React.FC = ({}) => {
 
   return (
     <PortfolioPage theme={themevars}>
-      {user &&
-        Object.keys(user.posts || {}).map((post) => (
+      {friend &&
+        Object.keys(friend.posts || {}).map((post) => (
           <PostWrapper key={post}>
-            <PostImage src={posts[post].image} alt={`Post ${post}`} />
+            <PostImage src={friendPosts[post].image} alt={`Post ${post}`} />
             <PostDetails>
               <UserSection>
                 <UserAvatar
-                  src={user.profilePicture}
-                  alt={`${user.username} avatar`}
+                  src={friend.profilePicture}
+                  alt={`${friend.username} avatar`}
                 />
                 <UserName onClick={() => navigate("../mastersPage")}>
-                  {user.name}
+                  {friend.name}
                 </UserName>
               </UserSection>
-              <Description>{posts[post].description}</Description>
+              <Description>{friendPosts[post].description}</Description>
               <Caption>
-                <strong>{posts[post].user && posts[post].user.name}</strong>{" "}
-                {posts[post].description}
+                <strong>
+                  {friendPosts[post].friend && friendPosts[post].friend.name}
+                </strong>{" "}
+                {friendPosts[post].description}
               </Caption>
 
-              {chats && chats[posts[post].chatId] ? (
+              {friendChats && friendChats[friendPosts[post].chatId] ? (
                 <CommentSection
                   theme={themevars}
                   onClick={() => handleCommentsClick(post)}
                 >
-                  {chats[posts[post].chatId]?.messages?.length === 0 ? (
+                  {friendChats[friendPosts[post].chatId]?.messages?.length ===
+                  0 ? (
                     <>No comments yet</>
                   ) : (
                     <>
                       <>
                         View all{" "}
-                        {chats[posts[post].chatId]?.messages?.length || 0}{" "}
+                        {friendChats[friendPosts[post].chatId]?.messages
+                          ?.length || 0}{" "}
                         comments
                       </>
                       <strong>
-                        {chats[posts[post].chatId].messages?.length > 0
-                          ? chats[posts[post].chatId].messages[0].author
+                        {friendChats[friendPosts[post].chatId].messages
+                          ?.length > 0
+                          ? friendChats[friendPosts[post].chatId].messages[0]
+                              .author
                           : ""}
                       </strong>
                       :{" "}
-                      {chats[posts[post].chatId].messages?.length > 0
-                        ? chats[posts[post].chatId].messages[0].text
+                      {friendChats[friendPosts[post].chatId].messages?.length >
+                      0
+                        ? friendChats[friendPosts[post].chatId].messages[0].text
                         : ""}
                     </>
                   )}
@@ -214,17 +227,11 @@ const PortfolioViewPage: React.FC = ({}) => {
                   </EditButton>
                   <h2 style={{ color: themevars.text }}>Comments</h2>
 
-                  {/* Add New Comment */}
-                  <CommentInput
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={newComment}
-                    onChange={handleNewCommentChange}
-                  />
                   <CommentList>
-                    {chats[user.posts[post].chatId]?.messages &&
-                    chats[user.posts[post].chatId].messages.length > 0 ? (
-                      chats[user.posts[post].chatId].messages.map(
+                    {friendChats[friendPosts[post].chatId]?.messages &&
+                    friendChats[friendPosts[post].chatId].messages.length >
+                      0 ? (
+                      friendChats[friendPosts[post].chatId].messages.map(
                         (comment, index) => (
                           <CommentItem key={index}>
                             <CommentAuthor>{comment?.author}</CommentAuthor>
@@ -238,8 +245,16 @@ const PortfolioViewPage: React.FC = ({}) => {
                       </CommentItem>
                     )}
                   </CommentList>
+                  <CommentInput
+                    type="text"
+                    placeholder="Write a comment..."
+                    value={newComment}
+                    onChange={handleNewCommentChange}
+                  />
                   <CommentSubmitButton
-                    onClick={async () => handleCommentSubmit(chats, user)}
+                    onClick={async () =>
+                      handleCommentSubmit(friendChats, friend)
+                    }
                   >
                     Submit Comment
                   </CommentSubmitButton>
@@ -252,4 +267,4 @@ const PortfolioViewPage: React.FC = ({}) => {
   );
 };
 
-export default PortfolioViewPage;
+export default FriendPortfolioViewPage;

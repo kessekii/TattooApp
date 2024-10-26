@@ -24,6 +24,52 @@ export const getChatByChatId = async (chatId: string, username: string) => {
     console.log("error", error);
   }
 };
+export const getPostsByUserId = async (username: string) => {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://localhost:4000/posts/getPostsByUserId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+export const getChatsByUserId = async (username: string) => {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://localhost:4000/chats/getChatsByUserId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
 export const getPointByQuadIdAndPointId = async (
   quadId: string,
   pointId: string
@@ -111,6 +157,44 @@ export const deletePointbyPointId = async (quadId: string, pointId: string) => {
         body: JSON.stringify({ quadId: quadId, pointId: pointId }),
       }
     );
+
+    const result = response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+export const getUserById = async (username: string) => {
+  try {
+    const response = await fetch("http://localhost:4000/users/getProfileData", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ username: username }),
+    });
+
+    const result = response.json();
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const updatePointbyPointId = async (quadId: string, point: string) => {
+  try {
+    const response = await fetch("http://localhost:4000/points/updatePoint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ quadId: quadId, point: point }),
+    });
 
     const result = response.json();
     console.log(result);

@@ -23,7 +23,6 @@ const decodeJwt = (token: string) => {
 const ProtectedRoutes = () => {
   const { login } = useTypedSelector((state) => state);
 
-  console.log("ProtectedRoutes: :login", login);
   return <Outlet />;
 };
 
