@@ -124,19 +124,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton)<{ theme }>`
+export const SaveButton = styled(EditButton) <{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton)<{ theme }>`
+export const CancelButton = styled(EditButton) <{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(EditButton)<{ following }>`
+export const FollowButton = styled(EditButton) <{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -493,7 +493,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton)<{ theme }>`
+export const IcButton = styled(IconButton) <{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -509,7 +509,7 @@ export const IcButton = styled(IconButton)<{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography)<{ theme; bold? }>`
+export const Typefield = styled(Typography) <{ theme; bold?}>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -528,24 +528,24 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
 
   const loggedInUser = user.username === friend.username;
   const { username, postId } = useParams();
-  const { isEditing, setIsEditing } = useEditing();
+  const { isEditing, setIsEditingProfile } = useEditing();
 
   const [editProfile, setEditProfile] = useState(
     friend
       ? {
-          name: friend.name,
-          username: friend.username,
-          description: friend.description,
-          profilePicture: friend.profilePicture,
-          location: friend.location,
-        }
+        name: friend.name,
+        username: friend.username,
+        description: friend.description,
+        profilePicture: friend.profilePicture,
+        location: friend.location,
+      }
       : {
-          name: "",
-          username: "",
-          description: "",
-          profilePicture: "",
-          location: "",
-        }
+        name: "",
+        username: "",
+        description: "",
+        profilePicture: "",
+        location: "",
+      }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     friend && friend.friends && Object.keys(friend.friends).length > 0
@@ -603,9 +603,9 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     const updatedReviews =
       friend.reviews && friend.reviews.length > 0
         ? [
-            ...friend.reviews,
-            { photo: friend.image, nickname: friend.username, ...newReview },
-          ]
+          ...friend.reviews,
+          { photo: friend.image, nickname: friend.username, ...newReview },
+        ]
         : [{ photo: friend.image, nickname: friend.username, ...newReview }];
     // setProfileData({
     //   ...friend,
@@ -629,8 +629,8 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
 
   const navigate = useNavigate();
   // Toggle edit mode
-  const handleEditClick = () => {
-    setIsEditing(true);
+  const handleEditClick = async () => {
+    await setIsEditingProfile();
   };
 
   // Save changes
@@ -646,14 +646,14 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     };
     // setProfileData(newProfileData);
     updateUser(newProfileData, setErrorMessage);
-    setIsEditing(false);
+    await setIsEditingProfile();
     setFriend(newProfileData);
 
     setChats(newProfileData.chats);
   };
 
   // Cancel editing
-  const handleCancelClick = () => {
+  const handleCancelClick = async () => {
     setEditProfile({
       name: friend.name,
       username: username,
@@ -661,7 +661,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
       profilePicture: friend.profilePicture,
       location: friend.location,
     });
-    setIsEditing(false);
+    await setIsEditingProfile();
   };
 
   // Handle input changes for editable fields
@@ -860,7 +860,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
 
     updateUser(friend, setErrorMessage);
     setFriend(friend);
-    setIsEditing(false);
+    // setIsEditing(false);
 
     console.log("Updated Calendar:", friend);
     return friend.calendar;

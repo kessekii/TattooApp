@@ -11,8 +11,9 @@ import { FaCog, FaUserEdit, FaUser } from 'react-icons/fa';
 import { useAuth } from '../hooks/useAuth';
 import { useActions } from '../hooks/useActions';
 import useLocalStorage from '../hooks/useLocalStorage';
-
-
+import MessageIcon from "@mui/icons-material/Message";
+import { getPostsByUserId } from '../../src/hooks/useChat';
+import { getChatsByUserId } from '../../src/hooks/useChat';
 
 // Styled components using your custom theme
 
