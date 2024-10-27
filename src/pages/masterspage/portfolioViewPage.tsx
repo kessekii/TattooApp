@@ -99,7 +99,9 @@ const PortfolioViewPage: React.FC = ({}) => {
           text: newComment,
         });
 
-        await updateChatStraight(chat, filteredPost.chatId);
+        const newChatData = (
+          await updateChatStraight(chat, filteredPost.chatId)
+        ).payload;
 
         if (!chats[filteredPost.chatId]) {
           chats[filteredPost.chatId] = {};

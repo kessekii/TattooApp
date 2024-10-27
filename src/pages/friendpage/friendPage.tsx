@@ -7,11 +7,20 @@ import DateHourSelector from "./masterCalendarComponent";
 import { preview } from "vite";
 import { c } from "vite/dist/node/types.d-aGj9QkWt";
 import { set } from "date-fns";
-import { loginAction } from "src/state/action-creators";
+import {
+  loginAction,
+  openPrivateChatByUsername,
+  updateUserStriaght,
+} from "../../../src/state/action-creators";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import { getChatByChatId } from "src/hooks/useChat";
+import {
+  getChatByChatId,
+  getChatsByUserId,
+  getPostsByUserId,
+  getUserById,
+} from "../../../src/hooks/useChat";
 import { useTheme } from "../../state/providers/themeProvider";
 import {
   CalendarMonth,
@@ -550,6 +559,8 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
   );
 
   const { updateUser } = useActions();
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [showReviews, setShowReviews] = useState(false);
   const [showFriends, setShowFriends] = useState(false);
   const [showLinksPopup, setShowLinksPopup] = useState(false);
@@ -680,25 +691,25 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     console.log("Friend Following:", friend, friendFollowing);
 
     const newFriend = {
-      avatar: friend.profilePicture,
-      nickname: friend.name,
-      username: friend.username,
+      avatar: user.profilePicture,
+      nickname: user.name,
+      username: user.username,
     };
 
     console.log("New Post:", friend, friend.friends, username, friend.username);
     // const updatedProfileData = { ...user };
 
-    if (user.friends[friend.username]) {
-      delete user.friends[friend.username];
+    if (friend.friends[friend.username]) {
+      delete friend.friends[friend.username];
     }
 
     if (!isFollowing) {
-      user.friends[username] = newFriend;
+      friend.friends[username] = newFriend;
     }
 
     // setProfileData(updatedProfileData);
-    updateUser(user, setErrorMessage);
-    setUser(user);
+    updateUser(friend, setErrorMessage);
+    setFriend(friend);
   };
   const postsComponents = useMemo(
     () =>
@@ -730,7 +741,11 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     setShowLinksPopup(false);
   };
 
-  const handleFriendClick = (profileLink: string) => {
+  const handleFriendClick = async (profileLink: string) => {
+    const firned = (await getUserById(profileLink)).payload;
+    setFriend(firned);
+    setFriendPosts((await getPostsByUserId(profileLink)).payload);
+    setFriendChats((await getChatsByUserId(profileLink)).payload);
     window.location.href = profileLink;
   };
 
@@ -860,9 +875,12 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
       reader.readAsDataURL(event.target.files[0]);
     }
   };
-
-  const handleFollow = () => {
+  const handleOpenChat = async () => {
+    await openPrivateChatByUsername(user.username, friend.username);
+  };
+  const handleFollow = async () => {
     const user = JSON.parse(window.localStorage.getItem("user") || "{}");
+    const friend = JSON.parse(window.localStorage.getItem("friend") || "{}");
     if (
       user &&
       user.friends &&
@@ -882,6 +900,17 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
         nickname: friend.name,
         username: friend.username,
       };
+    } else {
+      delete user.friends[username];
+    }
+    if (!isFollowing && !friend.friends[username]) {
+      friend.friends[user.username] = {
+        avatar: user.profilePicture,
+        nickname: user.name,
+        username: user.username,
+      };
+    } else {
+      delete friend.friends[username];
     }
     console.log(user);
     // setProfileData((prevProfile) => ({
@@ -889,9 +918,14 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     //   friends: updatedFriends,
     // }));
 
-    updateUser(user, setErrorMessage);
+    const userDataNew = await updateUserStriaght(user, setErrorMessage);
 
-    setUser(user);
+    const friendsDataNew = await updateUserStriaght(friend, setErrorMessage);
+
+    console.log(userDataNew);
+    console.log(friendsDataNew);
+    setFriend(friendsDataNew.payload);
+    setUser(userDataNew.payload);
   };
 
   const handleClose = (value: boolean) => {
@@ -1025,6 +1059,9 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
               <IcoButton theme={themevars} onClick={handleLinksClick}>
                 <Link style={{ color: themevars.icons.color }} />
               </IcoButton>
+              <IcoButton theme={themevars} onClick={handleOpenChat}>
+                <Link style={{ color: themevars.icons.color }} />
+              </IcoButton>
             </GridTwo>
           )}
         </ProfileInfo>
@@ -1038,12 +1075,12 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
               Friends
             </Typefield>
             {/* {friend && friend.reviews && friend.reviews?.length && friend.friends */}
-            {Object.keys(user.friends).map((friendId, index) => (
+            {Object.keys(friend.friends || {}).map((friendId, index) => (
               <FriendAvatar
                 theme={themevars}
                 key={index}
-                src={user.friends[friendId].avatar}
-                alt={user.friends[friendId].nickname}
+                src={friend.friends[friendId].avatar}
+                alt={friend.friends[friendId].nickname}
                 onClick={() => setShowFriends(true)}
               />
             ))}
@@ -1053,7 +1090,9 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
           style={{ justifyItems: "end" }}
           theme={themevars}
           following={isFollowing}
-          onClick={handleFollow}
+          onClick={async () => {
+            await handleFollow();
+          }}
         >
           {isFollowing ? "Unfollow" : "Follow"}
         </FollowButton>
@@ -1149,7 +1188,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
                 >
                   <FriendPhoto
                     theme={themevars}
-                    src={friend.friends[friendusername].image}
+                    src={friend.friends[friendusername].avatar}
                     alt={friend.friends[friendusername].nickname}
                   />
                   <FriendNickname theme={themevars}>
@@ -1162,7 +1201,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
                       e.stopPropagation();
                       handleFriendFollowClick(
                         index,
-                        friend.friends[friendusername],
+                        friend,
                         friend.friends[friendusername] ? true : false
                       );
                     }}

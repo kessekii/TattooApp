@@ -239,7 +239,26 @@ export const createChatByUsername = async (
     console.error(err);
   }
 };
+export const updateUserStriaght = async (user: any, setErrorMessage: any) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
 
+    const { data } = await AxiosCustom.post(
+      endpoints.UPDATE_USER,
+      { user: user },
+      {
+        headers,
+      }
+    );
+
+    return data;
+  } catch (err) {
+    setErrorMessage(err);
+    console.error(err);
+  }
+};
 export const updateUser = (user: any, setErrorMessage: any) => {
   return async (dispatch: Dispatch<Action>) => {
     try {
@@ -296,7 +315,28 @@ export const updateChat = (chat: any, chatId: string, setErrorMessage: any) => {
     }
   };
 };
+export const openPrivateChatByUsername = async (
+  username: string,
+  friendUsername: string
+) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
 
+    const { data } = await AxiosCustom.post(
+      "chats/openPrivateChatByUsername",
+      { username, friendUsername },
+      {
+        headers,
+      }
+    );
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+};
 export const updateChatStraight = async (chat: any, chatId: string) => {
   try {
     const headers = {

@@ -57,6 +57,7 @@ const PoiMarker = (props: {
   tryEditingAPoint: any;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [user, setUser] = useLocalStorage("user", {});
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", {});
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", {});
@@ -88,10 +89,8 @@ const PoiMarker = (props: {
   //   return <></>;
   // }
   // console.log(props.point);
-  const isAvailableEdit = Object.keys(props.user?.points).includes(
-    props.point?.location?.lat.toFixed(2) +
-      ":" +
-      props.point?.location?.lng.toFixed(2)
+  const isAvailableEdit = Object.keys(user.points).includes(
+    props.point?.pointId
   );
   // console.log(props.point.data);
   return (
