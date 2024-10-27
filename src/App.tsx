@@ -35,6 +35,7 @@ import { useTheme } from "./state/providers/themeProvider";
 import useLocalStorage from "./hooks/useLocalStorage";
 import FriendPageComponent from "./pages/friendpage/friendPage";
 import FriendPortfolioViewPage from "./pages/friendpage/portfolioViewPage";
+import { ChatsPageComponent } from "./pages/chatspage/chatsPagge";
 
 export const GlobalStyle = createGlobalStyle<{ theme; children }>`
 root {
@@ -132,7 +133,14 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/chats"
+            element={
+              <ProtectedRoute redirectPath="/chats" isAllowed={!!user}>
+                <ChatsPageComponent />
+              </ProtectedRoute>
+            }
+          />
           {/* Portfolio Editor for a specific user */}
           <Route
             path="/:username/portfolioeditor"
