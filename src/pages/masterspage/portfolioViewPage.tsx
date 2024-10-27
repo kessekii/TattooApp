@@ -30,13 +30,18 @@ import {
 } from "./profileVIewPageComponents";
 import { EditButton } from "./masterPage";
 import ChatComponent from "../components/chat";
-import { updateChatStraight } from "../../state/action-creators";
+import {
+  getProfileData,
+  updateChatStraight,
+} from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
 
 const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const { updateUser, updateChat } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
   const [showCommentsPopup, setShowCommentsPopup] = useState<string | null>(
@@ -108,7 +113,9 @@ const PortfolioViewPage: React.FC = ({}) => {
         }
         const postsData = (await getPostsByUserId(user.username)).payload;
         chats[filteredPost.chatId].messages = chat.messages;
-        setUser(user);
+        const newUserData = await getProfileData(user.username);
+        setUser({ ...newUserData.payload });
+
         setChats(chats);
         setPosts(postsData);
       } else if (
@@ -130,7 +137,8 @@ const PortfolioViewPage: React.FC = ({}) => {
           chats[filteredPost.chatId] = {};
         }
         chats[filteredPost.chatId].messages = chat.messages;
-        setUser(user);
+        const newUserData = await getProfileData(user.username);
+        setUser({ ...newUserData.payload });
         setChats(chats);
         setPosts(postsData);
       }

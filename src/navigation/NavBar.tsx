@@ -26,11 +26,14 @@ import { useEditing } from "../hooks/useEditing";
 import { FaCog, FaUserEdit, FaUser } from "react-icons/fa";
 import useLocalStorage from "../hooks/useLocalStorage";
 import MessageIcon from "@mui/icons-material/Message";
+import { getChatsByUserId, getPostsByUserId } from "../../src/hooks/useChat";
 // Styled components using your custom theme
 
 const NavBar = () => {
   const [user] = useLocalStorage("user", null);
-
+  const [friend, setFriend] = useLocalStorage("friend", null);
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [isShrunk, setIsShrunk] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const { isEditing, setIsEditing } = useEditing();
@@ -154,13 +157,27 @@ const NavBar = () => {
                     <Menu isOpen={isOpen} theme={themevars.navbar}>
                       <MenuItem
                         theme={themevars}
-                        onClick={() => navigate("/" + user.username)}
+                        onClick={async () => {
+                          setFriend(user);
+                          setFriendPosts(
+                            (await getPostsByUserId(user.username)).payload
+                          );
+                          setFriendChats(
+                            (await getChatsByUserId(user.username)).payload
+                          );
+                          window.location.href = user.username;
+                          navigate("/" + user.username);
+                        }}
                       >
                         <FaUser /> Profile
                       </MenuItem>
                       <MenuItem
                         theme={themevars}
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => {
+                          setIsEditing(true);
+                          window.location.href = user.username;
+                          navigate("/" + user.username);
+                        }}
                       >
                         <FaUserEdit /> Edit Profile
                       </MenuItem>
