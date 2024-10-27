@@ -519,10 +519,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
+  const [chats, setChats] = useLocalStorage("chats", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [openedUser, setOpenedUser] = useLocalStorage("openedUser", null);
-  const [chats, setChats] = useLocalStorage("chats", null);
 
   const loggedInUser = user.username === friend.username;
   const { username, postId } = useParams();

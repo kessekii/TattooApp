@@ -233,16 +233,16 @@ const PortfolioEditorPage: React.FC = () => {
       await createChatByUsername(updatedProfileData, setErrorMessage, newUuid)
     ).payload;
     // updateUser(updatedProfileData, setErrorMessage);
-    const postsData = await getPostsByUserId(newUser.username);
-    const chatsData = await getChatsByUserId(newUser.username);
+    const postsData = await getPostsByUserId(updatedProfileData.username);
+    const chatsData = await getChatsByUserId(updatedProfileData.username);
     setUser(newUser);
     setIsNewImage(false);
     setPosts(postsData.payload);
     setChats(chatsData.payload);
-    if (navigateBack) {
-      navigate("/" + user.username);
-      closeModal();
-    }
+
+    // window.location.href = user.username;
+    navigate("/" + user.username);
+    closeModal();
   };
 
   // Delete image

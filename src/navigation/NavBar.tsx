@@ -30,10 +30,12 @@ import { getChatsByUserId, getPostsByUserId } from "../../src/hooks/useChat";
 // Styled components using your custom theme
 
 const NavBar = () => {
-  const [user] = useLocalStorage("user", null);
+  const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+  const [posts, setPosts] = useLocalStorage("posts", null);
+  const [chats, setChats] = useLocalStorage("chats", null);
   const [isShrunk, setIsShrunk] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const { isEditing, setIsEditing } = useEditing();
@@ -158,14 +160,20 @@ const NavBar = () => {
                       <MenuItem
                         theme={themevars}
                         onClick={async () => {
+                          setUser(user);
                           setFriend(user);
-                          setFriendPosts(
-                            (await getPostsByUserId(user.username)).payload
-                          );
-                          setFriendChats(
-                            (await getChatsByUserId(user.username)).payload
-                          );
-                          window.location.href = user.username;
+                          const postsData = (
+                            await getPostsByUserId(user.username)
+                          ).payload;
+                          const chatsData = (
+                            await getChatsByUserId(user.username)
+                          ).payload;
+                          setFriendPosts(postsData);
+                          setFriendChats(chatsData);
+                          setPosts(postsData);
+                          setChats(chatsData);
+                          // window.location.href = user.username;
+
                           navigate("/" + user.username);
                         }}
                       >
