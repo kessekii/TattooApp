@@ -1038,16 +1038,12 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
               Friends
             </Typefield>
             {/* {friend && friend.reviews && friend.reviews?.length && friend.friends */}
-            {[
-              { nickname: "wdwdwd", avatar: friend.profilePicture },
-              { nickname: "wdwdwd", avatar: friend.profilePicture },
-              { nickname: "wdwdwd", avatar: friend.profilePicture },
-            ].map((friend, index) => (
+            {Object.keys(user.friends).map((friendId, index) => (
               <FriendAvatar
                 theme={themevars}
                 key={index}
-                src={friend.avatar}
-                alt={friend.nickname}
+                src={user.friends[friendId].avatar}
+                alt={user.friends[friendId].nickname}
                 onClick={() => setShowFriends(true)}
               />
             ))}

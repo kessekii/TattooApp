@@ -214,17 +214,10 @@ const PortfolioViewPage: React.FC = ({}) => {
                   </EditButton>
                   <h2 style={{ color: themevars.text }}>Comments</h2>
 
-                  {/* Add New Comment */}
-                  <CommentInput
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={newComment}
-                    onChange={handleNewCommentChange}
-                  />
                   <CommentList>
-                    {chats[user.posts[post].chatId]?.messages &&
-                    chats[user.posts[post].chatId].messages.length > 0 ? (
-                      chats[user.posts[post].chatId].messages.map(
+                    {chats[posts[post].chatId]?.messages &&
+                    chats[posts[post].chatId].messages.length > 0 ? (
+                      chats[posts[post].chatId].messages.map(
                         (comment, index) => (
                           <CommentItem key={index}>
                             <CommentAuthor>{comment?.author}</CommentAuthor>
@@ -238,6 +231,13 @@ const PortfolioViewPage: React.FC = ({}) => {
                       </CommentItem>
                     )}
                   </CommentList>
+                  <CommentInput
+                    type="text"
+                    placeholder="Write a comment..."
+                    value={newComment}
+                    onChange={handleNewCommentChange}
+                  />
+
                   <CommentSubmitButton
                     onClick={async () => handleCommentSubmit(chats, user)}
                   >
