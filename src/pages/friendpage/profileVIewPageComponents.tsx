@@ -9,29 +9,31 @@ export const PortfolioPage = styled.div`
   width: 100%;
   height: 90vh;
   overflow-y: scroll;
+  overflow: scroll;
   background-color: ${({ theme }) => theme.background};
-  color:    ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const PostWrapper = styled.div`
   width: 100%;
-  max-width: 600px;
-  height: 100vh;
+  max-width: 100%;
+  height: 70vh;
+  max-height: 70vh;
   background-color: ${({ theme }) => theme.background};
   border-bottom: 1px solid #dbdbdb;
-  display: flex;
+  display: grid;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   size: content-fit;
-  color:  ${({ theme }) => theme.text};
+  overflow: scroll;
+  color: ${({ theme }) => theme.text};
 `;
-
 export const PostImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  color:   ${({ theme }) => theme.text};;
+  color: ${({ theme }) => theme.text};
 `;
 
 export const PostDetails = styled.div`
@@ -41,14 +43,14 @@ export const PostDetails = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   width: 100%;
-  color:  ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const UserSection = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-  color:  ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const UserAvatar = styled.img`
@@ -60,19 +62,19 @@ export const UserAvatar = styled.img`
 
 export const UserName = styled.div`
   font-weight: bold;
-  color:  ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const Description = styled.p`
   margin-top: 10px;
   font-size: 14px;
-  color:  ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const Caption = styled.div`
   font-size: 14px;
   margin-top: 10px;
-  color:  ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const CommentSection = styled.div`
@@ -114,7 +116,6 @@ export const CommentsPopup = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
 `;
 
 export const CommentsContent = styled.div`
@@ -125,7 +126,7 @@ export const CommentsContent = styled.div`
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
-  color:   ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const CloseButton = styled.button`
@@ -142,7 +143,7 @@ export const CommentList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-  color:   ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const CommentItem = styled.li`
@@ -151,10 +152,10 @@ export const CommentItem = styled.li`
   margin-bottom: 10px;
   border-bottom: 1px solid #dbdbdb;
   padding-bottom: 10px;
-  color:   ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
-export const CommentAuthor = styled.span<({ theme }) >`
+export const CommentAuthor = styled.span<{ theme }>`
   font-weight: bold;
   margin-right: 5px;
   color: ${(props) => props.theme.text};
@@ -162,7 +163,7 @@ export const CommentAuthor = styled.span<({ theme }) >`
 
 export const CommentText = styled.p`
   margin-top: 5px;
-  color:   ${({ theme }) => theme.text};
+  color: ${({ theme }) => theme.text};
 `;
 
 export const CommentInput = styled.input`

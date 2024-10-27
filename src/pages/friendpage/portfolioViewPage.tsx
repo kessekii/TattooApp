@@ -164,25 +164,25 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
           Object.keys(friend.posts || {}).map((post) => (
             <Grid
               item
-              style={{
-                height: "40vh",
-                width: "100vw",
-                padding: "10px 15px",
-                justifyItems: "center",
-                alignContent: "space-between",
-                alignItems: "flex-end",
-                flexWrap: "nowrap",
-                display: "contents",
-                objectFit: "contain",
-              }}
+              style={
+                {
+                  // height: "40vh",
+                  // width: "100vw",
+                  // padding: "10px 15px",
+                  // justifyItems: "center",
+                  // alignContent: "space-between",
+                  // alignItems: "flex-end",
+                  // flexWrap: "nowrap",
+                  // display: "contents",
+                  // objectFit: "contain",
+                }
+              }
             >
               <PostWrapper key={post}>
                 <PostImage
                   style={{
-                    // justifyItems: "center",
-                    // alignContent: "space-between",
-                    // alignItems: "flex-end",
-                    // flexWrap: "wrap",
+                    width: "60vw",
+                    height: "60vw",
                     objectFit: "contain",
                   }}
                   src={friendPosts[post].image}

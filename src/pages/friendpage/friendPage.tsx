@@ -29,7 +29,7 @@ import {
   Link,
   Add,
 } from "@mui/icons-material";
-import { IconButton, Typography } from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import { useEditing } from "../../hooks/useEditing";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 import Backdrop from "../masterspage/backgroundComponent";
@@ -719,17 +719,34 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
       posts &&
       Object.keys(posts).length > 0 &&
       Object.keys(posts).map((post) => (
-        <Post key={post}>
-          <PostImage
-            src={posts[post].image}
-            onClick={() => {
-              navigate("../" + username + "/portfolio");
-            }}
-            alt={`Post ${post}`}
-          />
-        </Post>
+        <Grid
+          item
+          style={
+            {
+              // padding: "10px 15px",
+              // justifyItems: "center",
+              // alignContent: "space-between",
+              // alignItems: "flex-end",
+              // flexWrap: "nowrap",
+              // display: "contents",
+              // objectFit: "contain",
+            }
+          }
+          xs={6}
+        >
+          <Post key={post}>
+            <PostImage
+              src={posts[post].image}
+              onClick={() => {
+                navigate("../" + username + "/portfolio");
+              }}
+              alt={`Post ${post}`}
+              style={{ width: "30vw", height: "30vw", objectFit: "contain" }}
+            />
+          </Post>
+        </Grid>
       )),
-    [friend]
+    [friend, posts]
   );
   const handleMapClick = () => {
     window.location.href = "/map";
@@ -1100,7 +1117,11 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
         </FollowButton>
       </FriendsSection>
 
-      <ProfilePosts>{postsComponents}</ProfilePosts>
+      <ProfilePosts style={{ display: "contents" }}>
+        <Grid container style={{ overflow: "scroll" }} xs={12}>
+          {postsComponents}
+        </Grid>
+      </ProfilePosts>
 
       {showReviews && (
         <PopupOverlay>

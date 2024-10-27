@@ -9,6 +9,7 @@ export const PortfolioPage = styled.div`
   width: 100%;
   height: 90vh;
   overflow-y: scroll;
+  overflow: scroll;
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
 `;
@@ -25,6 +26,7 @@ export const PostWrapper = styled.div`
   justify-content: center;
   align-items: center;
   size: content-fit;
+  overflow: scroll;
   color: ${({ theme }) => theme.text};
 `;
 

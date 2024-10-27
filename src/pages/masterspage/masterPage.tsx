@@ -25,7 +25,7 @@ import {
   Link,
   Add,
 } from "@mui/icons-material";
-import { IconButton, Typography } from "@mui/material";
+import { Grid, IconButton, Typography } from "@mui/material";
 import { useEditing } from "../../hooks/useEditing";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 import Backdrop from "../masterspage/backgroundComponent";
@@ -37,6 +37,8 @@ export const ProfilePage = styled.div<{ theme }>`
   margin: 0 auto;
   width: 98%;
   padding: 5px;
+  overflow; scroll;
+  height
   color: ${(props) => props.theme.text};
   background: transparent;
 `;
@@ -145,6 +147,7 @@ export const ProfilePosts = styled.div`
   justify-content: space-between;
   display: "contents";
   objectfit: "contain";
+  overflow: scroll;
 `;
 
 // Single Post card with a dynamic background and color
@@ -710,20 +713,38 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   };
   const postsComponents = useMemo(
     () =>
-      user &&
-      posts &&
-      Object.keys(posts).length > 0 &&
-      Object.keys(posts).map((post) => (
-        <Post key={post}>
-          <PostImage
-            src={posts[post].image}
-            onClick={() => {
-              navigate("../" + username + "/portfolio");
-            }}
-            alt={`Post ${post}`}
-          />
-        </Post>
-      )),
+      user && posts && Object.keys(posts).length > 0 ? (
+        Object.keys(posts).map((post) => (
+          <Grid
+            item
+            style={
+              {
+                // padding: "10px 15px",
+                // justifyItems: "center",
+                // alignContent: "space-between",
+                // alignItems: "flex-end",
+                // flexWrap: "nowrap",
+                // display: "contents",
+                // objectFit: "contain",
+              }
+            }
+            xs={6}
+          >
+            <Post key={post}>
+              <PostImage
+                src={posts[post].image}
+                onClick={() => {
+                  navigate("../" + username + "/portfolio");
+                }}
+                alt={`Post ${post}`}
+                style={{ width: "30vw", height: "30vw", objectFit: "contain" }}
+              />
+            </Post>
+          </Grid>
+        ))
+      ) : (
+        <></>
+      ),
     [user, posts]
   );
   const handleMapClick = () => {
@@ -911,7 +932,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   };
 
   return (
-    <ProfilePage theme={themevars}>
+    <ProfilePage theme={themevars} style={{ overflow: "scroll" }}>
       <Backdrop />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
@@ -1066,7 +1087,11 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
         </FollowButton> */}
       </FriendsSection>
 
-      <ProfilePosts>{postsComponents}</ProfilePosts>
+      {/* <ProfilePosts style={{ display: "contents" }}> */}
+      <Grid container style={{ overflow: "scroll" }} xs={12}>
+        {postsComponents}
+      </Grid>
+      {/* </ProfilePosts> */}
 
       {showReviews && (
         <PopupOverlay>

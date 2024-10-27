@@ -158,30 +158,43 @@ const PortfolioViewPage: React.FC = ({}) => {
     <PortfolioPage theme={themevars} style={{ display: "contents" }}>
       <Grid
         container
+        key={user.username + "gridccc"}
         style={{
           overflow: "scroll",
+          // height: "40vh",
+          width: "40vh",
           // display: "contents",
         }}
-        direction="row"
+        // direction="row"
       >
         {user &&
           Object.keys(user.posts || {}).map((post) => (
             <Grid
               item
-              style={{
-                height: "40vh",
-                width: "100vw",
-                padding: "10px 15px",
-                justifyItems: "center",
-                alignContent: "space-between",
-                alignItems: "flex-end",
-                flexWrap: "nowrap",
-                display: "contents",
-                objectFit: "contain",
-              }}
+              style={
+                {
+                  // height: "40vh",
+                  // width: "40vh",
+                  // padding: "10px 15px",
+                  // justifyItems: "center",
+                  // alignContent: "space-between",
+                  // alignItems: "flex-end",
+                  // flexWrap: "nowrap",
+                  // display: "contents",
+                  // objectFit: "contain",
+                }
+              }
             >
               <PostWrapper key={post} style={{ objectFit: "contain" }}>
-                <PostImage src={posts[post].image} alt={`Post ${post}`} />
+                <PostImage
+                  src={posts[post].image}
+                  alt={`Post ${post}`}
+                  style={{
+                    width: "60vw",
+                    height: "60vw",
+                    objectFit: "contain",
+                  }}
+                />
                 <PostDetails>
                   <UserSection>
                     <UserAvatar
