@@ -1187,7 +1187,8 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
                   <FriendNickname theme={themevars}>
                     {user.friends[friend].nickname}
                   </FriendNickname>
-                  <FollowButton
+
+                  {/* <FollowButton
                     theme={themevars}
                     following={user.friends[friend]}
                     onClick={(e) => {
@@ -1200,7 +1201,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
                     }}
                   >
                     {isFollowing ? "Unfollow" : "Follow"}
-                  </FollowButton>
+                  </FollowButton> */}
                 </FriendItem>
               ))}
             </FriendsList>
