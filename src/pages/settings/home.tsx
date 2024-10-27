@@ -238,7 +238,7 @@ const PoiMarker = (props: {
                     setFriendChats(
                       (await getChatsByUserId(props.point.owner)).payload
                     );
-
+                    window.location.href = props.point.owner;
                     navigate("../" + props.point.owner);
                   }}
                   style={{ width: "20px", height: "20px", background: "gray" }}
