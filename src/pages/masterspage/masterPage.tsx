@@ -854,7 +854,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     // setProfileData(user);
 
     updateUser(user, setErrorMessage);
-    setUser(user);
+    setUser({ ...user });
     setIsEditing(false);
 
     console.log("Updated Calendar:", user);
@@ -1054,14 +1054,14 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             ))}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
-        <FollowButton
+        {/* <FollowButton
           style={{ justifyItems: "end" }}
           theme={themevars}
           following={isFollowing}
           onClick={handleFollow}
         >
           {isFollowing ? "Unfollow" : "Follow"}
-        </FollowButton>
+        </FollowButton> */}
       </FriendsSection>
 
       <ProfilePosts>{postsComponents}</ProfilePosts>

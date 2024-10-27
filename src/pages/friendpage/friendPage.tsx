@@ -549,7 +549,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     friend && friend.friends && Object.keys(friend.friends).length > 0
-      ? friend.friends[username]
+      ? user.friends[username]
       : false
   );
   const [friendFollowing, setFriendFollowing] = useState(
@@ -885,9 +885,9 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
       user &&
       user.friends &&
       Object.keys(user.friends).length > 0 &&
-      user.friends[username]
+      user.friends[friend.username]
     ) {
-      setIsFollowing(!user.friends[username]);
+      setIsFollowing(!user.friends[friend.username]);
     } else {
       setIsFollowing(false);
     }
@@ -1094,7 +1094,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
             await handleFollow();
           }}
         >
-          {isFollowing ? "Unfollow" : "Follow"}
+          {!!user.friends[friend.username] ? "Unfollow" : "Follow"}
         </FollowButton>
       </FriendsSection>
 
@@ -1206,7 +1206,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
                       );
                     }}
                   >
-                    {isFollowing ? "Unfollow" : "Follow"}
+                    {user.friends[friend.username] ? "Unfollow" : "Follow"}
                   </FollowButton>
                 </FriendItem>
               ))}
