@@ -240,7 +240,7 @@ const PortfolioEditorPage: React.FC = () => {
     setPosts(postsData.payload);
     setChats(chatsData.payload);
 
-    // window.location.href = user.username;
+    console.log(window.location.href);
     navigate("/" + user.username);
     closeModal();
   };
