@@ -245,13 +245,9 @@ export const updateUserStriaght = async (user: any, setErrorMessage: any) => {
       Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
     };
 
-    const { data } = await AxiosCustom.post(
-      endpoints.UPDATE_USER,
-      { user: user },
-      {
-        headers,
-      }
-    );
+    const { data } = await AxiosCustom.post(endpoints.UPDATE_USER, user, {
+      headers,
+    });
 
     return data;
   } catch (err) {

@@ -50,7 +50,7 @@ const RepositoriesList = () => {
       if (loginF && password) {
         loginAction({ username: loginF, password: password }, setErrorMessage);
         await auth.login(password, loginF);
-        await auth.setUserFull(user);
+        // await auth.setUserFull(user);
         const userData = await getProfileData(loginF);
         // console.log("1", payload.event);
         // const temp = { ...userData.payload.event, events: [], chats: [], points: [] };
@@ -161,7 +161,7 @@ const RepositoriesList = () => {
         <LoginButton
           variant="contained"
           size="large"
-          onClick={() => tryLogin()}
+          onClick={async () => await tryLogin()}
           style={{ marginBottom: "5px" }}
         >
           Login

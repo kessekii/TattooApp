@@ -15,12 +15,16 @@ import {
   CommentSubmitButton,
   CommentText,
 } from "../masterspage/profileVIewPageComponents";
-import { EditButton } from "../masterspage/masterPage";
+import { EditButton, FriendAvatar } from "../masterspage/masterPage";
 import { useTheme } from "../../state/providers/themeProvider";
 import { updateChatStraight } from "../../../src/state/action-creators";
 import { TextField } from "@mui/material";
 export const ChatsPageComponent: React.FC = () => {
+  function timeout(delay: number) {
+    return new Promise((res) => setTimeout(res, delay));
+  }
   const [user, setUser] = useLocalStorage("user", null);
+  const [loader, setloader] = useState(false);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [newComment, setNewComment] = useState("");
   const [isMessagesPopupOpened, setIsMessagesPopupOpened] = useState(false);
@@ -31,6 +35,9 @@ export const ChatsPageComponent: React.FC = () => {
     const data = (await getPrivateChatsByUserId(user.username)).payload;
     console.log(data);
     setPrivateChats({ ...data });
+    await timeout(5000);
+    return data;
+    //for 1 sec delay
   };
   const handleOpenMessages = async (privateChatId: string) => {
     setselectedChatId(privateChatId);
@@ -114,9 +121,37 @@ export const ChatsPageComponent: React.FC = () => {
       setNewComment("");
     }
   };
+  //   useEffect(() => {
+  //     setPrivateChats({});
+  //     return () => {
+  //       await;
+  //     };
+  //   }, []);
+
   useEffect(() => {
-    handleLoadCHats();
-  }, []);
+    let isSubscribed = true;
+
+    // declare the async data fetching function
+    const fetchData = async () => {
+      // get the data from the api
+      const data = await handleLoadCHats();
+      // convert the data to json
+      //   const json = await response.json();
+
+      // set state with the result if `isSubscribed` is true
+      if (isSubscribed) {
+        setPrivateChats(data);
+        setloader(!loader);
+        return (isSubscribed = false);
+      }
+    };
+
+    // call the function
+    fetchData().catch(console.error);
+
+    // cancel any future `setData`
+    return () => privateChats;
+  }, [loader]);
 
   const participants = useMemo(
     () =>
@@ -149,12 +184,31 @@ export const ChatsPageComponent: React.FC = () => {
                   <h2 style={{ color: themevars.text }}>Comments</h2>
 
                   <CommentList>
-                    {privateChats[privateChatId].messages.map((e, i) => (
-                      <CommentItem key={i + e?.author}>
-                        <CommentAuthor>{e?.author}</CommentAuthor>
-                        <CommentText>{e?.text}</CommentText>
-                      </CommentItem>
-                    ))}
+                    {privateChats[privateChatId].messages.map(
+                      (message: any, i: number) => {
+                        console.log(message.author, user.friends);
+                        let avatar = "";
+                        if (message.author === user.username) {
+                          avatar = user.profilePicture;
+                        }
+                        return (
+                          <CommentItem key={i + message.author}>
+                            <FriendAvatar
+                              theme={themevars}
+                              key={i}
+                              src={
+                                avatar !== ""
+                                  ? avatar
+                                  : user.friends[message.author].avatar
+                              }
+                              alt={message.author}
+                            />
+                            <CommentAuthor>{message.author}</CommentAuthor>
+                            <CommentText>{message.text}</CommentText>
+                          </CommentItem>
+                        );
+                      }
+                    )}
                   </CommentList>
                   <TextField
                     value={newComment}
@@ -175,6 +229,12 @@ export const ChatsPageComponent: React.FC = () => {
               <CommentItem
                 onClick={async () => await handleOpenMessages(privateChatId)}
               >
+                <FriendAvatar
+                  theme={themevars}
+                  key={author + "avava"}
+                  src={user.friends[author].avatar}
+                  alt={author}
+                />
                 <CommentAuthor>{author}</CommentAuthor>
                 <CommentText>{lastMessage}</CommentText>
               </CommentItem>

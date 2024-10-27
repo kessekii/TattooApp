@@ -89,9 +89,19 @@ const PoiMarker = (props: {
   //   return <></>;
   // }
   // console.log(props.point);
-  const isAvailableEdit = Object.keys(user.points).includes(
-    props.point?.pointId
-  );
+
+  const isAvailableEdit =
+    Object.keys(user.points).includes(
+      props.point.location.lat.toFixed(2) +
+        ":" +
+        props.point.location.lng.toFixed(2)
+    ) &&
+    user.points[
+      props.point.location.lat.toFixed(2) +
+        ":" +
+        props.point.location.lng.toFixed(2)
+    ].find((point) => point === props.point.pointId);
+  console.log(isAvailableEdit);
   // console.log(props.point.data);
   return (
     <>
@@ -183,7 +193,7 @@ const PoiMarker = (props: {
               >
                 REMOVE
               </Button>
-              {isVisible && !isEdit && (
+              {!isEdit && (
                 <>
                   <Typography color="black">
                     {props.point?.data?.name}
@@ -193,7 +203,7 @@ const PoiMarker = (props: {
                   </Typography>
                 </>
               )}
-              {(isVisible && isAvailableEdit && (
+              {isAvailableEdit && (
                 <Button
                   onClick={async () => {
                     setIsEdit(!isEdit);
@@ -215,7 +225,8 @@ const PoiMarker = (props: {
                 >
                   EDIT
                 </Button>
-              )) || (
+              )}
+              {!isAvailableEdit && (
                 <Button
                   onClick={async () => {
                     const firned = (await getUserById(props.point.owner))
