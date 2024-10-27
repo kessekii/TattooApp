@@ -168,7 +168,7 @@ const PortfolioViewPage: React.FC = ({}) => {
         // direction="row"
       >
         {user &&
-          Object.keys(user.posts || {}).map((post) => (
+          Object.keys(posts || {}).map((post) => (
             <Grid
               item
               style={

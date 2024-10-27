@@ -180,9 +180,15 @@ const NavBar = () => {
                           setFriendChats(chatsData);
                           setPosts(postsData);
                           setChats(chatsData);
-                          // window.location.href = user.username;
-
-                          navigate("/" + user.username);
+                          console.log(window.location.href);
+                          if (window.location.href !== user.username) {
+                            navigate("/" + user.username);
+                          } else if (
+                            window.location.href.includes(user.username)
+                          ) {
+                            // window.location.href = user.username;
+                            navigate("/" + user.username);
+                          }
                         }}
                       >
                         <FaUser /> Profile

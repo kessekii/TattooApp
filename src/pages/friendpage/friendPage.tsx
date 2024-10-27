@@ -766,6 +766,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     setFriendPosts((await getPostsByUserId(profileLink)).payload);
     setFriendChats((await getChatsByUserId(profileLink)).payload);
     window.location.href = profileLink;
+    navigate("/" + profileLink);
   };
 
   const handleLocationEditClick = () => {
