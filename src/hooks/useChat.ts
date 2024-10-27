@@ -97,7 +97,8 @@ export const getPointByQuadIdAndPointId = async (
 };
 export const createPointByUsername = async (
   username: string,
-  location: any
+  location: any,
+  geocode: string
 ) => {
   try {
     const response = await fetch(
@@ -109,7 +110,11 @@ export const createPointByUsername = async (
           Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ username: username, location: location }),
+        body: JSON.stringify({
+          username: username,
+          location: location,
+          geocode: geocode,
+        }),
       }
     );
 

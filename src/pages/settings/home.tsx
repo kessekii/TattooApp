@@ -30,7 +30,7 @@ import {
   updatePoint,
   updatePointbyPointId,
 } from "../../../src/hooks/useChat";
-import { PostImage } from "../masterspage/masterPage";
+import { PostImage, UploadInput } from "../masterspage/masterPage";
 import zIndex from "@mui/material/styles/zIndex";
 
 type Poi = {
@@ -63,6 +63,18 @@ const PoiMarker = (props: {
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState<string>(props.point?.data?.name || "");
   const [desc, setDesc] = useState<string>(props.point?.data?.desc || "");
+  const [newImage, setNewImage] = useState({ src: "", caption: "" });
+  const [isNewImage, setIsNewImage] = useState(false);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setNewImage({ ...newImage, src: reader.result as string });
+        setIsNewImage(true);
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  };
   const navigate = useNavigate();
   useEffect(() => {
     if (props.point && props.focusedPoint === props.point?.pointId) {
@@ -103,6 +115,11 @@ const PoiMarker = (props: {
           >
             {/* {desc} */}
           </textarea>
+          <UploadInput
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
         </Box>
       )}
       <AdvancedMarker
@@ -312,8 +329,31 @@ const tryAddNewPoint = async (
   if (user) {
     const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
 
+    const geoCode = await geocodeLatLng(new google.maps.Geocoder());
+
+    async function geocodeLatLng(geocoder: google.maps.Geocoder) {
+      let { lat, lng } = ev.detail.latLng;
+      lat = parseFloat(lat.toFixed(2));
+      lng = parseFloat(lng.toFixed(2));
+
+      const response = await geocoder.geocode({
+        location: { lat: lat, lng: lng },
+      });
+      const parts = response.results[0].formatted_address.split(",");
+      console.log(parts);
+      if (parts.length === 3) {
+        return parts[1].replace(" ", "") + "," + parts[2].replace(" ", "");
+      } else if (parts.length === 2) {
+        const sf = parts[0].split(" ").filter((e, i) => i !== 0);
+
+        return (
+          sf.toString().replace(",", " ") + "," + parts[1].replace(" ", "")
+        );
+      }
+    }
+
     const newUserData = (
-      await createPointByUsername(userU.username, ev.detail.latLng!)
+      await createPointByUsername(userU.username, ev.detail.latLng!, geoCode)
     ).payload;
 
     const pointsObject = await getPointsInRadius(cameraLocation, false);
@@ -336,9 +376,6 @@ export const MapPage = () => {
     lat: 32.02119878251853,
     lng: 34.74333323660794,
   });
-  // useEffect(() => {
-  //   setCameraUpdateLock(false);
-  // }, [cameraLocation]);
 
   const auth = useAuth();
   const handleCameraRefresh = async (
@@ -427,6 +464,7 @@ export const MapPage = () => {
       >
         <Map
           defaultZoom={15}
+          id="map"
           mapId={"d4d9dfa4fa686c88"}
           defaultCenter={{ lat: 32.02119878251853, lng: 34.74333323660794 }}
           onCameraChanged={async (e) => {
