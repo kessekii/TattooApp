@@ -33,7 +33,7 @@ import { IconButton, Typography } from "@mui/material";
 import { useEditing } from "../../hooks/useEditing";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 import Backdrop from "../masterspage/backgroundComponent";
-
+import MessageIcon from "@mui/icons-material/Message";
 // ProfilePage styling with dynamic background and text color
 export const ProfilePage = styled.div<{ theme }>`
   font-family: Arial, sans-serif;
@@ -1060,7 +1060,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
                 <Link style={{ color: themevars.icons.color }} />
               </IcoButton>
               <IcoButton theme={themevars} onClick={handleOpenChat}>
-                <Link style={{ color: themevars.icons.color }} />
+                <MessageIcon style={{ color: themevars.icons.color }} />
               </IcoButton>
             </GridTwo>
           )}

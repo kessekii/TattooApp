@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useTheme } from "../../state/providers/themeProvider";
 import { PopupContent, PopupOverlay } from "./masterPage";
 import { createChatByUsername } from "../../state/action-creators";
+import { getChatsByUserId, getPostsByUserId } from "../../../src/hooks/useChat";
 
 // Styled components
 const EditorContainer = styled.div`
@@ -152,6 +153,8 @@ interface PortfolioEditorPageProps {
 // Component
 const PortfolioEditorPage: React.FC = () => {
   const [user, setUser] = useLocalStorage("user", null);
+  const [posts, setPosts] = useLocalStorage("posts", null);
+  const [chats, setChats] = useLocalStorage("chats", null);
   const { updateUser } = useActions();
   const { themevars } = useTheme(); // Accessing the theme
   const [errorMessage, setErrorMessage] = useState("");
@@ -230,9 +233,12 @@ const PortfolioEditorPage: React.FC = () => {
       await createChatByUsername(updatedProfileData, setErrorMessage, newUuid)
     ).payload;
     // updateUser(updatedProfileData, setErrorMessage);
+    const postsData = await getPostsByUserId(newUser.username);
+    const chatsData = await getChatsByUserId(newUser.username);
     setUser(newUser);
     setIsNewImage(false);
-
+    setPosts(postsData.payload);
+    setChats(chatsData.payload);
     if (navigateBack) {
       navigate("/" + user.username);
       closeModal();
@@ -328,7 +334,9 @@ const PortfolioEditorPage: React.FC = () => {
                     setNewImage({ ...newImage, caption: e.target.value })
                   }
                 />
-                <SaveButton onClick={() => handleSavePortfolio(false)}>
+                <SaveButton
+                  onClick={async () => await handleSavePortfolio(false)}
+                >
                   Save
                 </SaveButton>
                 <CancelButton onClick={closeModal}>Cancel</CancelButton>

@@ -241,7 +241,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                   />
 
                   <CommentSubmitButton
-                    onClick={async () => handleCommentSubmit(chats, user)}
+                    onClick={async () => await handleCommentSubmit(chats, user)}
                   >
                     Submit Comment
                   </CommentSubmitButton>

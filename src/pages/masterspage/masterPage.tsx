@@ -640,7 +640,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       location: editProfile.location,
     };
     // setProfileData(newProfileData);
-    updateUser(newProfileData, setErrorMessage);
+    await updateUser(newProfileData, setErrorMessage);
     setIsEditing(false);
     setUser(newProfileData);
 
@@ -722,7 +722,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
           />
         </Post>
       )),
-    [user]
+    [user, posts]
   );
   const handleMapClick = () => {
     window.location.href = "/map";
