@@ -35,6 +35,7 @@ import {
   updateChatStraight,
 } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
+import { Grid } from "@mui/material";
 
 const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
@@ -154,110 +155,136 @@ const PortfolioViewPage: React.FC = ({}) => {
   };
 
   return (
-    <PortfolioPage theme={themevars}>
-      {user &&
-        Object.keys(user.posts || {}).map((post) => (
-          <PostWrapper key={post}>
-            <PostImage src={posts[post].image} alt={`Post ${post}`} />
-            <PostDetails>
-              <UserSection>
-                <UserAvatar
-                  src={user.profilePicture}
-                  alt={`${user.username} avatar`}
-                />
-                <UserName onClick={() => navigate("../mastersPage")}>
-                  {user.name}
-                </UserName>
-              </UserSection>
-              <Description>{posts[post].description}</Description>
-              <Caption>
-                <strong>{posts[post].user && posts[post].user.name}</strong>{" "}
-                {posts[post].description}
-              </Caption>
+    <PortfolioPage theme={themevars} style={{ display: "contents" }}>
+      <Grid
+        container
+        style={{
+          overflow: "scroll",
+          // display: "contents",
+        }}
+        direction="row"
+      >
+        {user &&
+          Object.keys(user.posts || {}).map((post) => (
+            <Grid
+              item
+              style={{
+                height: "40vh",
+                width: "100vw",
+                padding: "10px 15px",
+                justifyItems: "center",
+                alignContent: "space-between",
+                alignItems: "flex-end",
+                flexWrap: "nowrap",
+                display: "contents",
+                objectFit: "contain",
+              }}
+            >
+              <PostWrapper key={post} style={{ objectFit: "contain" }}>
+                <PostImage src={posts[post].image} alt={`Post ${post}`} />
+                <PostDetails>
+                  <UserSection>
+                    <UserAvatar
+                      src={user.profilePicture}
+                      alt={`${user.username} avatar`}
+                    />
+                    <UserName onClick={() => navigate("../mastersPage")}>
+                      {user.name}
+                    </UserName>
+                  </UserSection>
+                  <Description>{posts[post].description}</Description>
+                  <Caption>
+                    <strong>{posts[post].user && posts[post].user.name}</strong>{" "}
+                    {posts[post].description}
+                  </Caption>
 
-              {chats && chats[posts[post].chatId] ? (
-                <CommentSection
-                  theme={themevars}
-                  onClick={() => handleCommentsClick(post)}
-                >
-                  {chats[posts[post].chatId]?.messages?.length === 0 ? (
-                    <>No comments yet</>
+                  {chats && chats[posts[post].chatId] ? (
+                    <CommentSection
+                      theme={themevars}
+                      onClick={() => handleCommentsClick(post)}
+                    >
+                      {chats[posts[post].chatId]?.messages?.length === 0 ? (
+                        <>No comments yet</>
+                      ) : (
+                        <>
+                          <>
+                            View all{" "}
+                            {chats[posts[post].chatId]?.messages?.length || 0}{" "}
+                            comments
+                          </>
+                          <strong>
+                            {chats[posts[post].chatId].messages?.length > 0
+                              ? chats[posts[post].chatId].messages[0].author
+                              : ""}
+                          </strong>
+                          :{" "}
+                          {chats[posts[post].chatId].messages?.length > 0
+                            ? chats[posts[post].chatId].messages[0].text
+                            : ""}
+                        </>
+                      )}
+                    </CommentSection>
                   ) : (
-                    <>
-                      <>
-                        View all{" "}
-                        {chats[posts[post].chatId]?.messages?.length || 0}{" "}
-                        comments
-                      </>
-                      <strong>
-                        {chats[posts[post].chatId].messages?.length > 0
-                          ? chats[posts[post].chatId].messages[0].author
-                          : ""}
-                      </strong>
-                      :{" "}
-                      {chats[posts[post].chatId].messages?.length > 0
-                        ? chats[posts[post].chatId].messages[0].text
-                        : ""}
-                    </>
+                    <CommentSection onClick={() => handleCommentsClick(post)}>
+                      <>No comments yet</>
+                    </CommentSection>
                   )}
-                </CommentSection>
-              ) : (
-                <CommentSection onClick={() => handleCommentsClick(post)}>
-                  <>No comments yet</>
-                </CommentSection>
-              )}
-              <LikeSection>
-                <LikeButton>
-                  <LikeIcon>❤️</LikeIcon> Like
-                </LikeButton>
-              </LikeSection>
-            </PostDetails>
+                  <LikeSection>
+                    <LikeButton>
+                      <LikeIcon>❤️</LikeIcon> Like
+                    </LikeButton>
+                  </LikeSection>
+                </PostDetails>
 
-            {showCommentsPopup === post && (
-              <CommentsPopup>
-                <CommentsContent theme={themevars.popup}>
-                  <EditButton
-                    theme={themevars.popup}
-                    onClick={handleCloseCommentsPopup}
-                  >
-                    X
-                  </EditButton>
-                  <h2 style={{ color: themevars.text }}>Comments</h2>
+                {showCommentsPopup === post && (
+                  <CommentsPopup>
+                    <CommentsContent theme={themevars.popup}>
+                      <EditButton
+                        theme={themevars.popup}
+                        onClick={handleCloseCommentsPopup}
+                      >
+                        X
+                      </EditButton>
+                      <h2 style={{ color: themevars.text }}>Comments</h2>
 
-                  <CommentList>
-                    {chats[posts[post].chatId]?.messages &&
-                    chats[posts[post].chatId].messages.length > 0 ? (
-                      chats[posts[post].chatId].messages.map(
-                        (comment, index) => (
-                          <CommentItem key={index}>
-                            <CommentAuthor>{comment?.author}</CommentAuthor>
-                            <CommentText>{comment?.text}</CommentText>
+                      <CommentList>
+                        {chats[posts[post].chatId]?.messages &&
+                        chats[posts[post].chatId].messages.length > 0 ? (
+                          chats[posts[post].chatId].messages.map(
+                            (comment, index) => (
+                              <CommentItem key={index}>
+                                <CommentAuthor>{comment?.author}</CommentAuthor>
+                                <CommentText>{comment?.text}</CommentText>
+                              </CommentItem>
+                            )
+                          )
+                        ) : (
+                          <CommentItem>
+                            <CommentText>No comments yet</CommentText>
                           </CommentItem>
-                        )
-                      )
-                    ) : (
-                      <CommentItem>
-                        <CommentText>No comments yet</CommentText>
-                      </CommentItem>
-                    )}
-                  </CommentList>
-                  <CommentInput
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={newComment}
-                    onChange={handleNewCommentChange}
-                  />
+                        )}
+                      </CommentList>
+                      <CommentInput
+                        type="text"
+                        placeholder="Write a comment..."
+                        value={newComment}
+                        onChange={handleNewCommentChange}
+                      />
 
-                  <CommentSubmitButton
-                    onClick={async () => await handleCommentSubmit(chats, user)}
-                  >
-                    Submit Comment
-                  </CommentSubmitButton>
-                </CommentsContent>
-              </CommentsPopup>
-            )}
-          </PostWrapper>
-        ))}
+                      <CommentSubmitButton
+                        onClick={async () =>
+                          await handleCommentSubmit(chats, user)
+                        }
+                      >
+                        Submit Comment
+                      </CommentSubmitButton>
+                    </CommentsContent>
+                  </CommentsPopup>
+                )}
+              </PostWrapper>
+            </Grid>
+          ))}
+      </Grid>
     </PortfolioPage>
   );
 };

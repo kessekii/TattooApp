@@ -32,6 +32,7 @@ import { EditButton } from "./friendPage";
 import ChatComponent from "../components/chat";
 import { updateChatStraight } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
+import { Grid } from "@mui/material";
 
 const FriendPortfolioViewPage: React.FC = ({}) => {
   const [friend, setFriend] = useLocalStorage("friend", null);
@@ -123,7 +124,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
 
         chat.messages = [
           {
-            author: friend.username,
+            author: user.username,
             text: newComment,
           },
         ];
@@ -150,119 +151,155 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
   };
 
   return (
-    <PortfolioPage theme={themevars}>
-      {friend &&
-        Object.keys(friend.posts || {}).map((post) => (
-          <PostWrapper key={post}>
-            <PostImage src={friendPosts[post].image} alt={`Post ${post}`} />
-            <PostDetails>
-              <UserSection>
-                <UserAvatar
-                  src={friend.profilePicture}
-                  alt={`${friend.username} avatar`}
+    <PortfolioPage theme={themevars} style={{ display: "contents" }}>
+      <Grid
+        container
+        style={{
+          overflow: "scroll",
+          // display: "contents",
+        }}
+        direction="row"
+      >
+        {friend &&
+          Object.keys(friend.posts || {}).map((post) => (
+            <Grid
+              item
+              style={{
+                height: "40vh",
+                width: "100vw",
+                padding: "10px 15px",
+                justifyItems: "center",
+                alignContent: "space-between",
+                alignItems: "flex-end",
+                flexWrap: "nowrap",
+                display: "contents",
+                objectFit: "contain",
+              }}
+            >
+              <PostWrapper key={post}>
+                <PostImage
+                  style={{
+                    // justifyItems: "center",
+                    // alignContent: "space-between",
+                    // alignItems: "flex-end",
+                    // flexWrap: "wrap",
+                    objectFit: "contain",
+                  }}
+                  src={friendPosts[post].image}
+                  alt={`Post ${post}`}
                 />
-                <UserName onClick={() => navigate("../mastersPage")}>
-                  {friend.name}
-                </UserName>
-              </UserSection>
-              <Description>{friendPosts[post].description}</Description>
-              <Caption>
-                <strong>
-                  {friendPosts[post].friend && friendPosts[post].friend.name}
-                </strong>{" "}
-                {friendPosts[post].description}
-              </Caption>
+                <PostDetails>
+                  <UserSection>
+                    <UserAvatar
+                      src={friend.profilePicture}
+                      alt={`${friend.username} avatar`}
+                    />
+                    <UserName onClick={() => navigate("../mastersPage")}>
+                      {friend.name}
+                    </UserName>
+                  </UserSection>
+                  <Description>{friendPosts[post].description}</Description>
+                  <Caption>
+                    <strong>
+                      {friendPosts[post].friend &&
+                        friendPosts[post].friend.name}
+                    </strong>{" "}
+                    {friendPosts[post].description}
+                  </Caption>
 
-              {friendChats && friendChats[friendPosts[post].chatId] ? (
-                <CommentSection
-                  theme={themevars}
-                  onClick={() => handleCommentsClick(post)}
-                >
-                  {friendChats[friendPosts[post].chatId]?.messages?.length ===
-                  0 ? (
-                    <>No comments yet</>
+                  {friendChats && friendChats[friendPosts[post].chatId] ? (
+                    <CommentSection
+                      theme={themevars}
+                      onClick={() => handleCommentsClick(post)}
+                    >
+                      {friendChats[friendPosts[post].chatId]?.messages
+                        ?.length === 0 ? (
+                        <>No comments yet</>
+                      ) : (
+                        <>
+                          <>
+                            View all{" "}
+                            {friendChats[friendPosts[post].chatId]?.messages
+                              ?.length || 0}{" "}
+                            comments
+                          </>
+                          <strong>
+                            {friendChats[friendPosts[post].chatId].messages
+                              ?.length > 0
+                              ? friendChats[friendPosts[post].chatId]
+                                  .messages[0].author
+                              : ""}
+                          </strong>
+                          :{" "}
+                          {friendChats[friendPosts[post].chatId].messages
+                            ?.length > 0
+                            ? friendChats[friendPosts[post].chatId].messages[0]
+                                .text
+                            : ""}
+                        </>
+                      )}
+                    </CommentSection>
                   ) : (
-                    <>
-                      <>
-                        View all{" "}
-                        {friendChats[friendPosts[post].chatId]?.messages
-                          ?.length || 0}{" "}
-                        comments
-                      </>
-                      <strong>
-                        {friendChats[friendPosts[post].chatId].messages
-                          ?.length > 0
-                          ? friendChats[friendPosts[post].chatId].messages[0]
-                              .author
-                          : ""}
-                      </strong>
-                      :{" "}
-                      {friendChats[friendPosts[post].chatId].messages?.length >
-                      0
-                        ? friendChats[friendPosts[post].chatId].messages[0].text
-                        : ""}
-                    </>
+                    <CommentSection onClick={() => handleCommentsClick(post)}>
+                      <>No comments yet</>
+                    </CommentSection>
                   )}
-                </CommentSection>
-              ) : (
-                <CommentSection onClick={() => handleCommentsClick(post)}>
-                  <>No comments yet</>
-                </CommentSection>
-              )}
-              <LikeSection>
-                <LikeButton>
-                  <LikeIcon>❤️</LikeIcon> Like
-                </LikeButton>
-              </LikeSection>
-            </PostDetails>
+                  <LikeSection>
+                    <LikeButton>
+                      <LikeIcon>❤️</LikeIcon> Like
+                    </LikeButton>
+                  </LikeSection>
+                </PostDetails>
 
-            {showCommentsPopup === post && (
-              <CommentsPopup>
-                <CommentsContent theme={themevars.popup}>
-                  <EditButton
-                    theme={themevars.popup}
-                    onClick={handleCloseCommentsPopup}
-                  >
-                    X
-                  </EditButton>
-                  <h2 style={{ color: themevars.text }}>Comments</h2>
+                {showCommentsPopup === post && (
+                  <CommentsPopup>
+                    <CommentsContent theme={themevars.popup}>
+                      <EditButton
+                        theme={themevars.popup}
+                        onClick={handleCloseCommentsPopup}
+                      >
+                        X
+                      </EditButton>
+                      <h2 style={{ color: themevars.text }}>Comments</h2>
 
-                  <CommentList>
-                    {friendChats[friendPosts[post].chatId]?.messages &&
-                    friendChats[friendPosts[post].chatId].messages.length >
-                      0 ? (
-                      friendChats[friendPosts[post].chatId].messages.map(
-                        (comment, index) => (
-                          <CommentItem key={index}>
-                            <CommentAuthor>{comment?.author}</CommentAuthor>
-                            <CommentText>{comment?.text}</CommentText>
+                      <CommentList>
+                        {friendChats[friendPosts[post].chatId]?.messages &&
+                        friendChats[friendPosts[post].chatId].messages.length >
+                          0 ? (
+                          friendChats[friendPosts[post].chatId].messages.map(
+                            (comment, index) => (
+                              <CommentItem key={index}>
+                                <CommentAuthor>{comment?.author}</CommentAuthor>
+                                <CommentText>{comment?.text}</CommentText>
+                              </CommentItem>
+                            )
+                          )
+                        ) : (
+                          <CommentItem>
+                            <CommentText>No comments yet</CommentText>
                           </CommentItem>
-                        )
-                      )
-                    ) : (
-                      <CommentItem>
-                        <CommentText>No comments yet</CommentText>
-                      </CommentItem>
-                    )}
-                  </CommentList>
-                  <CommentInput
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={newComment}
-                    onChange={handleNewCommentChange}
-                  />
-                  <CommentSubmitButton
-                    onClick={async () =>
-                      handleCommentSubmit(friendChats, friend)
-                    }
-                  >
-                    Submit Comment
-                  </CommentSubmitButton>
-                </CommentsContent>
-              </CommentsPopup>
-            )}
-          </PostWrapper>
-        ))}
+                        )}
+                      </CommentList>
+                      <CommentInput
+                        type="text"
+                        placeholder="Write a comment..."
+                        value={newComment}
+                        onChange={handleNewCommentChange}
+                      />
+                      <CommentSubmitButton
+                        onClick={async () =>
+                          await handleCommentSubmit(friendChats, friend)
+                        }
+                      >
+                        Submit Comment
+                      </CommentSubmitButton>
+                    </CommentsContent>
+                  </CommentsPopup>
+                )}
+              </PostWrapper>
+            </Grid>
+          ))}
+      </Grid>
     </PortfolioPage>
   );
 };

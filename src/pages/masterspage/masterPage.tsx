@@ -120,19 +120,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton) <{ theme }>`
+export const SaveButton = styled(EditButton)<{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton) <{ theme }>`
+export const CancelButton = styled(EditButton)<{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(EditButton) <{ following }>`
+export const FollowButton = styled(EditButton)<{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -143,6 +143,8 @@ export const ProfilePosts = styled.div`
   margin-top: 10px;
   flex-wrap: wrap;
   justify-content: space-between;
+  display: "contents";
+  objectfit: "contain";
 `;
 
 // Single Post card with a dynamic background and color
@@ -489,7 +491,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton) <{ theme }>`
+export const IcButton = styled(IconButton)<{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -505,7 +507,7 @@ export const IcButton = styled(IconButton) <{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography) <{ theme; bold?}>`
+export const Typefield = styled(Typography)<{ theme; bold? }>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -531,19 +533,19 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   const [editProfile, setEditProfile] = useState(
     user
       ? {
-        name: user.name,
-        username: user.username,
-        description: user.description,
-        profilePicture: user.profilePicture,
-        location: user.location,
-      }
+          name: user.name,
+          username: user.username,
+          description: user.description,
+          profilePicture: user.profilePicture,
+          location: user.location,
+        }
       : {
-        name: "",
-        username: "",
-        description: "",
-        profilePicture: "",
-        location: "",
-      }
+          name: "",
+          username: "",
+          description: "",
+          profilePicture: "",
+          location: "",
+        }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     user && user.friends && Object.keys(user.friends).length > 0
@@ -599,9 +601,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     const updatedReviews =
       user.reviews && user.reviews.length > 0
         ? [
-          ...user.reviews,
-          { photo: user.image, nickname: user.username, ...newReview },
-        ]
+            ...user.reviews,
+            { photo: user.image, nickname: user.username, ...newReview },
+          ]
         : [{ photo: user.image, nickname: user.username, ...newReview }];
     // setProfileData({
     //   ...user,

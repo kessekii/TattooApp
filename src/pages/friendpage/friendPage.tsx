@@ -146,6 +146,8 @@ export const ProfilePosts = styled.div`
   display: flex;
   margin-top: 10px;
   flex-wrap: wrap;
+  display: "contents";
+  object-fit: "contain";
   justify-content: space-between;
 `;
 
@@ -528,7 +530,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
 
   const loggedInUser = user.username === friend.username;
   const { username, postId } = useParams();
-  const { isEditing, setIsEditing } = useEditing();
+  const { isEditing, setIsEditingProfile } = useEditing();
 
   const [editProfile, setEditProfile] = useState(
     friend
@@ -629,8 +631,8 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
 
   const navigate = useNavigate();
   // Toggle edit mode
-  const handleEditClick = () => {
-    setIsEditing(true);
+  const handleEditClick = async () => {
+    await setIsEditingProfile();
   };
 
   // Save changes
@@ -646,14 +648,14 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     };
     // setProfileData(newProfileData);
     updateUser(newProfileData, setErrorMessage);
-    setIsEditing(false);
+    await setIsEditingProfile();
     setFriend(newProfileData);
 
     setChats(newProfileData.chats);
   };
 
   // Cancel editing
-  const handleCancelClick = () => {
+  const handleCancelClick = async () => {
     setEditProfile({
       name: friend.name,
       username: username,
@@ -661,7 +663,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
       profilePicture: friend.profilePicture,
       location: friend.location,
     });
-    setIsEditing(false);
+    await setIsEditingProfile();
   };
 
   // Handle input changes for editable fields
@@ -842,7 +844,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     }
   };
 
-  const setMasterDate = (calendar: { dates; hours }) => {
+  const setMasterDate = async (calendar: { dates; hours }) => {
     let index = -1;
 
     console.log("Selected Date:", calendar.dates);
@@ -860,7 +862,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
 
     updateUser(friend, setErrorMessage);
     setFriend(friend);
-    setIsEditing(false);
+    await setIsEditingProfile();
 
     console.log("Updated Calendar:", friend);
     return friend.calendar;
