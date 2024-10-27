@@ -122,10 +122,10 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 {Object.keys(user).length > 0 &&
-                Object.keys(friend).length > 0 &&
-                user &&
-                friend &&
-                user.username === friend.username ? (
+                  Object.keys(friend).length > 0 &&
+                  user &&
+                  friend &&
+                  user.username === friend.username ? (
                   <ProfilePageComponent theme />
                 ) : (
                   <FriendPageComponent theme />
@@ -157,10 +157,10 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
                 {Object.keys(user).length > 0 &&
-                Object.keys(friend).length > 0 &&
-                user &&
-                friend &&
-                user.username === friend.username ? (
+                  Object.keys(friend).length > 0 &&
+                  user &&
+                  friend &&
+                  user.username === friend.username ? (
                   <PortfolioViewPage />
                 ) : (
                   <FriendPortfolioViewPage />

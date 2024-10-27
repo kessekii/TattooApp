@@ -155,7 +155,7 @@ export const ChatsPageComponent: React.FC = () => {
 
   const participants = useMemo(
     () =>
-      Object.keys(privateChats).map((privateChatId) => {
+      Object.keys(privateChats || {}).map((privateChatId) => {
         console.log(
           privateChats[privateChatId].messages,
           user.username,
@@ -169,8 +169,8 @@ export const ChatsPageComponent: React.FC = () => {
         return (
           <CommentList>
             {privateChats[privateChatId].messages &&
-            privateChats[privateChatId].messages.length > 0 &&
-            isMessagesPopupOpened ? (
+              privateChats[privateChatId].messages.length > 0 &&
+              isMessagesPopupOpened ? (
               <CommentsPopup>
                 <CommentsContent theme={themevars.popup}>
                   <EditButton

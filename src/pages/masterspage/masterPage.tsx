@@ -120,19 +120,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton)<{ theme }>`
+export const SaveButton = styled(EditButton) <{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton)<{ theme }>`
+export const CancelButton = styled(EditButton) <{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(EditButton)<{ following }>`
+export const FollowButton = styled(EditButton) <{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -489,7 +489,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton)<{ theme }>`
+export const IcButton = styled(IconButton) <{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -505,7 +505,7 @@ export const IcButton = styled(IconButton)<{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography)<{ theme; bold? }>`
+export const Typefield = styled(Typography) <{ theme; bold?}>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -526,24 +526,24 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   const loggedInUser = user.username === friend.username;
   const { username, postId } = useParams();
-  const { isEditing, setIsEditing } = useEditing();
+  const { isEditing, setIsEditingProfile } = useEditing();
 
   const [editProfile, setEditProfile] = useState(
     user
       ? {
-          name: user.name,
-          username: user.username,
-          description: user.description,
-          profilePicture: user.profilePicture,
-          location: user.location,
-        }
+        name: user.name,
+        username: user.username,
+        description: user.description,
+        profilePicture: user.profilePicture,
+        location: user.location,
+      }
       : {
-          name: "",
-          username: "",
-          description: "",
-          profilePicture: "",
-          location: "",
-        }
+        name: "",
+        username: "",
+        description: "",
+        profilePicture: "",
+        location: "",
+      }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     user && user.friends && Object.keys(user.friends).length > 0
@@ -599,9 +599,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     const updatedReviews =
       user.reviews && user.reviews.length > 0
         ? [
-            ...user.reviews,
-            { photo: user.image, nickname: user.username, ...newReview },
-          ]
+          ...user.reviews,
+          { photo: user.image, nickname: user.username, ...newReview },
+        ]
         : [{ photo: user.image, nickname: user.username, ...newReview }];
     // setProfileData({
     //   ...user,
@@ -625,8 +625,8 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   const navigate = useNavigate();
   // Toggle edit mode
-  const handleEditClick = () => {
-    setIsEditing(true);
+  const handleEditClick = async () => {
+    await setIsEditingProfile();
   };
 
   // Save changes
@@ -641,14 +641,14 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     };
     // setProfileData(newProfileData);
     await updateUser(newProfileData, setErrorMessage);
-    setIsEditing(false);
+    await setIsEditingProfile();
     setUser(newProfileData);
 
     setChats(newProfileData.chats);
   };
 
   // Cancel editing
-  const handleCancelClick = () => {
+  const handleCancelClick = async () => {
     setEditProfile({
       name: user.name,
       username: username,
@@ -656,7 +656,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       profilePicture: user.profilePicture,
       location: user.location,
     });
-    setIsEditing(false);
+    await setIsEditingProfile();
   };
 
   // Handle input changes for editable fields
@@ -837,7 +837,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     }
   };
 
-  const setMasterDate = (calendar: { dates; hours }) => {
+  const setMasterDate = async (calendar: { dates; hours }) => {
     let index = -1;
 
     console.log("Selected Date:", calendar.dates);
@@ -855,7 +855,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
     updateUser(user, setErrorMessage);
     setUser({ ...user });
-    setIsEditing(false);
+    await setIsEditingProfile();
 
     console.log("Updated Calendar:", user);
     return user.calendar;

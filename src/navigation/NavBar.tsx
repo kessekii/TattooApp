@@ -36,7 +36,7 @@ const NavBar = () => {
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [isShrunk, setIsShrunk] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
-  const { isEditing, setIsEditing } = useEditing();
+  const { isEditing, setIsEditingProfile } = useEditing();
   const handleUserInteraction = () => {
     setLastInteractionTime(Date.now());
     if (isShrunk) {
@@ -57,8 +57,8 @@ const NavBar = () => {
     navigate(path);
   };
 
-  const handleGoEdit = () => {
-    setIsEditing(true);
+  const handleGoEdit = async () => {
+    await setIsEditingProfile();
     navigate("/" + user.username);
   };
 
@@ -173,8 +173,8 @@ const NavBar = () => {
                       </MenuItem>
                       <MenuItem
                         theme={themevars}
-                        onClick={() => {
-                          setIsEditing(true);
+                        onClick={async () => {
+                          await setIsEditingProfile();
                           window.location.href = user.username;
                           navigate("/" + user.username);
                         }}
