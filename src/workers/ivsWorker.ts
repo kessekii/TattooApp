@@ -42,7 +42,7 @@ class PlayerDemo {
 
         const { ErrorType, PlayerEventType, PlayerState } = IVSPackage;
 
-        for (let state of Object.values(PlayerState)) {
+        for (const state of Object.values(PlayerState)) {
             player.addEventListener(state, () => {
                 console.log(state);
             });

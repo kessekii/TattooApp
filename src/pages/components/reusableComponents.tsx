@@ -187,7 +187,7 @@ export const CustomToolbar: React.FunctionComponent<{
 			filterCurrent: any,
 			setFilter: any,
 		) => {
-			let maxNumber = possibleCampaign.length
+			const maxNumber = possibleCampaign.length
 			const number = filterCurrent + 1
 			if (number === maxNumber) setFilter(0)
 			else setFilter(number)
@@ -725,10 +725,10 @@ export const TableComponent = (props: {
 	}
 
 	const filterSearchComponentArray = (filterKeysList: any) => {
-		let wholeList: any = {}
+		const wholeList: any = {}
 		// console.log(props.currentFilters)
 
-		for (let e of filterKeysList)
+		for (const e of filterKeysList)
 			wholeList[e] = (
 				<FilterSearchComponent
 					style={{

@@ -863,10 +863,10 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
   };
 
   const setMasterDate = async (calendar: { dates; hours }) => {
-    let index = -1;
+    const index = -1;
 
     console.log("Selected Date:", calendar.dates);
-    let finalDates = calendar.dates.map((d) => ({
+    const finalDates = calendar.dates.map((d) => ({
       date: d,
       hours: calendar.hours,
     }));
@@ -1114,7 +1114,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
             await handleFollow();
           }}
         >
-          {!!user.friends[friend.username] ? "Unfollow" : "Follow"}
+          {user.friends[friend.username] ? "Unfollow" : "Follow"}
         </FollowButton>
       </FriendsSection>
 

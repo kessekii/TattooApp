@@ -1,6 +1,6 @@
 // redux/reducers/modalReducer.ts
-import { ActionType } from '../action-types/index';
-import { ModalData } from '../action-creators';
+import { ActionType } from "../action-types/index";
+import { ModalData } from "../action-creators";
 
 interface ModalState {
   modal: ModalData | null;
@@ -12,7 +12,10 @@ const initialState: ModalState = {
   isModalOpen: false,
 };
 
-const modalReducer = (state: ModalState = initialState, action: { type: string; payload?: any }): ModalState => {
+const modalReducer = (
+  state: ModalState = initialState,
+  action: { type: string; payload?: any }
+): ModalState => {
   switch (action.type) {
     case ActionType.OPEN_MODAL:
       return {
@@ -39,7 +42,9 @@ const modalReducer = (state: ModalState = initialState, action: { type: string; 
       };
 
     case ActionType.SET_MODAL_CONFIRM:
-      const shouldCloseModal = state.modal?.onConfirm ? state.modal.onConfirm(action.payload) : true;
+      const shouldCloseModal = state.modal?.onConfirm
+        ? state.modal.onConfirm(action.payload)
+        : true;
 
       if (shouldCloseModal) {
         return {

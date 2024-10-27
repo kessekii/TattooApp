@@ -21,7 +21,7 @@ const NOTIFICATION_TEXT_FOR_COMMAND: Record<string, string> = {
 };
 
 const getNotificationText = (messageText?: string): string | null => {
-  for (let command of Object.keys(NOTIFICATION_TEXT_FOR_COMMAND)) {
+  for (const command of Object.keys(NOTIFICATION_TEXT_FOR_COMMAND)) {
     if (messageText?.startsWith(command))
       return NOTIFICATION_TEXT_FOR_COMMAND[command];
   }

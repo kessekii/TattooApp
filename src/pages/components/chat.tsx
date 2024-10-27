@@ -17,7 +17,7 @@ interface Message {
 }
 
 function formatDate(date: Date) {
-    let dateCopy = new Date(date);
+    const dateCopy = new Date(date);
     let offset = 0;
     function padTo2Digits(n: number) {
         return n < 10 ? "0" + n : n;
@@ -72,11 +72,11 @@ const ChatComponent: React.FC<ChatProps> = ({ chatId }) => {
     const handleGetMessage = async () => {
         try {
             if (newMessage.trim()) {
-                let messagesArray: any[] = []
+                const messagesArray: any[] = []
                 const response = await chatService.getChatByChatId(chatId, login.user.email);
                 console.log('response', response);
-                for (let date of (Object.values<any>(response.data))) {
-                    for (let post of date) {
+                for (const date of (Object.values<any>(response.data))) {
+                    for (const post of date) {
                         const message: Message = {
                             id: post.time,
                             text: post.message,

@@ -31,7 +31,7 @@ export const ForgotPasswordPopup = (props: {
 	const [strength, setStrength] = useState('weak')
 
 	const handlePasswordVerification = (password: string) => {
-		let strongPassword = new RegExp(
+		const strongPassword = new RegExp(
 			'(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})',
 		)
 		if (strongPassword.test(password)) {

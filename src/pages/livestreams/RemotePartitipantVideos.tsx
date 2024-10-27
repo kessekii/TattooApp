@@ -14,7 +14,7 @@ const RemoteParticipantVideos = ({
         .map((participantAndStreamInfo, index) => {
             const { participant, streams } = participantAndStreamInfo; // Destructure the participant and streams
             const { username } = participant?.attributes; // Destructure the username from the participant attributes
-            let streamsToDisplay = streams; // Initialize streamsToDisplay with the remote streams
+            const streamsToDisplay = streams; // Initialize streamsToDisplay with the remote streams
 
             return (
                 <div className="flex margin" key={participant?.id}>

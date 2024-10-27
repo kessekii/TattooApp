@@ -266,7 +266,7 @@ const NewStreamPage = (): JSX.Element => {
         collection(firestore, "rtc-connections", callId, "offerCandidates"),
         { includeMetadataChanges: true },
         async (snapshot: any) => {
-          for (let change of snapshot.docChanges()) {
+          for (const change of snapshot.docChanges()) {
             if (change.type === "added" || change.type === "modified") {
               const data = change.doc.data();
 

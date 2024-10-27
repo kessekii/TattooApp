@@ -222,7 +222,7 @@ const PortfolioEditorPage: React.FC = () => {
         comments: [],
         chatId: "",
       };
-      let pos = user.posts ? user.posts : {};
+      const pos = user.posts ? user.posts : {};
       updatedProfileData.posts =
         Object.keys(pos).length > 0
           ? { ...pos, [newUuid]: newPost }

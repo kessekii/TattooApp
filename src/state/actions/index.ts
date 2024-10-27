@@ -125,4 +125,4 @@ export type Action =
   | UpdateUserInterfaceReducer
   | UpdateChatInterfaceReducer
   | NewsInterfaceReducer
-  | NewsMakeReducer
+  | NewsMakeReducer;

@@ -1,9 +1,9 @@
 // Notification component connected to Redux
-import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
-import { useTypedSelector } from '../../hooks/useTypedSelector';
-import { useDispatch } from 'react-redux';
-import { useActions } from '../../hooks/useActions';
+import PropTypes from "prop-types";
+import React, { useEffect } from "react";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { useDispatch } from "react-redux";
+import { useActions } from "../../hooks/useActions";
 
 export interface NotificationOptions {
   asPortal?: boolean;
@@ -11,23 +11,25 @@ export interface NotificationOptions {
   withTimeout?: boolean;
 }
 
-
-
 const DEFAULT_NOTIF_TIMEOUT = 3000; // Adjust as necessary
 
 const NOTIF_TYPES = {
-  SUCCESS: 'success',
-  ERROR: 'error',
-  INFO: 'info'
+  SUCCESS: "success",
+  ERROR: "error",
+  INFO: "info",
 };
 
 const Notification = ({ children }) => {
- 
-  const { notification, addNotification, removeNotification } = useTypedSelector((state) => state.notify);
+  const { notification, addNotification, removeNotification } =
+    useTypedSelector((state) => state.notify);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (addNotification && addNotification.withTimeout && addNotification.timeout >= 0) {
+    if (
+      addNotification &&
+      addNotification.withTimeout &&
+      addNotification.timeout >= 0
+    ) {
       const timeoutID = setTimeout(() => {
         dispatch(removeNotification());
       }, notification.timeout);
@@ -49,9 +51,12 @@ const Notification = ({ children }) => {
     dispatch(addNotification(notifProps));
   };
 
-  const notifyError = (message, options) => notify(message, NOTIF_TYPES.ERROR, options);
-  const notifySuccess = (message, options) => notify(message, NOTIF_TYPES.SUCCESS, options);
-  const notifyInfo = (message, options) => notify(message, NOTIF_TYPES.INFO, options);
+  const notifyError = (message, options) =>
+    notify(message, NOTIF_TYPES.ERROR, options);
+  const notifySuccess = (message, options) =>
+    notify(message, NOTIF_TYPES.SUCCESS, options);
+  const notifyInfo = (message, options) =>
+    notify(message, NOTIF_TYPES.INFO, options);
 
   return (
     <>
