@@ -1,32 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { AppBar, Toolbar, IconButton, Box, Avatar } from "@mui/material";
-import {
-  Home,
-  Search,
-  Explore,
-  FavoriteBorder,
-  AccountCircle,
-} from "@mui/icons-material";
-import { Outlet, useNavigate } from "react-router-dom";
-import { createGlobalStyle } from "styled-components";
-import { useTheme } from "../state/providers/themeProvider";
-import {
-  AvatarContainer,
-  Menu,
-  MenuItem,
-  NavContainer,
-  NavIcons,
-} from "./NavBarComponents";
-import {
-  EditButton,
-  PopupContent,
-  PopupOverlay,
-} from "../pages/masterspage/masterPage";
-import { useEditing } from "../hooks/useEditing";
-import { FaCog, FaUserEdit, FaUser } from "react-icons/fa";
-import useLocalStorage from "../hooks/useLocalStorage";
-import MessageIcon from "@mui/icons-material/Message";
-import { getChatsByUserId, getPostsByUserId } from "../../src/hooks/useChat";
+import React, { useEffect, useState } from 'react';
+import { AppBar, Toolbar, IconButton, Box, Avatar } from '@mui/material';
+import { Home, Search, Explore, FavoriteBorder, AccountCircle } from '@mui/icons-material';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { createGlobalStyle } from 'styled-components';
+import { useTheme } from '../state/providers/themeProvider';
+import { AvatarContainer, Menu, MenuItem, NavContainer, NavIcons } from './NavBarComponents';
+import { EditButton, PopupContent, PopupOverlay } from '../pages/masterspage/masterPage';
+import { useEditing } from '../hooks/useEditing';
+import { FaCog, FaUserEdit, FaUser } from 'react-icons/fa';
+import { useAuth } from '../hooks/useAuth';
+import { useActions } from '../hooks/useActions';
+import useLocalStorage from '../hooks/useLocalStorage';
+
+
+
 // Styled components using your custom theme
 
 const NavBar = () => {
@@ -45,15 +32,21 @@ const NavBar = () => {
   };
 
   const navigate = useNavigate();
-  const { theme, themevars, toggleTheme } = useTheme();
-  const [openSettings, setOpenSettings] = useState(false);
+  const { themevars } = useTheme()
+  const [news, setNews] = useLocalStorage('news', null)
+  const [openSettings, setOpenSettings] = useState(false)
   const [isOpen, setIsOpen] = useState(false);
+  const { getNewsAction } = useActions()
 
   const toggleMenu = () => {
     setIsOpen((prevState) => !prevState);
   };
 
   const handleNavigation = (path: string) => {
+
+
+    setNews(getNewsAction(user.location))
+
     navigate(path);
   };
 

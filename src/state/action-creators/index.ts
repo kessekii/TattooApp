@@ -100,7 +100,7 @@ export interface NewsItem {
 }
 
 //------------NEWS OPERATIONS ------------
-export const getNewsAction = () => {
+export const getNewsAction = (filter: any) => {
   return async (dispatch: Dispatch<Action>) => {
     try {
       const headers = {
@@ -115,7 +115,8 @@ export const getNewsAction = () => {
       //   }
       // );
       // console.log(loggetting.request);
-      const { data } = await AxiosCustom.get(endpoints.NEWS, {
+      console.log(filter);
+      const { data } = await AxiosCustom.post(endpoints.NEWS, filter, {
         headers,
       });
 
@@ -127,7 +128,7 @@ export const getNewsAction = () => {
         return data.payload;
       }
 
-      return true;
+      return data.payload;
     } catch (err) {
       console.log(err);
       return false;
