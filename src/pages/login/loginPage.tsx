@@ -24,7 +24,7 @@ import {
   getChatsByUserId,
   getPostsByUserId,
 } from "../../hooks/useChat";
-import { getProfileData } from "../../state/action-creators";
+import { getNewsAction, getProfileData } from "../../state/action-creators";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 
 const RepositoriesList = () => {
@@ -39,6 +39,7 @@ const RepositoriesList = () => {
   const [chats, setChats] = useLocalStorage("chats", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
+  const [news, setNews] = useLocalStorage("news", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const auth = useAuth();
@@ -57,7 +58,7 @@ const RepositoriesList = () => {
 
         const chatData = await getChatsByUserId(loginF);
         const postsData = await getPostsByUserId(loginF);
-
+        const newsData = await getNewsAction(userData.payload.location)
         const pointsObject = await getPointsInRadius(
           {
             lat: 32.02119878251853,
@@ -72,6 +73,7 @@ const RepositoriesList = () => {
         setFriendChats(chatData.payload);
         setFriendPosts(postsData.payload);
         setPoints(pointsObject.payload);
+        setNews(userData.payload.location);
         await auth.setUserFull(userData.payload);
 
         navigate("/" + loginF);

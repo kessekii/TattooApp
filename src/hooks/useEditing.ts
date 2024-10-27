@@ -1,11 +1,16 @@
-//make useAuth hook to handle authentication
+
 import { useState } from "react";
 import useLocalStorage from "./useLocalStorage";
 
 export const useEditing = () => {
   const [isEditing, setIsEditing] = useLocalStorage("editingProfile", false);
 
-  
+  const setIsEditingProfile = async () => {
+    setIsEditing(!isEditing);
+    // setChats(Object.keys(user.chats));
+  }
 
-  return { isEditing, setIsEditing };
+  console.log("EDITING : ", isEditing)
+
+  return { isEditing, setIsEditingProfile };
 };

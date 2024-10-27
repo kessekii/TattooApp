@@ -313,7 +313,9 @@ const NewsFeed: React.FC = () => {
   };
 
   useEffect(() => {
-    getNewsAction();
+
+
+
     const slider = sliderRef.current;
     if (!slider) return;
 
@@ -327,6 +329,8 @@ const NewsFeed: React.FC = () => {
 
     return () => clearInterval(slideInterval);
   }, []);
+
+
 
   return (
     <NewsFeedContainer theme={themevars}>
@@ -344,7 +348,7 @@ const NewsFeed: React.FC = () => {
 
       {/* News Slider */}
       <SliderContainer ref={sliderRef}>
-        {slides.map((slide) => (
+        {news && news.length > 0 && news.map((slide) => (
           <Slide key={slide.id}>
             <SlideImage src={slide.image} alt={slide.title} />
             <SlideTitle>{slide.title}</SlideTitle>

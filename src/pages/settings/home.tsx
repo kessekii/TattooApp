@@ -93,13 +93,13 @@ const PoiMarker = (props: {
   const isAvailableEdit =
     Object.keys(user.points).includes(
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ) &&
     user.points[
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ].find((point) => point === props.point.pointId);
   console.log(isAvailableEdit);
   // console.log(props.point.data);
@@ -136,9 +136,9 @@ const PoiMarker = (props: {
         position={
           props.point && props.point?.location
             ? {
-                lng: props.point?.location?.lng,
-                lat: props.point?.location?.lat,
-              }
+              lng: props.point?.location?.lng,
+              lat: props.point?.location?.lat,
+            }
             : undefined
         }
         onMouseEnter={() => {
