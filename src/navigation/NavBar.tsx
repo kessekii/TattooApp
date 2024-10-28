@@ -168,14 +168,14 @@ const NavBar = () => {
                       <MenuItem
                         theme={themevars}
                         onClick={async () => {
-                          setUser(user);
-                          setFriend(user);
                           const postsData = (
                             await getPostsByUserId(user.username)
                           ).payload;
                           const chatsData = (
                             await getChatsByUserId(user.username)
                           ).payload;
+                          setUser(user);
+                          setFriend(user);
                           setFriendPosts(postsData);
                           setFriendChats(chatsData);
                           setPosts(postsData);

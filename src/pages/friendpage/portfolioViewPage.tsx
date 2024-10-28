@@ -190,7 +190,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                     objectFit: "contain",
                     margin: "3px",
                   }}
-                  src={friendPosts[post].image}
+                  src={friendPosts[post]?.image}
                   alt={`Post ${post}`}
                 />
                 <PostDetails>
@@ -203,38 +203,38 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                       {friend.name}
                     </UserName>
                   </UserSection>
-                  <Description>{friendPosts[post].description}</Description>
+                  <Description>{friendPosts[post]?.description}</Description>
                   <Caption>
                     <strong>
-                      {friendPosts[post].friend &&
-                        friendPosts[post].friend.name}
+                      {friendPosts[post]?.friend &&
+                        friendPosts[post]?.friend.name}
                     </strong>{" "}
-                    {friendPosts[post].description}
+                    {friendPosts[post]?.description}
                   </Caption>
 
-                  {friendChats && friendChats[friendPosts[post].chatId] ? (
+                  {friendChats && friendChats[friendPosts[post]?.chatId] ? (
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
                     >
-                      {friendChats[friendPosts[post].chatId]?.messages
+                      {friendChats[friendPosts[post]?.chatId]?.messages
                         ?.length === 0 ? (
                         <>No comments yet</>
                       ) : (
                         <>
                           <strong>
-                            {friendChats[friendPosts[post].chatId].messages
+                            {friendChats[friendPosts[post]?.chatId].messages
                               ?.length > 0
-                              ? friendChats[friendPosts[post].chatId].messages[
-                                  friendChats[friendPosts[post].chatId].messages
-                                    .length - 1
+                              ? friendChats[friendPosts[post]?.chatId].messages[
+                                  friendChats[friendPosts[post]?.chatId]
+                                    .messages.length - 1
                                 ].author + ": "
                               : ""}
                           </strong>
-                          {friendChats[friendPosts[post].chatId].messages
+                          {friendChats[friendPosts[post]?.chatId].messages
                             ?.length > 0
-                            ? friendChats[friendPosts[post].chatId].messages[
-                                friendChats[friendPosts[post].chatId].messages
+                            ? friendChats[friendPosts[post]?.chatId].messages[
+                                friendChats[friendPosts[post]?.chatId].messages
                                   .length - 1
                               ].text
                             : ""}
@@ -253,7 +253,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                     </LikeButton>
                     <>
                       View all{" "}
-                      {friendChats[friendPosts[post].chatId]?.messages
+                      {friendChats[friendPosts[post]?.chatId]?.messages
                         ?.length || 0}{" "}
                       comments
                     </>
@@ -272,10 +272,10 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                       <h2 style={{ color: themevars.text }}>Comments</h2>
 
                       <CommentList>
-                        {friendChats[friendPosts[post].chatId]?.messages &&
-                        friendChats[friendPosts[post].chatId].messages.length >
+                        {friendChats[friendPosts[post]?.chatId]?.messages &&
+                        friendChats[friendPosts[post]?.chatId].messages.length >
                           0 ? (
-                          friendChats[friendPosts[post].chatId].messages.map(
+                          friendChats[friendPosts[post]?.chatId].messages.map(
                             (comment, index) => (
                               <CommentItem
                                 key={index + comment.author}
