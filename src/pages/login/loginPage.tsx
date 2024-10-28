@@ -16,7 +16,7 @@ import {
 import AxiosCustom from "../../utils/Axios";
 
 import { ForgotPasswordPopup } from "./forgotPasswordComponent";
-import { useTheme } from "../../state/providers/themeProvider";
+import { useTheme, useWindowDimensions } from "../../state/providers/themeProvider";
 import {
   getPointByQuadIdAndPointId,
   getChatByChatId,
@@ -40,6 +40,8 @@ const RepositoriesList = () => {
   const [friend, setFriend] = useLocalStorage("friend", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [news, setNews] = useLocalStorage("news", null);
+  const [screen, setScreen] = useLocalStorage("screen", null);
+  const dims = useWindowDimensions()
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const auth = useAuth();
@@ -66,6 +68,7 @@ const RepositoriesList = () => {
           },
           false
         );
+        setScreen(dims);
         setUser(userData.payload);
         setFriend(userData.payload);
         setPosts(postsData.payload);
@@ -73,7 +76,8 @@ const RepositoriesList = () => {
         setFriendChats(chatData.payload);
         setFriendPosts(postsData.payload);
         setPoints(pointsObject.payload);
-        setNews(userData.payload.location);
+        console.log('SET NEWS   => ', newsData)
+        setNews(newsData);
         await auth.setUserFull(userData.payload);
 
         navigate("/" + loginF);
