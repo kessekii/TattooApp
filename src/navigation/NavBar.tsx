@@ -242,7 +242,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         </Toolbar>
       </NavContainer>
       {openSettings && <SettingsPopupComponent onClose={setOpenSettings} />}
-      <div style={{ position: 'absolute' }}><Outlet /></div>
+      <div style={{ position: 'absolute', width: '100%' }}><Outlet /></div>
 
     </div >
   );
