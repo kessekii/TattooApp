@@ -164,6 +164,7 @@ const PortfolioViewPage: React.FC = ({}) => {
         style={{
           justifyContent: "center",
           width: "100vw",
+          overflow: "scroll",
           // height: "40vh",
           // width: "40vh",
           // display: "contents",
