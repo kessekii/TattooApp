@@ -186,4 +186,5 @@ export enum endpoints {
   PROFILEDATA_U = "profile/update",
   ADD_POINT = "users/addPoint",
   UPDATE_USER = "users/update",
+  GETPOSTS =  "news/getPosts"
 }

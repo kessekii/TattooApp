@@ -2,14 +2,15 @@ import { styled } from "styled-components";
 
 export const PortfolioPage = styled.div`
   font-family: Arial, sans-serif;
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  
   align-items: center;
   width: 100%;
   height: 90vh;
-  justify-content: center;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
 `;

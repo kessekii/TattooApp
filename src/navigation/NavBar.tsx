@@ -31,15 +31,19 @@ import { getChatsByUserId, getPostsByUserId } from "../../src/hooks/useChat";
 
 import MessageIcon from "@mui/icons-material/Message";
 
+import { getNewsAction } from '../../src/state/action-creators'
+
 // Styled components using your custom theme
 
-const NavBar = () => {
+const NavBar = (props: { screen: any, onResize: () => void }) => {
   const [user, setUser] = useLocalStorage("user", null);
+  const [news, setNews] = useLocalStorage("news", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [chats, setChats] = useLocalStorage("chats", null);
+
   const [isShrunk, setIsShrunk] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const { isEditing, setIsEditingProfile } = useEditing();
@@ -51,20 +55,31 @@ const NavBar = () => {
   };
 
   const navigate = useNavigate();
-  const { themevars } = useTheme();
-  const [news, setNews] = useLocalStorage("news", null);
-  const [openSettings, setOpenSettings] = useState(false);
+  const { themevars } = useTheme()
+
+  const [openSettings, setOpenSettings] = useState(false)
   const [isOpen, setIsOpen] = useState(false);
-  const { getNewsAction } = useActions();
+
 
   const toggleMenu = () => {
     setIsOpen((prevState) => !prevState);
   };
 
-  const handleNavigation = (path: string) => {
-    setNews(getNewsAction(user.location));
+  const handleNavigation = async (path: any, userData: any = user) => {
+    try {
+      console.log('usrusr   : ', userData)
+      if (path.includes('news') && userData && userData.location) {
+        const newsData = await getNewsAction(userData.location)
+        console.log("setting news => ", newsData)
+        setNews(newsData)
+      }
 
-    navigate(path);
+
+      navigate(path);
+
+    } catch (e) {
+      console.log(encodeURIComponent)
+    }
   };
 
   const handleGoEdit = async () => {
@@ -75,7 +90,7 @@ const NavBar = () => {
   useEffect(() => {
     if (isShrunk) {
       setIsOpen(false);
-      console.log(user); // Close the menu if the navbar is shrunk
+      // Close the menu if the navbar is shrunk
     }
     // Set a timer to shrink navbar after 5 seconds of inactivity
     const shrinkTimer = setTimeout(() => {
@@ -122,10 +137,13 @@ const NavBar = () => {
         position: "fixed",
         display: "flex",
         justifyContent: "center",
+
         alignItems: "top",
-        height: "100vh",
-        width: "100vw",
-        margin: "auto",
+        height: "100%",
+        width: "100%",
+        overflowY: 'scroll',
+        overflowX: 'hidden',
+        maxHeight: "100vh",
         top: 0,
         left: 0,
       }}
@@ -224,8 +242,9 @@ const NavBar = () => {
         </Toolbar>
       </NavContainer>
       {openSettings && <SettingsPopupComponent onClose={setOpenSettings} />}
-      <Outlet />
-    </div>
+      <div style={{ position: 'absolute' }}><Outlet /></div>
+
+    </div >
   );
 };
 

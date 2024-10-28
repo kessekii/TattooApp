@@ -1,16 +1,40 @@
-import React, { createContext, useState, useContext } from "react";
-import themes from "../../utils/theme";
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import themes from "../../utils/theme"
 export interface ThemeContextType {
   theme: string;
   themevars: any;
   toggleTheme: () => void;
 }
 
+
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height
+  };
+}
+
+export function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowDimensions;
+}
+
 // Создание контекста с указанием типов
 const ThemeToggleContext = createContext<ThemeContextType>({
   theme: "light",
   themevars: themes.lightTheme,
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 // Провайдер для переключения тем
@@ -22,6 +46,8 @@ export const ThemeToggleProvider: React.FC<{ children: React.ReactNode }> = ({
   const toggleTheme = () => {
     setCurrentTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
+
+
 
   return (
     <ThemeToggleContext.Provider
