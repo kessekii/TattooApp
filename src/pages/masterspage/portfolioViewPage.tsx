@@ -162,7 +162,8 @@ const PortfolioViewPage: React.FC = ({}) => {
         container
         key={user.username + "gridccc"}
         style={{
-          overflow: "scroll",
+          justifyContent: "center",
+          width: "100vw",
           // height: "40vh",
           // width: "40vh",
           // display: "contents",
@@ -173,27 +174,28 @@ const PortfolioViewPage: React.FC = ({}) => {
           Object.keys(posts || {}).map((post) => (
             <Grid
               item
-              style={
-                {
-                  // height: "40vh",
-                  // width: "40vh",
-                  // padding: "10px 15px",
-                  // justifyItems: "center",
-                  // alignContent: "space-between",
-                  // alignItems: "flex-end",
-                  // flexWrap: "nowrap",
-                  // display: "contents",
-                  // objectFit: "contain",
-                }
-              }
+              style={{
+                width: "100vw",
+                // height: "40vh",
+                // width: "40vh",
+                // padding: "10px 15px",
+                // justifyItems: "center",
+                // alignContent: "space-between",
+                // alignItems: "flex-end",
+                // flexWrap: "nowrap",
+                // display: "contents",
+                // objectFit: "contain",
+              }}
             >
               <PostWrapper key={post} style={{ objectFit: "contain" }}>
                 <PostImage
                   src={posts[post].image}
                   alt={`Post ${post}`}
                   style={{
-                    width: "60vw",
-                    height: "60vw",
+                    width: "80vw",
+                    maxWidth: "400px",
+                    height: "80vw",
+                    maxHeight: "400px",
                     objectFit: "contain",
                     margin: "3px",
                   }}
@@ -248,11 +250,11 @@ const PortfolioViewPage: React.FC = ({}) => {
                     <LikeButton>
                       <LikeIcon>❤️</LikeIcon> Like
                     </LikeButton>
-                    <>
+                    <Box onClick={() => handleCommentsClick(post)}>
                       View all{" "}
                       {chats[posts[post].chatId]?.messages?.length || 0}{" "}
                       comments
-                    </>
+                    </Box>
                   </LikeSection>
                 </PostDetails>
 

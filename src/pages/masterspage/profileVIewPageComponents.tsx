@@ -8,7 +8,7 @@ export const PortfolioPage = styled.div`
   align-items: center;
   width: 100%;
   height: 90vh;
-
+  justify-content: center;
   overflow: scroll;
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};

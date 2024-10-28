@@ -158,6 +158,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
         container
         style={{
           overflow: "scroll",
+          justifyContent: "center",
           // display: "contents",
         }}
         direction="row"
@@ -166,25 +167,26 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
           Object.keys(friend.posts || {}).map((post) => (
             <Grid
               item
-              style={
-                {
-                  // height: "40vh",
-                  // width: "100vw",
-                  // padding: "10px 15px",
-                  // justifyItems: "center",
-                  // alignContent: "space-between",
-                  // alignItems: "flex-end",
-                  // flexWrap: "nowrap",
-                  // display: "contents",
-                  // objectFit: "contain",
-                }
-              }
+              style={{
+                // height: "40vh",
+                width: "100vw",
+
+                // padding: "10px 15px",
+                // justifyItems: "center",
+                // alignContent: "space-between",
+                // alignItems: "flex-end",
+                // flexWrap: "nowrap",
+                // display: "contents",
+                // objectFit: "contain",
+              }}
             >
               <PostWrapper key={post}>
                 <PostImage
                   style={{
-                    width: "60vw",
-                    height: "60vw",
+                    width: "80vw",
+                    maxWidth: "400px",
+                    height: "80vw",
+                    maxHeight: "400px",
                     objectFit: "contain",
                     margin: "3px",
                   }}
@@ -249,6 +251,12 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                     <LikeButton>
                       <LikeIcon>❤️</LikeIcon> Like
                     </LikeButton>
+                    <>
+                      View all{" "}
+                      {friendChats[friendPosts[post].chatId]?.messages
+                        ?.length || 0}{" "}
+                      comments
+                    </>
                   </LikeSection>
                 </PostDetails>
 
