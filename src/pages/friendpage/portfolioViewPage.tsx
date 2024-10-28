@@ -28,11 +28,11 @@ import {
   UserName,
   UserSection,
 } from "./profileVIewPageComponents";
-import { EditButton } from "./friendPage";
+import { EditButton, FriendAvatar } from "./friendPage";
 import ChatComponent from "../components/chat";
 import { updateChatStraight } from "../../state/action-creators";
-import { getPostsByUserId } from "../../hooks/useChat";
-import { Grid } from "@mui/material";
+import { getPostsByUserId, getUserById } from "../../hooks/useChat";
+import { Box, Grid } from "@mui/material";
 
 const FriendPortfolioViewPage: React.FC = ({}) => {
   const [friend, setFriend] = useLocalStorage("friend", null);
@@ -268,9 +268,64 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                           0 ? (
                           friendChats[friendPosts[post].chatId].messages.map(
                             (comment, index) => (
-                              <CommentItem key={index}>
-                                <CommentAuthor>{comment?.author}</CommentAuthor>
-                                <CommentText>{comment?.text}</CommentText>
+                              <CommentItem
+                                key={index + comment.author}
+                                style={{
+                                  flexDirection: "row",
+                                  justifyContent: "flex-start",
+                                  alignItems: "center",
+                                  display: "flex",
+                                }}
+                              >
+                                <Box
+                                  style={{
+                                    // marginRight: "20%",
+                                    width: "60vw",
+                                    flexDirection: "row",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                    display: "flex",
+                                    padding: "10px",
+                                  }}
+                                >
+                                  <Box
+                                    style={{
+                                      flexDirection: "column",
+                                      display: "flex",
+                                    }}
+                                  >
+                                    <CommentAuthor
+                                      style={{
+                                        float: "left",
+                                        marginRight: "20px",
+                                      }}
+                                    >
+                                      {comment.author}
+                                    </CommentAuthor>
+                                    {/*  */}
+                                  </Box>
+
+                                  <CommentText style={{ float: "left" }}>
+                                    {comment.text}
+                                  </CommentText>
+                                </Box>
+                                <CommentText
+                                  style={{ float: "right", fontSize: 12 }}
+                                >
+                                  {new Date(comment.timestamp)
+                                    .toISOString()
+                                    .split("T")[0] +
+                                    ", " +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[0] +
+                                    ":" +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[1]}
+                                </CommentText>
                               </CommentItem>
                             )
                           )

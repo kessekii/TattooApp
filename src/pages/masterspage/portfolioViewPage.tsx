@@ -162,7 +162,7 @@ const PortfolioViewPage: React.FC = ({}) => {
         style={{
           overflow: "scroll",
           // height: "40vh",
-          width: "40vh",
+          // width: "40vh",
           // display: "contents",
         }}
         // direction="row"

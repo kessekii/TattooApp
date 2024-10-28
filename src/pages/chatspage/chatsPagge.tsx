@@ -18,7 +18,7 @@ import {
 import { EditButton, FriendAvatar } from "../masterspage/masterPage";
 import { useTheme } from "../../state/providers/themeProvider";
 import { updateChatStraight } from "../../../src/state/action-creators";
-import { TextField } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 export const ChatsPageComponent: React.FC = () => {
   function timeout(delay: number) {
     return new Promise((res) => setTimeout(res, delay));
@@ -169,8 +169,8 @@ export const ChatsPageComponent: React.FC = () => {
         return (
           <CommentList>
             {privateChats[privateChatId].messages &&
-              privateChats[privateChatId].messages.length > 0 &&
-              isMessagesPopupOpened ? (
+            privateChats[privateChatId].messages.length > 0 &&
+            isMessagesPopupOpened ? (
               <CommentsPopup>
                 <CommentsContent theme={themevars.popup}>
                   <EditButton
@@ -192,19 +192,70 @@ export const ChatsPageComponent: React.FC = () => {
                           avatar = user.profilePicture;
                         }
                         return (
-                          <CommentItem key={i + message.author}>
-                            <FriendAvatar
-                              theme={themevars}
-                              key={i}
-                              src={
-                                avatar !== ""
-                                  ? avatar
-                                  : user.friends[message.author].avatar
-                              }
-                              alt={message.author}
-                            />
-                            <CommentAuthor>{message.author}</CommentAuthor>
-                            <CommentText>{message.text}</CommentText>
+                          <CommentItem
+                            key={i + message.author}
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                              display: "flex",
+                            }}
+                          >
+                            <Box
+                              style={{
+                                // marginRight: "20%",
+                                width: "60vw",
+                                flexDirection: "row",
+                                justifyContent: "flex-start",
+                                alignItems: "center",
+                                display: "flex",
+                                padding: "10px",
+                              }}
+                            >
+                              <Box
+                                style={{
+                                  flexDirection: "column",
+                                  display: "flex",
+                                }}
+                              >
+                                <CommentAuthor
+                                  style={{ float: "left", marginRight: "20px" }}
+                                >
+                                  {message.author}
+                                </CommentAuthor>
+                                <FriendAvatar
+                                  theme={themevars}
+                                  key={i}
+                                  src={
+                                    avatar !== ""
+                                      ? avatar
+                                      : user.friends[message.author].avatar
+                                  }
+                                  alt={message.author}
+                                />
+                              </Box>
+
+                              <CommentText style={{ float: "left" }}>
+                                {message.text}
+                              </CommentText>
+                            </Box>
+                            <CommentText
+                              style={{ float: "right", fontSize: 12 }}
+                            >
+                              {new Date(message.timestamp)
+                                .toISOString()
+                                .split("T")[0] +
+                                ", " +
+                                new Date(message.timestamp)
+                                  .toISOString()
+                                  .split("T")[1]
+                                  .split(":")[0] +
+                                ":" +
+                                new Date(message.timestamp)
+                                  .toISOString()
+                                  .split("T")[1]
+                                  .split(":")[1]}
+                            </CommentText>
                           </CommentItem>
                         );
                       }

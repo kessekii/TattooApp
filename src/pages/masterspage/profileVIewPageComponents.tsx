@@ -8,7 +8,7 @@ export const PortfolioPage = styled.div`
   align-items: center;
   width: 100%;
   height: 90vh;
-  overflow-y: scroll;
+
   overflow: scroll;
   background-color: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
@@ -57,6 +57,8 @@ export const UserSection = styled.div`
 export const UserAvatar = styled.img`
   width: 40px;
   height: 40px;
+  display: flex;
+  justify-content: center;
   border-radius: 50%;
   margin-right: 10px;
 `;
@@ -163,7 +165,6 @@ export const CommentAuthor = styled.span<{ theme }>`
 `;
 
 export const CommentText = styled.p`
-  margin-top: 5px;
   color: ${({ theme }) => theme.text};
 `;
 

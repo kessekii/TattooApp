@@ -162,7 +162,6 @@ export const CommentAuthor = styled.span<{ theme }>`
 `;
 
 export const CommentText = styled.p`
-  margin-top: 5px;
   color: ${({ theme }) => theme.text};
 `;
 
