@@ -278,16 +278,71 @@ export const ChatsPageComponent: React.FC = () => {
               privateChats[privateChatId].messages.length > 0 &&
               !isMessagesPopupOpened ? (
               <CommentItem
+                key={0 + privateChats[privateChatId].owner}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  display: "flex",
+                }}
                 onClick={async () => await handleOpenMessages(privateChatId)}
               >
-                <FriendAvatar
-                  theme={themevars}
-                  key={author + "avava"}
-                  src={user.friends[author].avatar}
-                  alt={author}
-                />
-                <CommentAuthor>{author}</CommentAuthor>
-                <CommentText>{lastMessage}</CommentText>
+                <Box
+                  style={{
+                    // marginRight: "20%",
+                    width: "60vw",
+                    flexDirection: "row",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    display: "flex",
+                    padding: "10px",
+                  }}
+                >
+                  <Box
+                    style={{
+                      flexDirection: "column",
+                      display: "flex",
+                    }}
+                  >
+                    <CommentAuthor
+                      style={{ float: "left", marginRight: "20px" }}
+                    >
+                      {privateChats[privateChatId].lastMessage.author}
+                    </CommentAuthor>
+                    <FriendAvatar
+                      theme={themevars}
+                      key={0 + "sdsd"}
+                      src={
+                        privateChats[privateChatId].lastMessage.author ===
+                        user.username
+                          ? user.profilePicture
+                          : user.friends[
+                              privateChats[privateChatId].lastMessage.author
+                            ]?.avatar
+                      }
+                      alt={privateChats[privateChatId].lastMessage.author}
+                    />
+                  </Box>
+
+                  <CommentText style={{ float: "left" }}>
+                    {privateChats[privateChatId].lastMessage.text}
+                  </CommentText>
+                </Box>
+                <CommentText style={{ float: "right", fontSize: 12 }}>
+                  {new Date(privateChats[privateChatId].lastMessage.timestamp)
+                    .toISOString()
+                    .split("T")[0] +
+                    ", " +
+                    new Date(privateChats[privateChatId].lastMessage.timestamp)
+                      .toISOString()
+                      .split("T")[1]
+                      .split(":")[0] +
+                    ":" +
+                    new Date(privateChats[privateChatId].lastMessage.timestamp)
+                      .toISOString()
+                      .split("T")[1]
+                      .split(":")[1]}
+                </CommentText>
               </CommentItem>
             ) : (
               <CommentItem
