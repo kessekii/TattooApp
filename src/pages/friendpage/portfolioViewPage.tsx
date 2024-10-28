@@ -27,7 +27,7 @@ import {
   UserAvatar,
   UserName,
   UserSection,
-} from "./profileVIewPageComponents";
+} from "../masterspage/profileVIewPageComponents";
 import { EditButton, FriendAvatar } from "./friendPage";
 import ChatComponent from "../components/chat";
 import { updateChatStraight } from "../../state/action-creators";
@@ -104,6 +104,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
         chat.messages.push({
           author: user.username,
           text: newComment,
+          timestamp: new Date().getTime(),
         });
 
         await updateChatStraight(chat, filteredPost.chatId);
@@ -126,6 +127,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
           {
             author: user.username,
             text: newComment,
+            timestamp: new Date().getTime(),
           },
         ];
 
@@ -184,6 +186,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                     width: "60vw",
                     height: "60vw",
                     objectFit: "contain",
+                    margin: "3px",
                   }}
                   src={friendPosts[post].image}
                   alt={`Post ${post}`}
@@ -217,25 +220,23 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                         <>No comments yet</>
                       ) : (
                         <>
-                          <>
-                            View all{" "}
-                            {friendChats[friendPosts[post].chatId]?.messages
-                              ?.length || 0}{" "}
-                            comments
-                          </>
                           <strong>
                             {friendChats[friendPosts[post].chatId].messages
                               ?.length > 0
-                              ? friendChats[friendPosts[post].chatId]
-                                  .messages[0].author
+                              ? friendChats[friendPosts[post].chatId].messages[
+                                  friendChats[friendPosts[post].chatId].messages
+                                    .length - 1
+                                ].author + ": "
                               : ""}
                           </strong>
-                          :{" "}
                           {friendChats[friendPosts[post].chatId].messages
                             ?.length > 0
-                            ? friendChats[friendPosts[post].chatId].messages[0]
-                                .text
+                            ? friendChats[friendPosts[post].chatId].messages[
+                                friendChats[friendPosts[post].chatId].messages
+                                  .length - 1
+                              ].text
                             : ""}
+                          :{" "}
                         </>
                       )}
                     </CommentSection>
@@ -312,19 +313,21 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                                 <CommentText
                                   style={{ float: "right", fontSize: 12 }}
                                 >
-                                  {new Date(comment.timestamp)
-                                    .toISOString()
-                                    .split("T")[0] +
-                                    ", " +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[0] +
-                                    ":" +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[1]}
+                                  {comment.timestamp
+                                    ? new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[0] +
+                                      ", " +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[0] +
+                                      ":" +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[1]
+                                    : ""}
                                 </CommentText>
                               </CommentItem>
                             )

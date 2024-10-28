@@ -35,7 +35,7 @@ import {
   updateChatStraight,
 } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 
 const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
@@ -103,6 +103,7 @@ const PortfolioViewPage: React.FC = ({}) => {
         chat.messages.push({
           author: user.username,
           text: newComment,
+          timestamp: new Date().getTime(),
         });
 
         const newChatData = (
@@ -129,6 +130,7 @@ const PortfolioViewPage: React.FC = ({}) => {
           {
             author: user.username,
             text: newComment,
+            timestamp: new Date().getTime(),
           },
         ];
 
@@ -193,6 +195,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                     width: "60vw",
                     height: "60vw",
                     objectFit: "contain",
+                    margin: "3px",
                   }}
                 />
                 <PostDetails>
@@ -220,20 +223,19 @@ const PortfolioViewPage: React.FC = ({}) => {
                         <>No comments yet</>
                       ) : (
                         <>
-                          <>
-                            View all{" "}
-                            {chats[posts[post].chatId]?.messages?.length || 0}{" "}
-                            comments
-                          </>
                           <strong>
                             {chats[posts[post].chatId].messages?.length > 0
-                              ? chats[posts[post].chatId].messages[0].author
+                              ? chats[posts[post].chatId].messages[
+                                  chats[posts[post].chatId].messages.length - 1
+                                ].author + ": "
                               : ""}
                           </strong>
-                          :{" "}
                           {chats[posts[post].chatId].messages?.length > 0
-                            ? chats[posts[post].chatId].messages[0].text
+                            ? chats[posts[post].chatId].messages[
+                                chats[posts[post].chatId].messages.length - 1
+                              ].text
                             : ""}
+                          :{" "}
                         </>
                       )}
                     </CommentSection>
@@ -246,6 +248,11 @@ const PortfolioViewPage: React.FC = ({}) => {
                     <LikeButton>
                       <LikeIcon>❤️</LikeIcon> Like
                     </LikeButton>
+                    <>
+                      View all{" "}
+                      {chats[posts[post].chatId]?.messages?.length || 0}{" "}
+                      comments
+                    </>
                   </LikeSection>
                 </PostDetails>
 
@@ -265,9 +272,66 @@ const PortfolioViewPage: React.FC = ({}) => {
                         chats[posts[post].chatId].messages.length > 0 ? (
                           chats[posts[post].chatId].messages.map(
                             (comment, index) => (
-                              <CommentItem key={index}>
-                                <CommentAuthor>{comment?.author}</CommentAuthor>
-                                <CommentText>{comment?.text}</CommentText>
+                              <CommentItem
+                                key={index + comment.author}
+                                style={{
+                                  flexDirection: "row",
+                                  justifyContent: "flex-start",
+                                  alignItems: "center",
+                                  display: "flex",
+                                }}
+                              >
+                                <Box
+                                  style={{
+                                    // marginRight: "20%",
+                                    width: "60vw",
+                                    flexDirection: "row",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                    display: "flex",
+                                    padding: "10px",
+                                  }}
+                                >
+                                  <Box
+                                    style={{
+                                      flexDirection: "column",
+                                      display: "flex",
+                                    }}
+                                  >
+                                    <CommentAuthor
+                                      style={{
+                                        float: "left",
+                                        marginRight: "20px",
+                                      }}
+                                    >
+                                      {comment.author}
+                                    </CommentAuthor>
+                                    {/*  */}
+                                  </Box>
+
+                                  <CommentText style={{ float: "left" }}>
+                                    {comment.text}
+                                  </CommentText>
+                                </Box>
+                                <CommentText
+                                  style={{ float: "right", fontSize: 12 }}
+                                >
+                                  {comment.timestamp
+                                    ? new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[0] +
+                                      ", " +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[0] +
+                                      ":" +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[1]
+                                    : ""}
+                                </CommentText>
                               </CommentItem>
                             )
                           )

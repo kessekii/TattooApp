@@ -17,8 +17,7 @@ export const PortfolioPage = styled.div`
 export const PostWrapper = styled.div`
   width: 100%;
   max-width: 100%;
-  height: 70vh;
-  max-height: 70vh;
+
   background-color: ${({ theme }) => theme.background};
   border-bottom: 1px solid #dbdbdb;
   display: grid;
@@ -43,7 +42,7 @@ export const PostDetails = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  width: 100%;
+  height: 
   color: ${({ theme }) => theme.text};
 `;
 
