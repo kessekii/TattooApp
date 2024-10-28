@@ -899,38 +899,33 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
   const handleFollow = async () => {
     const user = JSON.parse(window.localStorage.getItem("user") || "{}");
     const friend = JSON.parse(window.localStorage.getItem("friend") || "{}");
-    if (
-      user &&
-      user.friends &&
-      Object.keys(user.friends).length > 0 &&
-      user.friends[friend.username]
-    ) {
-      setIsFollowing(!user.friends[friend.username]);
-    } else {
-      setIsFollowing(false);
-    }
-    if (Object.keys(user.friends).length === 0) {
+
+    if (Object.keys(user.friends).length === 0 || !user.friends) {
       user.friends = {};
     }
-    if (!isFollowing && !user.friends[username]) {
-      user.friends[username] = {
-        avatar: friend.profilePicture,
-        nickname: friend.name,
-        username: friend.username,
-      };
-    } else {
-      delete user.friends[username];
+    if (user.friends) {
+      user.friends[username] = {};
     }
-    if (!isFollowing && !friend.friends[username]) {
-      friend.friends[user.username] = {
-        avatar: user.profilePicture,
-        nickname: user.name,
-        username: user.username,
-      };
-    } else {
-      delete friend.friends[username];
+    user.friends[username] = {
+      avatar: friend.profilePicture,
+      nickname: friend.name,
+      username: friend.username,
+    };
+
+    if (Object.keys(friend.friends).length === 0 || !friend.friends) {
+      friend.friends = {};
     }
-    console.log(user);
+    if (friend.friends) {
+      friend.friends[user.username] = {};
+    }
+
+    friend.friends[user.username] = {
+      avatar: user.profilePicture,
+      nickname: user.name,
+      username: user.username,
+    };
+
+    // console.log(user);
     // setProfileData((prevProfile) => ({
     //   ...prevProfile,
     //   friends: updatedFriends,
@@ -1112,7 +1107,9 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
             await handleFollow();
           }}
         >
-          {user.friends[friend.username] ? "Unfollow" : "Follow"}
+          {user.friends && user.friends[friend.username]
+            ? "Unfollow"
+            : "Follow"}
         </FollowButton>
       </FriendsSection>
 
@@ -1232,7 +1229,9 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
                       );
                     }}
                   >
-                    {user.friends[friend.username] ? "Unfollow" : "Follow"}
+                    {user.friends && user.friends[friend.username]
+                      ? "Unfollow"
+                      : "Follow"}
                   </FollowButton>
                 </FriendItem>
               ))}

@@ -5,7 +5,7 @@ export const PortfolioPage = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  
+
   align-items: center;
   width: 100%;
   height: 90vh;
@@ -125,7 +125,7 @@ export const CommentsContent = styled.div`
   background: ${({ theme }) => theme.background};
   padding: 20px;
   border-radius: 0px;
-
+  width: 95%;
   max-height: 80vh;
 
   overflow-y: auto;
