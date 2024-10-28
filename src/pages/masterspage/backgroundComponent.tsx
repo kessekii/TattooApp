@@ -32,7 +32,7 @@ const Backdrop = (props: { screen }) => {
 
 
   if (screen) {
-    const scale = lerp(screen.width, 375, 1800, 0.9, 3)
+    const scale = lerp(screen.width, 375, 1800, 0.99, 3.5)
 
     return (
 

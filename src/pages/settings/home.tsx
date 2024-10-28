@@ -104,13 +104,13 @@ const PoiMarker = (props: {
   const isAvailableEdit =
     Object.keys(user.points).includes(
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ) &&
     user.points[
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ].find((point) => point === props.point.pointId);
   console.log(isAvailableEdit, props.focusedPoint);
   // console.log(props.point.data);
@@ -207,9 +207,9 @@ const PoiMarker = (props: {
         position={
           props.point && props.point?.location
             ? {
-                lng: props.point?.location?.lng,
-                lat: props.point?.location?.lat,
-              }
+              lng: props.point?.location?.lng,
+              lat: props.point?.location?.lat,
+            }
             : undefined
         }
         // onMouseEnter={() => {
@@ -355,8 +355,8 @@ const PoiMarker = (props: {
         ) : (
           <Paper>
             {!isVisible &&
-            props.focusedPoint &&
-            props.focusedPoint !== props.pointId ? (
+              props.focusedPoint &&
+              props.focusedPoint !== props.pointId ? (
               <></>
             ) : (
               <PostImage
@@ -590,7 +590,7 @@ export const MapPage = () => {
       <Paper
         style={{
           width: isMobile ? "100vw" : "900px",
-          height: isMobile ? "80vh" : "600px",
+          height: isMobile ? "100vh" : "600px",
         }}
       >
         <Map
