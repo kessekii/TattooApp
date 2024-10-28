@@ -167,7 +167,14 @@ export const ChatsPageComponent: React.FC = () => {
         const lastMessage = privateChats[privateChatId].lastMessage.text;
 
         return (
-          <CommentList style={{ height: "70vh" }}>
+          <CommentList
+            style={{
+              height: "50vh",
+              width: "100%",
+              borderRadius: "0px",
+              maxHeight: "800px",
+            }}
+          >
             {privateChats[privateChatId].messages &&
             privateChats[privateChatId].messages.length > 0 &&
             isMessagesPopupOpened ? (
@@ -184,7 +191,13 @@ export const ChatsPageComponent: React.FC = () => {
                     </EditButton>
                     <h2 style={{ color: themevars.text }}>Comments</h2>
 
-                    <CommentList>
+                    <CommentList
+                      style={{
+                        borderRadius: "0px",
+                        maxHeight: "800px",
+                        height: "67vh",
+                      }}
+                    >
                       {privateChats[privateChatId].messages.map(
                         (message: any, i: number) => {
                           console.log(message.author, user.friends);
@@ -200,23 +213,28 @@ export const ChatsPageComponent: React.FC = () => {
                                 justifyContent: "flex-start",
                                 alignItems: "center",
                                 display: "flex",
+                                width: "100%",
+                                backgroundColor:
+                                  i % 2 === 0 ? "rgb(242,242,242)" : "white",
                               }}
                             >
                               <Box
                                 style={{
                                   // marginRight: "20%",
-                                  width: "60vw",
+                                  width: "100%",
                                   flexDirection: "row",
                                   justifyContent: "flex-start",
                                   alignItems: "center",
                                   display: "flex",
-                                  padding: "10px",
+                                  // borderRadius: 0,
+                                  // padding: "10px",
                                 }}
                               >
                                 <Box
                                   style={{
                                     flexDirection: "column",
                                     display: "flex",
+                                    // borderRadius: 0,
                                   }}
                                 >
                                   <CommentAuthor
@@ -266,12 +284,29 @@ export const ChatsPageComponent: React.FC = () => {
                       )}
                     </CommentList>
                   </CommentsContent>
-                  <Paper style={{}}>
+                  <Paper
+                    style={{
+                      width: "100%",
+                      maxWidth: "870px",
+                      background: "lightgray",
+                      height: "8vh",
+
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
                     <TextField
+                      style={{
+                        background: "white",
+                        width: "60vw",
+                        margin: "auto",
+                      }}
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                     ></TextField>
                     <CommentSubmitButton
+                      style={{ margin: "auto" }}
                       onClick={async () =>
                         await handleCommentSubmit(privateChatId)
                       }
@@ -294,7 +329,7 @@ export const ChatsPageComponent: React.FC = () => {
                 }}
                 onClick={async () => await handleOpenMessages(privateChatId)}
               >
-                <Box
+                <Paper
                   style={{
                     // marginRight: "20%",
                     width: "60vw",
@@ -309,6 +344,7 @@ export const ChatsPageComponent: React.FC = () => {
                     style={{
                       flexDirection: "column",
                       display: "flex",
+                      background: "green",
                     }}
                   >
                     <CommentAuthor
@@ -334,7 +370,7 @@ export const ChatsPageComponent: React.FC = () => {
                   <CommentText style={{ float: "left" }}>
                     {privateChats[privateChatId].lastMessage.text}
                   </CommentText>
-                </Box>
+                </Paper>
                 <CommentText style={{ float: "right", fontSize: 12 }}>
                   {new Date(privateChats[privateChatId].lastMessage.timestamp)
                     .toISOString()

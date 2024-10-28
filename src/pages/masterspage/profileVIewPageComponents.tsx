@@ -123,7 +123,7 @@ export const CommentsPopup = styled.div`
 export const CommentsContent = styled.div`
   background: ${({ theme }) => theme.background};
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 0px;
 
   max-height: 80vh;
 
@@ -146,6 +146,7 @@ export const CommentList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+
   color: ${({ theme }) => theme.text};
 `;
 
@@ -153,7 +154,7 @@ export const CommentItem = styled.li`
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
-  border-bottom: 1px solid #dbdbdb;
+  border-bottom: 0px solid #dbdbdb;
   padding-bottom: 10px;
   color: ${({ theme }) => theme.text};
 `;
@@ -172,7 +173,7 @@ export const CommentInput = styled.input`
   width: 95%;
   padding: 10px;
   margin-top: 10px;
-  border-radius: 5px;
+  border-radius: 0px;
   border: 1px solid #dbdbdb;
 `;
 
