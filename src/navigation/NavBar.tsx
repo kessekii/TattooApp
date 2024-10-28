@@ -182,6 +182,12 @@ const NavBar = () => {
                           setChats(chatsData);
                           console.log(window.location.href);
                           if (window.location.href !== user.username) {
+                            const address = window.location.href.replace(
+                              "http://localhost:5173/",
+                              ""
+                            );
+                            window.location.href =
+                              "http://localhost:5173/" + user.username;
                             navigate("/" + user.username);
                           } else if (
                             window.location.href.includes(user.username)
