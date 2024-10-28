@@ -952,7 +952,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
 
   return (
     <ProfilePage theme={themevars}>
-      <Backdrop />
+      <Backdrop screen={screen} />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
           {isEditing ? (

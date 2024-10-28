@@ -36,7 +36,7 @@ export const ProfilePage = styled.div<{ theme }>`
   max-width: 100%;
   margin: 0 auto;
   width: 98%;
- 
+
   color: ${(props) => props.theme.text};
   background: transparent;
 `;
@@ -120,19 +120,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton) <{ theme }>`
+export const SaveButton = styled(EditButton)<{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton) <{ theme }>`
+export const CancelButton = styled(EditButton)<{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(EditButton) <{ following }>`
+export const FollowButton = styled(EditButton)<{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -183,7 +183,7 @@ export const PopupOverlay = styled("div")`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index:1000;
+  z-index: 1000;
 `;
 
 // Popup content with dynamic background and text color
@@ -436,28 +436,24 @@ export const ReviewSubmitButton = styled.button<{ theme }>`
 
 // Image grid layout for portfolio photos
 export const ImageGrid = styled.div<{ theme }>`
-display: grid;
-gap: 9px;
-grid-template-columns: repeat(2, 1fr);
-
+  display: grid;
+  gap: 9px;
+  grid-template-columns: repeat(2, 1fr);
 `;
 
 const NewsCard = styled.div`
   background-color: ${({ theme }) => theme.buttonBackground};
   border-radius: 10px;
-  
-  
-align-items: stretch;
-justify-content: space-between;
-align-content: stretch;
-  
- 
+
+  align-items: stretch;
+  justify-content: space-between;
+  align-content: stretch;
+
   display: flex;
   flex-direction: column;
   max-width: 48vw;
- 
+
   padding-top: 3px;
- 
 `;
 
 // Info grid layout for two-column display
@@ -510,7 +506,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton) <{ theme }>`
+export const IcButton = styled(IconButton)<{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -526,7 +522,7 @@ export const IcButton = styled(IconButton) <{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography) <{ theme; bold?}>`
+export const Typefield = styled(Typography)<{ theme; bold? }>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -552,19 +548,19 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   const [editProfile, setEditProfile] = useState(
     user
       ? {
-        name: user.name,
-        username: user.username,
-        description: user.description,
-        profilePicture: user.profilePicture,
-        location: user.location,
-      }
+          name: user.name,
+          username: user.username,
+          description: user.description,
+          profilePicture: user.profilePicture,
+          location: user.location,
+        }
       : {
-        name: "",
-        username: "",
-        description: "",
-        profilePicture: "",
-        location: "",
-      }
+          name: "",
+          username: "",
+          description: "",
+          profilePicture: "",
+          location: "",
+        }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     user && user.friends && Object.keys(user.friends).length > 0
@@ -620,9 +616,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     const updatedReviews =
       user.reviews && user.reviews.length > 0
         ? [
-          ...user.reviews,
-          { photo: user.image, nickname: user.username, ...newReview },
-        ]
+            ...user.reviews,
+            { photo: user.image, nickname: user.username, ...newReview },
+          ]
         : [{ photo: user.image, nickname: user.username, ...newReview }];
     // setProfileData({
     //   ...user,
@@ -1078,16 +1074,19 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             >
               Friends
             </Typefield>
-            {/* {user && user.reviews && user.reviews?.length && user.friends
-            {Object.keys(user.friends).map((friendKey, index) => (
-              <FriendAvatar
-                theme={themevars}
-                key={index}
-                src={user.friends[friendKey].avatar}
-                alt={user.friends[friendKey].nickname}
-                onClick={() => setShowFriends(true)}
-              />
-            ))} */}
+            {user &&
+              user.reviews &&
+              user.reviews?.length &&
+              user.friends &&
+              Object.keys(user.friends).map((friendKey, index) => (
+                <FriendAvatar
+                  theme={themevars}
+                  key={index}
+                  src={user.friends[friendKey].avatar}
+                  alt={user.friends[friendKey].nickname}
+                  onClick={() => setShowFriends(true)}
+                />
+              ))}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
         {/* <FollowButton
