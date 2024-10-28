@@ -344,7 +344,7 @@ export const ChatsPageComponent: React.FC = () => {
                     style={{
                       flexDirection: "column",
                       display: "flex",
-                      background: "green",
+                      // background: "green",
                     }}
                   >
                     <CommentAuthor
