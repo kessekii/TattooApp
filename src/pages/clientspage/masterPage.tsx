@@ -38,7 +38,7 @@ const ProfilePosts = styled.div`
 `;
 
 const Post = styled.div`
-  width: 293px;
+  width: 40vw;
   margin-bottom: 28px;
   color: black;
 `;

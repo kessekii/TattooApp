@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
@@ -32,7 +32,7 @@ import { EditButton, FriendAvatar } from "./friendPage";
 import ChatComponent from "../components/chat";
 import { updateChatStraight } from "../../state/action-creators";
 import { getPostsByUserId, getUserById } from "../../hooks/useChat";
-import { Box, Grid, Paper, TextField } from "@mui/material";
+import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 
 const FriendPortfolioViewPage: React.FC = ({}) => {
   const [friend, setFriend] = useLocalStorage("friend", null);
@@ -44,6 +44,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
   const [showCommentsPopup, setShowCommentsPopup] = useState<string | null>(
     null
   );
+  const [avatars, setAvatars] = useState({});
   const [newComment, setNewComment] = useState(""); // To hold new comment input
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
   const { themevars } = useTheme();
@@ -64,7 +65,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
     setNewComment(e.target.value);
   };
 
-  const handleCommentSubmit = async (chatss: any, users: any) => {
+  const handleCommentSubmit = async () => {
     if (selectedPostId !== null && newComment.trim() !== "") {
       const friend = JSON.parse(window.localStorage.getItem("friend") || "{}");
       const friendChats = JSON.parse(
@@ -151,15 +152,36 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
       handleCloseCommentsPopup();
     }
   };
+  const hadleGetAvatars = async () => {
+    const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
+    let allTouchedUsers = {};
 
+    for (let chatid of Object.keys(chats)) {
+      chats[chatid].participants.map((e, index) => {
+        allTouchedUsers[chats[chatid].participants[index]] = "";
+      });
+      // console.log(touchedPart);
+    }
+    console.log(allTouchedUsers);
+    for (let userTouchedId of Object.keys(allTouchedUsers)) {
+      const avatar = await getAvatarByUserId(userTouchedId);
+      allTouchedUsers[userTouchedId] = avatar.payload;
+    }
+    setAvatars(allTouchedUsers);
+  };
+  useEffect(() => {
+    console.log(avatars);
+  }, [avatars]);
   return (
-    <PortfolioPage theme={themevars} style={{ display: "contents" }}>
+    <PortfolioPage
+      theme={themevars}
+      style={{ display: "flow" }}
+      onLoad={async () => await hadleGetAvatars()}
+    >
       <Grid
         container
         style={{
           overflow: "scroll",
-          justifyContent: "center",
-          // display: "contents",
         }}
         direction="row"
       >
@@ -170,13 +192,14 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
               style={{
                 // height: "40vh",
                 width: "100vw",
-
-                // padding: "10px 15px",
-                // justifyItems: "center",
-                // alignContent: "space-between",
-                // alignItems: "flex-end",
+                justifyContent: "center",
+                justifyItems: "center",
+                alignContent: "space-between",
+                alignItems: "flex-end",
                 // flexWrap: "nowrap",
-                // display: "contents",
+                display: "flex",
+                // padding: "10px 15px",
+
                 // objectFit: "contain",
               }}
             >
@@ -188,6 +211,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                     height: "80vw",
                     maxHeight: "400px",
                     objectFit: "contain",
+
                     margin: "3px",
                   }}
                   src={friendPosts[post]?.image}
@@ -216,28 +240,53 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
                     >
                       {friendChats[friendPosts[post]?.chatId]?.messages
                         ?.length === 0 ? (
                         <>No comments yet</>
                       ) : (
                         <>
-                          <strong>
-                            {friendChats[friendPosts[post]?.chatId].messages
-                              ?.length > 0
-                              ? friendChats[friendPosts[post]?.chatId].messages[
-                                  friendChats[friendPosts[post]?.chatId]
-                                    .messages.length - 1
-                                ].author + ": "
-                              : ""}
-                          </strong>
-                          {friendChats[friendPosts[post]?.chatId].messages
-                            ?.length > 0
-                            ? friendChats[friendPosts[post]?.chatId].messages[
-                                friendChats[friendPosts[post]?.chatId].messages
+                          <Box
+                            style={{ flexDirection: "column", display: "flex" }}
+                          >
+                            <strong>
+                              {friendChats[friendPosts[post].chatId].messages
+                                ?.length > 0
+                                ? friendChats[friendPosts[post].chatId]
+                                    .messages[
+                                    friendChats[friendPosts[post].chatId]
+                                      .messages.length - 1
+                                  ].author + ": "
+                                : ""}
+                            </strong>
+                            <UserAvatar
+                              src={
+                                avatars[
+                                  friendChats[friendPosts[post].chatId]
+                                    .messages[
+                                    friendChats[friendPosts[post].chatId]
+                                      .messages.length - 1
+                                  ].author
+                                ]
+                              }
+                            />
+                          </Box>
+                          <Typography
+                            style={{ marginTop: "13px", marginLeft: "20px" }}
+                          >
+                            {
+                              friendChats[friendPosts[post].chatId].messages[
+                                friendChats[friendPosts[post].chatId].messages
                                   .length - 1
                               ].text
-                            : ""}
+                            }
+                          </Typography>
                           :{" "}
                         </>
                       )}
@@ -311,7 +360,9 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                                     >
                                       {comment.author}
                                     </CommentAuthor>
-                                    {/*  */}
+                                    <UserAvatar
+                                      src={avatars[comment.author]}
+                                    ></UserAvatar>
                                   </Box>
 
                                   <CommentText style={{ float: "left" }}>
@@ -353,7 +404,7 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                         onChange={(e) => setNewComment(e.target.value)}
                       ></TextField>
                       <CommentSubmitButton
-                        onClick={async () => await handleCommentSubmit("", "")}
+                        onClick={async () => await handleCommentSubmit()}
                       >
                         Submit Comment
                       </CommentSubmitButton>
@@ -369,3 +420,26 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
 };
 
 export default FriendPortfolioViewPage;
+async function getAvatarByUserId(username: string) {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://localhost:4000/users/getAvatarByUserId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+}

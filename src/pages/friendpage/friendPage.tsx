@@ -153,7 +153,7 @@ export const ProfilePosts = styled.div`
 
 // Single Post card with a dynamic background and color
 export const Post = styled.div<{ theme }>`
-  width: 293px;
+  width: 40vw;
   margin-bottom: 28px;
   color: ${(props) => props.theme.text};
 `;
@@ -721,17 +721,15 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
       Object.keys(posts).map((post) => (
         <Grid
           item
-          style={
-            {
-              // padding: "10px 15px",
-              // justifyItems: "center",
-              // alignContent: "space-between",
-              // alignItems: "flex-end",
-              // flexWrap: "nowrap",
-              // display: "contents",
-              // objectFit: "contain",
-            }
-          }
+          style={{
+            // padding: "10px 15px",
+            justifyItems: "center",
+            alignContent: "space-between",
+            justifyContent: "flex-end",
+            flexWrap: "nowrap",
+            display: "flex",
+            objectFit: "contain",
+          }}
           xs={6}
         >
           <Post key={post}>
@@ -1119,7 +1117,11 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
       </FriendsSection>
 
       <ProfilePosts style={{ display: "contents" }}>
-        <Grid container style={{ overflow: "scroll" }} xs={12}>
+        <Grid
+          container
+          style={{ overflow: "scroll", marginTop: "24px" }}
+          xs={12}
+        >
           {postsComponents}
         </Grid>
       </ProfilePosts>

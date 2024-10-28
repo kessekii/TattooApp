@@ -60,7 +60,7 @@ const ImageGrid = styled(Grid)`
 `;
 
 const Post = styled.div`
-  width: 293px;
+  width: 40vw;
   margin-bottom: 28px;
   margin-inline: auto;
   color: black;

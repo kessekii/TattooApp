@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 
@@ -35,12 +35,13 @@ import {
   updateChatStraight,
 } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
-import { Box, Grid, Paper, TextField } from "@mui/material";
+import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 
 const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
+  const [avatars, setAvatars] = useState({});
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const { updateUser, updateChat } = useActions();
@@ -71,6 +72,7 @@ const PortfolioViewPage: React.FC = ({}) => {
   const handleCommentSubmit = async (chatss: any, users: any) => {
     if (selectedPostId !== null && newComment.trim() !== "") {
       const user = JSON.parse(window.localStorage.getItem("user") || "{}");
+
       const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
       const posts = JSON.parse(window.localStorage.getItem("posts") || "{}");
       // Find the selected post
@@ -156,18 +158,38 @@ const PortfolioViewPage: React.FC = ({}) => {
     }
   };
 
+  const hadleGetAvatars = async () => {
+    const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
+    let allTouchedUsers = {};
+
+    for (let chatid of Object.keys(chats)) {
+      chats[chatid].participants.map((e, index) => {
+        allTouchedUsers[chats[chatid].participants[index]] = "";
+      });
+      // console.log(touchedPart);
+    }
+    console.log(allTouchedUsers);
+    for (let userTouchedId of Object.keys(allTouchedUsers)) {
+      const avatar = await getAvatarByUserId(userTouchedId);
+      allTouchedUsers[userTouchedId] = avatar.payload;
+    }
+    setAvatars(allTouchedUsers);
+  };
+  useEffect(() => {
+    console.log(avatars);
+  }, [avatars]);
+
   return (
-    <PortfolioPage theme={themevars} style={{ display: "contents" }}>
+    <PortfolioPage
+      theme={themevars}
+      style={{ display: "contents" }}
+      onLoad={async () => await hadleGetAvatars()}
+    >
       <Grid
         container
         key={user.username + "gridccc"}
         style={{
-          justifyContent: "center",
-          width: "100vw",
           overflow: "scroll",
-          // height: "40vh",
-          // width: "40vh",
-          // display: "contents",
         }}
         // direction="row"
       >
@@ -212,32 +234,57 @@ const PortfolioViewPage: React.FC = ({}) => {
                     </UserName>
                   </UserSection>
                   <Description>{posts[post].description}</Description>
-                  <Caption>
+                  {/* <Caption>
                     <strong>{posts[post].user && posts[post].user.name}</strong>{" "}
                     {posts[post].description}
-                  </Caption>
+                  </Caption> */}
 
                   {chats && chats[posts[post].chatId] ? (
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
                     >
                       {chats[posts[post].chatId]?.messages?.length === 0 ? (
                         <>No comments yet</>
                       ) : (
                         <>
-                          <strong>
-                            {chats[posts[post].chatId].messages?.length > 0
-                              ? chats[posts[post].chatId].messages[
-                                  chats[posts[post].chatId].messages.length - 1
-                                ].author + ": "
-                              : ""}
-                          </strong>
-                          {chats[posts[post].chatId].messages?.length > 0
-                            ? chats[posts[post].chatId].messages[
+                          <Box
+                            style={{ flexDirection: "column", display: "flex" }}
+                          >
+                            <strong>
+                              {chats[posts[post].chatId].messages?.length > 0
+                                ? chats[posts[post].chatId].messages[
+                                    chats[posts[post].chatId].messages.length -
+                                      1
+                                  ].author + ": "
+                                : ""}
+                            </strong>
+                            <UserAvatar
+                              src={
+                                avatars[
+                                  chats[posts[post].chatId].messages[
+                                    chats[posts[post].chatId].messages.length -
+                                      1
+                                  ].author
+                                ]
+                              }
+                            />
+                          </Box>
+                          <Typography
+                            style={{ marginTop: "13px", marginLeft: "20px" }}
+                          >
+                            {
+                              chats[posts[post].chatId].messages[
                                 chats[posts[post].chatId].messages.length - 1
                               ].text
-                            : ""}
+                            }
+                          </Typography>
                           :{" "}
                         </>
                       )}
@@ -309,6 +356,10 @@ const PortfolioViewPage: React.FC = ({}) => {
                                     >
                                       {comment.author}
                                     </CommentAuthor>
+                                    <UserAvatar
+                                      src={avatars[comment.author]}
+                                    ></UserAvatar>
+
                                     {/*  */}
                                   </Box>
 
@@ -367,3 +418,26 @@ const PortfolioViewPage: React.FC = ({}) => {
 };
 
 export default PortfolioViewPage;
+async function getAvatarByUserId(username: string) {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://localhost:4000/users/getAvatarByUserId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
+
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+}

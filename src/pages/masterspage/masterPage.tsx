@@ -144,15 +144,14 @@ export const ProfilePosts = styled.div`
   display: flex;
   margin-top: 10px;
   flex-wrap: wrap;
-  justify-content: space-between;
   display: "contents";
-  objectfit: "contain";
-  overflow: scroll;
+  object-fit: "contain";
+  justify-content: space-between;
 `;
 
 // Single Post card with a dynamic background and color
 export const Post = styled.div<{ theme }>`
-  width: 293px;
+  width: 40vw;
   margin-bottom: 28px;
   color: ${(props) => props.theme.text};
 `;
@@ -717,17 +716,14 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
         Object.keys(posts).map((post) => (
           <Grid
             item
-            style={
-              {
-                // padding: "10px 15px",
-                // justifyItems: "center",
-                // alignContent: "space-between",
-                // alignItems: "flex-end",
-                // flexWrap: "nowrap",
-                // display: "contents",
-                // objectFit: "contain",
-              }
-            }
+            style={{
+              justifyItems: "center",
+              alignContent: "space-between",
+              justifyContent: "flex-end",
+              flexWrap: "nowrap",
+              display: "flex",
+              objectFit: "contain",
+            }}
             xs={6}
           >
             <Post key={post}>
@@ -1087,11 +1083,15 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
         </FollowButton> */}
       </FriendsSection>
 
-      {/* <ProfilePosts style={{ display: "contents" }}> */}
-      <Grid container style={{ overflow: "scroll" }} xs={12}>
-        {postsComponents}
-      </Grid>
-      {/* </ProfilePosts> */}
+      <ProfilePosts style={{ display: "contents" }}>
+        <Grid
+          container
+          style={{ overflow: "scroll", marginTop: "24px" }}
+          xs={12}
+        >
+          {postsComponents}
+        </Grid>
+      </ProfilePosts>
 
       {showReviews && (
         <PopupOverlay>
