@@ -31,7 +31,7 @@ import { MapPage } from "./pages/settings/home";
 import RegisterPage from "./pages/register/registerPage";
 import NewsFeed from "./pages/news/newsPage";
 import { createGlobalStyle, styled } from "styled-components";
-import { useTheme } from "./state/providers/themeProvider";
+import { useTheme, useWindowDimensions } from "./state/providers/themeProvider";
 import useLocalStorage from "./hooks/useLocalStorage";
 import FriendPageComponent from "./pages/friendpage/friendPage";
 import FriendPortfolioViewPage from "./pages/friendpage/portfolioViewPage";
@@ -79,11 +79,18 @@ const App: React.FC = () => {
   // const { themevars } = useTheme()
   const [user, setUser] = useLocalStorage("user", {});
   const [friend, setFriend] = useLocalStorage("friend", {});
+  const [news, setNews] = useLocalStorage("news", {});
   const [profileData, setProfileData] = useState(user);
+  const [screen, setScreen] = useLocalStorage("screen", {});
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isErrorPromptOpened, setIsErrorPromptOpened] = useState(false);
+
+  const handleResize = () => {
+    console.log('PLAKTIVERA ')
+    setScreen(window.innerWidth, window.innerHeight);
+  };
 
   const ProtectedRoute = ({ isAllowed, redirectPath, children }: any) => {
     if (!isAllowed) {
@@ -99,13 +106,13 @@ const App: React.FC = () => {
   }, [errorMessage]);
 
   return (
-    <Routes>
+    <Routes >
       <Route path="/" element={<Login />} />
       <Route path="/notlogged" element={<NotLogged />} />
       <Route path="*" element={<NotFound />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoutes />}>
-        <Route element={<ResponsiveDrawer />}>
+        <Route element={<ResponsiveDrawer screen={screen} onResize={handleResize} />}>
           {/* NewStreamPage Route
           <Route
             path="/newstream"

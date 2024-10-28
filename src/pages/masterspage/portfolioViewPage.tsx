@@ -36,7 +36,7 @@ import {
 } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
 
-const PortfolioViewPage: React.FC = ({}) => {
+const PortfolioViewPage: React.FC = ({ }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
@@ -226,7 +226,7 @@ const PortfolioViewPage: React.FC = ({}) => {
 
                   <CommentList>
                     {chats[posts[post].chatId]?.messages &&
-                    chats[posts[post].chatId].messages.length > 0 ? (
+                      chats[posts[post].chatId].messages.length > 0 ? (
                       chats[posts[post].chatId].messages.map(
                         (comment, index) => (
                           <CommentItem key={index}>

@@ -1,4 +1,5 @@
 
+
 export const lightTheme = {
 	navbar: {
 	  background: '#d1d9e0', // Light gray-blue for a clean and modern navbar background.
@@ -15,7 +16,8 @@ export const lightTheme = {
 	text: "#2c3e50", // Dark blue-gray for main text, easy to read on a light background.
 	buttonBackground: "#d1d9e0", // Light gray for buttons to contrast against the background.
 	buttonText: "#2c3e50", // Dark text on buttons for readability.
-	border: "#b0bcc6", // A medium gray-blue for borders to maintain subtlety and structure.
+	border: "#b0bcc6", 
+	 // A medium gray-blue for borders to maintain subtlety and structure.
   };
   
   export const darkTheme = {

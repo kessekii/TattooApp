@@ -41,5 +41,6 @@ export enum ActionType {
   INSERT_USER = "INSERT_USER",
 
   NEWS = "news/get",
+  GETPOSTS = "news/getPosts",
   MAKEEVENT = "news/makeEvent",
 }

@@ -2,19 +2,21 @@ import { styled } from "styled-components";
 
 export const PortfolioPage = styled.div`
   font-family: Arial, sans-serif;
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  
   align-items: center;
   width: 100%;
   height: 90vh;
   overflow-y: scroll;
+  overflow-x: hidden;
   background-color: ${({ theme }) => theme.background};
   color:    ${({ theme }) => theme.text};
 `;
 
 export const PostWrapper = styled.div`
-  width: 100%;
+  width: 98%;
   max-width: 600px;
   height: 100vh;
   background-color: ${({ theme }) => theme.background};

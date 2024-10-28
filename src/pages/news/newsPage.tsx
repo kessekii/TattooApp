@@ -8,33 +8,38 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { TextField, Box } from '@mui/material';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { useTheme } from '../../state/providers/themeProvider'; // Assuming you have a theme provider
-import { EditButton, PopupContent, PopupOverlay } from '../masterspage/masterPage';
-
+import { EditButton, ImageGrid, PopupContent, PopupOverlay } from '../masterspage/masterPage';
+import { makeEventAction } from '../../state/action-creators';
+import { ProfilePage } from '../masterspage/masterPage';
 // Styled components with theme access
 const NewsFeedContainer = styled.div`
-  background-color: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-  width: 100%;
-  max-width: 98%;
-  margin: 0 auto;
-  padding: 10px;
   font-family: Arial, sans-serif;
+  max-width: 100%;
+  margin: 0 auto;
+  width: 100%;
+  width: 100%;
+  
+  color: ${(props) => props.theme.text};
+  background: transparent;
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 10px;
+  background: ${({ theme }) => theme.buttonBackground};
 `;
 
 const SearchBar = styled.div`
   display: flex;
+  position: absolute;
+  left:10%;
   background-color: ${({ theme }) => theme.buttonBackground};
   border-radius: 25px;
   border-color: ${({ theme }) => theme.buttonBackground};
-  padding: 5px 10px;
+  
   align-items: center;
-  width: 70%;
+  
 `;
 
 const SearchInput = styled.input`
@@ -54,14 +59,18 @@ const IconsContainer = styled.div`
 
 const Tabs = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin: 15px 0;
+  justify-content: center;
+  margin: 5px 0 0 0;
+  height: 40px;
+  background:  ${({ theme }) => theme.buttonBackground};
   color: ${({ theme }) => theme.text};
 `;
 
 const Tab = styled.div<{ active: boolean }>`
   font-size: 14px;
   padding: 5px;
+  
+  margin-inline: 5%;
   color: ${({ theme, active }) => (active ? theme.text : theme.text)};
   cursor: pointer;
   ${({ active }) => active && 'border-bottom: 2px solid;'}
@@ -70,15 +79,34 @@ const Tab = styled.div<{ active: boolean }>`
 const NewsCard = styled.div`
   background-color: ${({ theme }) => theme.buttonBackground};
   border-radius: 10px;
-  margin-bottom: 20px;
-  padding: 15px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  
+  
+align-items: stretch;
+justify-content: space-between;
+align-content: stretch;
+  
+ 
+  display: flex;
+  flex-direction: column;
+  max-width: 48vw;
+ 
+  padding-top: 3px;
+ 
 `;
 
+const FeedImageContainer = styled.div`
+justify-content: center;
+  display: flex;
+`
+
 const NewsThumbnail = styled.img`
-  width: 100%;
-  border-radius: 10px;
-  margin-bottom: 10px;
+display: block;
+max-width:44vw;
+max-height:48vh;
+width: auto;
+height: auto;
+padding: 5px;
+ 
 `;
 
 const NewsTitle = styled.h3<({ theme }) >`
@@ -94,8 +122,13 @@ const NewsInfo = styled.div`
 
 const StatsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
+  position:relative;
+  background-color: ${({ theme }) => theme.buttonBackground};
+  justify-content: space-evenly;
+  align-items: center;
+  height: 100%;
+  
+ 
   font-size: 14px;
   color: ${({ theme }) => theme.border};
 `;
@@ -113,6 +146,7 @@ const SliderContainer = styled.div`
   padding: 10px 0;
   width: 100%;
   scroll-behavior: smooth;
+  
 `;
 
 const Slide = styled.div`
@@ -147,111 +181,19 @@ const AddEventButton = styled.button`
   margin-top: 20px;
 `;
 
+const NewsPageImageGrid = styled.div`
+display: grid;
+gap: 9px;
+grid-template-columns: repeat(2, 1fr);
 
 
-const UploadInput = styled.input`
-  display: block;
-  margin-inline: auto;
-  margin-bottom: 15px;
-`;
 
-const DescriptionInput = styled.textarea`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background-color: ${({ theme }) => theme.background};
-  max-width: 80%;
-  margin: 0 auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 5px;
-  font-size: 16px;
-  color: ${({ theme }) => theme.text};
-  border: 1px solid ${({ theme }) => theme.border};
-  resize: vertical; /* allows users to resize the textarea vertically */
-`;
-
-const SaveButton = styled.button`
-  background-color: ${({ theme }) => theme.buttonBackground};
-  color: ${({ theme }) => theme.buttonText};
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-`;
-
-const DatePickerContainer = styled(Box)`
-  display: flex;
-  flex-direction: column;
   
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  
-  max-width: 100%;
-  margin: 0 0;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-`;
+`
 
-const StyledTextField = styled(TextField)`
-  
-  .MuiOutlinedInput-root {
-  
-    border-radius: 16px;
-    padding: 10px;
-    background: white;
-    border: 1px solid ${({ theme }) => theme.background};
-    font-size: 16px;
-  }
+const NewsFeed = () => {
 
-  .MuiOutlinedInput-input {
-    background: "white";
-    font-size: 18px;
-    color: ${({ theme }) => theme.text};
-  }
 
-  .MuiInputAdornment-root {
-    font-size: 24px;
-    background: ${({ theme }) => theme.buttonBackground};
-    
-    color: ${({ theme }) => theme.border};
-  }
-
-  & .MuiFormLabel-root {
-    color: ${({ theme }) => theme.border};
-    font-size: 14px;
-  }
-
-  & .Mui-focused .MuiFormLabel-root {
-    color: ${({ theme }) => theme.buttonBackground};
-  }
-
-  & .Mui-focused .MuiOutlinedInput-notchedOutline {
-    border-color: ${({ theme }) => theme.buttonBackground};
-  }
-`;
-
-const NewsFeed: React.FC = () => {
-  const slides = [
-    {
-      id: 1,
-      title: 'Watch OS7 the difference is like day and night',
-      image: 'https://via.placeholder.com/300x150',
-    },
-    {
-      id: 2,
-      title: 'At 100 Days, Joe Biden Tries to Turn Luck Into Legacy',
-      image: 'https://via.placeholder.com/300x150',
-    },
-    {
-      id: 3,
-      title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-      image: 'https://via.placeholder.com/300x150',
-    },
-  ];
 
   const initialNews = {
     name: '',
@@ -267,10 +209,9 @@ const NewsFeed: React.FC = () => {
     shares: 0,
   };
 
-  const [user, setUser] = useLocalStorage('user', null);
-  const [news, setNews] = useLocalStorage('news', null);
+
   const { themevars } = useTheme()
-  const { makeEventAction, getNewsAction } = useActions();
+  const [news, setNews] = useLocalStorage('news', null)
   const [newEvent, setNewEvent] = useState(initialNews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -294,6 +235,7 @@ const NewsFeed: React.FC = () => {
     }
   };
 
+
   const handleDescriptionChange = (event) => {
     setNewEvent({ ...newEvent, description: event.target.value });
   };
@@ -306,11 +248,11 @@ const NewsFeed: React.FC = () => {
     setNewEvent({ ...newEvent, due: event.target.value });
   };
 
-  const handleSaveEvent = () => {
-    const newEventData = { ...newEvent, comments: [{ author: '', text: '' }], username: user.username, name: user.name, time: new Date() };
-    makeEventAction(newEventData);
-    closeModal();
-  };
+  // const handleSaveEvent = (userData: any = user) => {
+  //   const newEventData = { ...newEvent, comments: [{ author: '', text: '' }], username: userData.username, name: userData.name, time: new Date() };
+  //   makeEventAction(newEventData);
+  //   closeModal();
+  // };
 
   useEffect(() => {
 
@@ -330,12 +272,72 @@ const NewsFeed: React.FC = () => {
     return () => clearInterval(slideInterval);
   }, []);
 
+  const SliderComponent: any = () => {
+
+    return Object.values(news.events).map((slide: any) => {
+
+
+      return (
+        <Slide key={slide.pointId}>
+          <SlideImage src={slide.data.icon} alt={slide.data.desc} />
+          <SlideTitle>{slide.data.name}</SlideTitle>
+        </Slide>
+      )
+    }
+
+    )
+  }
+
+  const FeedComponent: any = () => {
+
+    return Object.values(news.posts).map((post: any) => {
+
+
+      return (
+
+        <NewsCard key={post.id}>
+          <div style={{ position: 'relative', height: '90%', display: 'flex', justifyContent: 'center' }}>
+
+            <FeedImageContainer>
+
+              <NewsThumbnail src={post.image} alt={post.description} />
+            </FeedImageContainer>
+          </div>
+          {/* <div style={{ position: 'relative', height: '20%' }}>
+
+            <NewsInfo>{post.description}</NewsInfo>
+          </div> */}
+          <div style={{ position: 'relative', height: '10%', backgroundColor: themevars.buttonBackground }}>
+            <StatsContainer>
+              <Stat><FaEye /> {post.views}</Stat>
+              <Stat><FaHeart /> {post.likes}</Stat>
+
+              <Stat><FaShare /> {post.shares}</Stat>
+            </StatsContainer>
+
+          </div>
+
+        </NewsCard>
+
+
+      )
+    }
+
+    )
+  }
+
+
+
+
+
+
+
 
 
   return (
     <NewsFeedContainer theme={themevars}>
       {/* Header */}
-      <Header>
+      <Header theme={themevars}>
         <SearchBar>
           <FaSearch />
           <SearchInput placeholder="Search Sketches" />
@@ -346,21 +348,18 @@ const NewsFeed: React.FC = () => {
         </IconsContainer>
       </Header>
 
-      {/* News Slider */}
+
       <SliderContainer ref={sliderRef}>
-        {news && news.length > 0 && news.map((slide) => (
-          <Slide key={slide.id}>
-            <SlideImage src={slide.image} alt={slide.title} />
-            <SlideTitle>{slide.title}</SlideTitle>
-          </Slide>
-        ))}
+        <SliderComponent />
       </SliderContainer>
 
-      <AddEventButton onClick={openModal}>Add Event</AddEventButton>
 
-      {isModalOpen && (
-        <>
-          <PopupOverlay  >
+      {/* <AddEventButton onClick={openModal}>Add Event</AddEventButton> */}
+
+      {
+        isModalOpen && (
+          <>
+            {/* <PopupOverlay  >
             <PopupContent theme={themevars.popup}>
               <EditButton onClick={closeModal}>X</EditButton>
               <h3>Add New Event</h3>
@@ -393,20 +392,20 @@ const NewsFeed: React.FC = () => {
                 </LocalizationProvider>
               </DatePickerContainer>
 
-              <EditButton onClick={handleSaveEvent}>Save Event</EditButton>
-            </PopupContent>
-          </PopupOverlay>
-        </>
-      )
+              {/* <EditButton onClick={handleSaveEvent}>Save Event</EditButton> */}
+            {/* </PopupContent>
+    </PopupOverlay> * /} */}
+          </>
+        )
       }
 
-      <Tabs>
+      <Tabs theme={themevars}>
         <Tab active={true}>Events</Tab>
         <Tab active={false}>Featured</Tab>
         <Tab active={false}>Friends</Tab>
       </Tabs>
 
-      <NewsTitle>Featured work</NewsTitle>
+      {/* <NewsTitle>Featured work</NewsTitle>
       <NewsCard key="featured">
         <NewsThumbnail src="https://via.placeholder.com/600x400" alt="Featured" />
         <StatsContainer>
@@ -423,25 +422,15 @@ const NewsFeed: React.FC = () => {
             <FaShare /> 0
           </Stat>
         </StatsContainer>
-      </NewsCard>
+      </NewsCard> */}
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <NewsPageImageGrid >
 
-      {/* News List */}
-      {
-        news && news.length > 0 && news.map((article) => (
-          <NewsCard key={article.id}>
-            <NewsThumbnail src={article.image} alt={article.title} />
-            <NewsInfo>{article.time} | {article.category}</NewsInfo>
-            <NewsTitle>{article.title}</NewsTitle>
-            <StatsContainer>
-              <Stat><FaEye /> {article.views}</Stat>
-              <Stat><FaHeart /> {article.likes}</Stat>
-              <Stat><FaComment /> {article.comments.length}</Stat>
-              <Stat><FaShare /> {article.shares}</Stat>
-            </StatsContainer>
-          </NewsCard>
-        ))
-      }
-    </NewsFeedContainer >
+          <FeedComponent />
+        </NewsPageImageGrid>
+      </div>
+
+    </ NewsFeedContainer>
   );
 };
 

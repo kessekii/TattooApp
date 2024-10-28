@@ -36,7 +36,7 @@ export const ProfilePage = styled.div<{ theme }>`
   max-width: 100%;
   margin: 0 auto;
   width: 98%;
-  padding: 5px;
+ 
   color: ${(props) => props.theme.text};
   background: transparent;
 `;
@@ -181,6 +181,7 @@ export const PopupOverlay = styled("div")`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index:1000;
 `;
 
 // Popup content with dynamic background and text color
@@ -433,10 +434,28 @@ export const ReviewSubmitButton = styled.button<{ theme }>`
 
 // Image grid layout for portfolio photos
 export const ImageGrid = styled.div<{ theme }>`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-top: 20px;
+display: grid;
+gap: 9px;
+grid-template-columns: repeat(2, 1fr);
+
+`;
+
+const NewsCard = styled.div`
+  background-color: ${({ theme }) => theme.buttonBackground};
+  border-radius: 10px;
+  
+  
+align-items: stretch;
+justify-content: space-between;
+align-content: stretch;
+  
+ 
+  display: flex;
+  flex-direction: column;
+  max-width: 48vw;
+ 
+  padding-top: 3px;
+ 
 `;
 
 // Info grid layout for two-column display
@@ -712,7 +731,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       posts &&
       Object.keys(posts).length > 0 &&
       Object.keys(posts).map((post) => (
-        <Post key={post}>
+        <NewsCard key={post}>
           <PostImage
             src={posts[post].image}
             onClick={() => {
@@ -720,7 +739,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             }}
             alt={`Post ${post}`}
           />
-        </Post>
+        </NewsCard>
       )),
     [user, posts]
   );
@@ -910,7 +929,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   return (
     <ProfilePage theme={themevars}>
-      <Backdrop />
+      <Backdrop screen />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
           {isEditing ? (
@@ -1042,7 +1061,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             >
               Friends
             </Typefield>
-            {/* {user && user.reviews && user.reviews?.length && user.friends */}
+            {/* {user && user.reviews && user.reviews?.length && user.friends
             {Object.keys(user.friends).map((friendKey, index) => (
               <FriendAvatar
                 theme={themevars}
@@ -1051,7 +1070,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
                 alt={user.friends[friendKey].nickname}
                 onClick={() => setShowFriends(true)}
               />
-            ))}
+            ))} */}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
         {/* <FollowButton
@@ -1064,7 +1083,8 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
         </FollowButton> */}
       </FriendsSection>
 
-      <ProfilePosts>{postsComponents}</ProfilePosts>
+      <ProfilePosts><ImageGrid>{postsComponents}
+      </ImageGrid></ProfilePosts>
 
       {showReviews && (
         <PopupOverlay>
