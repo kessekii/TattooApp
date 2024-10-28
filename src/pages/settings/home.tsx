@@ -104,13 +104,13 @@ const PoiMarker = (props: {
   const isAvailableEdit =
     Object.keys(user.points).includes(
       props.point.location.lat.toFixed(2) +
-      ":" +
-      props.point.location.lng.toFixed(2)
+        ":" +
+        props.point.location.lng.toFixed(2)
     ) &&
     user.points[
       props.point.location.lat.toFixed(2) +
-      ":" +
-      props.point.location.lng.toFixed(2)
+        ":" +
+        props.point.location.lng.toFixed(2)
     ].find((point) => point === props.point.pointId);
   console.log(isAvailableEdit, props.focusedPoint);
   // console.log(props.point.data);
@@ -158,7 +158,7 @@ const PoiMarker = (props: {
                 height: "40px",
                 background: "gray",
                 color: "white",
-                marginTop: "50px",
+
                 marginRight: "90px",
               }}
               onClick={async () => {
@@ -191,7 +191,8 @@ const PoiMarker = (props: {
                 height: "40px",
                 background: "gray",
                 color: "white",
-                marginTop: "50px",
+
+                marginBottom: "10px",
               }}
               onClick={async () => {
                 setIsEdit(false);
@@ -207,9 +208,9 @@ const PoiMarker = (props: {
         position={
           props.point && props.point?.location
             ? {
-              lng: props.point?.location?.lng,
-              lat: props.point?.location?.lat,
-            }
+                lng: props.point?.location?.lng,
+                lat: props.point?.location?.lat,
+              }
             : undefined
         }
         // onMouseEnter={() => {
@@ -233,7 +234,7 @@ const PoiMarker = (props: {
           <div
             style={{
               width: "300px",
-              height: "300px",
+              height: "auto",
               zIndex: 100,
               background: "white",
               position: "inherit",
@@ -289,8 +290,10 @@ const PoiMarker = (props: {
                       height: "40px",
                       background: "gray",
                       color: "white",
-                      marginTop: "150px",
+
                       marginRight: "40px",
+                      marginTop: "auto",
+                      marginBottom: "10px",
                     }}
                   >
                     {!isEdit ? "edit" : "save"}
@@ -316,7 +319,8 @@ const PoiMarker = (props: {
                       height: "40px",
                       color: "white",
                       background: "red",
-                      marginTop: "150px",
+                      marginTop: "auto",
+                      marginBottom: "10px",
                     }}
                   >
                     REMOVE
@@ -343,7 +347,8 @@ const PoiMarker = (props: {
                       height: "40px",
                       color: "white",
                       background: "blue",
-                      marginTop: "150px",
+                      marginTop: "auto",
+                      marginBottom: "10px",
                     }}
                   >
                     TO OWNER PAGE
@@ -355,8 +360,8 @@ const PoiMarker = (props: {
         ) : (
           <Paper>
             {!isVisible &&
-              props.focusedPoint &&
-              props.focusedPoint !== props.pointId ? (
+            props.focusedPoint &&
+            props.focusedPoint !== props.pointId ? (
               <></>
             ) : (
               <PostImage
