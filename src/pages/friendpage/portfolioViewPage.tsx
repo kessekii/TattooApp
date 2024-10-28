@@ -32,7 +32,7 @@ import { EditButton, FriendAvatar } from "./friendPage";
 import ChatComponent from "../components/chat";
 import { updateChatStraight } from "../../state/action-creators";
 import { getPostsByUserId, getUserById } from "../../hooks/useChat";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Paper, TextField } from "@mui/material";
 
 const FriendPortfolioViewPage: React.FC = ({}) => {
   const [friend, setFriend] = useLocalStorage("friend", null);
@@ -346,20 +346,18 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                           </CommentItem>
                         )}
                       </CommentList>
-                      <CommentInput
-                        type="text"
-                        placeholder="Write a comment..."
+                    </CommentsContent>
+                    <Paper style={{}}>
+                      <TextField
                         value={newComment}
-                        onChange={handleNewCommentChange}
-                      />
+                        onChange={(e) => setNewComment(e.target.value)}
+                      ></TextField>
                       <CommentSubmitButton
-                        onClick={async () =>
-                          await handleCommentSubmit(friendChats, friend)
-                        }
+                        onClick={async () => await handleCommentSubmit("", "")}
                       >
                         Submit Comment
                       </CommentSubmitButton>
-                    </CommentsContent>
+                    </Paper>
                   </CommentsPopup>
                 )}
               </PostWrapper>

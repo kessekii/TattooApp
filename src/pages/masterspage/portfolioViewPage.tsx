@@ -35,7 +35,7 @@ import {
   updateChatStraight,
 } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Paper, TextField } from "@mui/material";
 
 const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
@@ -344,21 +344,18 @@ const PortfolioViewPage: React.FC = ({}) => {
                           </CommentItem>
                         )}
                       </CommentList>
-                      <CommentInput
-                        type="text"
-                        placeholder="Write a comment..."
+                    </CommentsContent>
+                    <Paper style={{}}>
+                      <TextField
                         value={newComment}
-                        onChange={handleNewCommentChange}
-                      />
-
+                        onChange={(e) => setNewComment(e.target.value)}
+                      ></TextField>
                       <CommentSubmitButton
-                        onClick={async () =>
-                          await handleCommentSubmit(chats, user)
-                        }
+                        onClick={async () => await handleCommentSubmit("", "")}
                       >
                         Submit Comment
                       </CommentSubmitButton>
-                    </CommentsContent>
+                    </Paper>
                   </CommentsPopup>
                 )}
               </PostWrapper>

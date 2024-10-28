@@ -122,7 +122,7 @@ export const CommentsContent = styled.div`
   background: ${({ theme }) => theme.background};
   padding: 20px;
   border-radius: 10px;
-  width: 500px;
+
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
