@@ -1,12 +1,12 @@
 //@ts-nocheck
-import { createPortal } from 'react-dom';
-import { memo, useLayoutEffect, useRef, forwardRef, useEffect } from 'react';
+import { createPortal } from "react-dom";
+import { memo, useLayoutEffect, useRef, forwardRef, useEffect } from "react";
 
-import { clsm } from '../../utils';
+import { clsm } from "../../utils";
 
 const DEFAULT_PORTAL_OPTIONS = {
   isAnimated: false,
-  baseContainerClasses: []
+  baseContainerClasses: [],
 };
 
 /**
@@ -17,10 +17,10 @@ const DEFAULT_PORTAL_OPTIONS = {
  *  - note that prevSiblingEl takes precedence over parentEl
  */
 const initContainer = ({
-  containerClassname = '',
+  containerClassname = "",
   containerId,
   parentEl = document.body,
-  prevSiblingEl
+  prevSiblingEl,
 }) => {
   let container = document.getElementById(containerId);
   const containerParentEl = container?.parentElement;
@@ -31,15 +31,15 @@ const initContainer = ({
   }
 
   if (!container) {
-    container = document.createElement('div');
-    container.setAttribute('id', containerId);
-    if (containerClassname) container.setAttribute('class', containerClassname);
+    container = document.createElement("div");
+    container.setAttribute("id", containerId);
+    if (containerClassname) container.setAttribute("class", containerClassname);
 
     if (prevSiblingEl) prevSiblingEl.after(container);
     else parentEl.appendChild(container);
   } else if (containerClassname) {
     // If the container already exists, update the classnames as they can be passed as props
-    container.setAttribute('class', containerClassname);
+    container.setAttribute("class", containerClassname);
   }
 
   return container;
@@ -50,7 +50,7 @@ const withPortal = (
   containerId,
   {
     isAnimated = DEFAULT_PORTAL_OPTIONS.isAnimated,
-    baseContainerClasses = DEFAULT_PORTAL_OPTIONS.baseContainerClasses
+    baseContainerClasses = DEFAULT_PORTAL_OPTIONS.baseContainerClasses,
   } = DEFAULT_PORTAL_OPTIONS
 ) =>
   memo(
@@ -73,7 +73,7 @@ const withPortal = (
               containerClassname: clsm(baseContainerClasses, containerClasses),
               containerId: id.current,
               parentEl,
-              prevSiblingEl
+              prevSiblingEl,
             })
           : null;
 
@@ -94,10 +94,7 @@ const withPortal = (
 
         return (
           container &&
-          createPortal(
-            <WrappedComponent isOpen={isOpen} ref={ref} {...props} />,
-            container
-          )
+          createPortal(<WrappedComponent ref={ref} {...props} />, container)
         );
       }
     )
