@@ -320,7 +320,13 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                       </EditButton>
                       <h2 style={{ color: themevars.text }}>Comments</h2>
 
-                      <CommentList>
+                      <CommentList
+                        style={{
+                          borderRadius: "0px",
+                          maxHeight: "800px",
+                          height: "63vh",
+                        }}
+                      >
                         {friendChats[friendPosts[post]?.chatId]?.messages &&
                         friendChats[friendPosts[post]?.chatId].messages.length >
                           0 ? (
@@ -333,17 +339,25 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                                   justifyContent: "flex-start",
                                   alignItems: "center",
                                   display: "flex",
+                                  paddingInline: "30px",
+                                  width: "80vw",
+                                  backgroundColor:
+                                    index % 2 === 0
+                                      ? "rgb(242,242,242)"
+                                      : "#eeeeee",
                                 }}
                               >
                                 <Box
                                   style={{
                                     // marginRight: "20%",
-                                    width: "60vw",
+
                                     flexDirection: "row",
                                     justifyContent: "flex-start",
                                     alignItems: "center",
                                     display: "flex",
                                     padding: "10px",
+
+                                    width: "100%",
                                   }}
                                 >
                                   <Box
@@ -398,12 +412,29 @@ const FriendPortfolioViewPage: React.FC = ({}) => {
                         )}
                       </CommentList>
                     </CommentsContent>
-                    <Paper style={{}}>
+                    <Paper
+                      style={{
+                        width: "100%",
+                        maxWidth: "870px",
+                        background: "lightgray",
+                        height: "8vh",
+
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <TextField
+                        style={{
+                          background: "white",
+                          width: "60vw",
+                          margin: "auto",
+                        }}
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                       ></TextField>
                       <CommentSubmitButton
+                        style={{ margin: "auto" }}
                         onClick={async () => await handleCommentSubmit()}
                       >
                         Submit Comment

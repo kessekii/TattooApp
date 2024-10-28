@@ -37,7 +37,7 @@ import {
 import { getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 
-const PortfolioViewPage: React.FC = ({ }) => {
+const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
@@ -191,7 +191,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
         style={{
           overflow: "scroll",
         }}
-      // direction="row"
+        // direction="row"
       >
         {user &&
           Object.keys(posts || {}).map((post) => (
@@ -260,18 +260,18 @@ const PortfolioViewPage: React.FC = ({ }) => {
                             <strong>
                               {chats[posts[post].chatId].messages?.length > 0
                                 ? chats[posts[post].chatId].messages[
-                                  chats[posts[post].chatId].messages.length -
-                                  1
-                                ].author + ": "
+                                    chats[posts[post].chatId].messages.length -
+                                      1
+                                  ].author + ": "
                                 : ""}
                             </strong>
                             <UserAvatar
                               src={
                                 avatars[
-                                chats[posts[post].chatId].messages[
-                                  chats[posts[post].chatId].messages.length -
-                                  1
-                                ].author
+                                  chats[posts[post].chatId].messages[
+                                    chats[posts[post].chatId].messages.length -
+                                      1
+                                  ].author
                                 ]
                               }
                             />
@@ -317,9 +317,15 @@ const PortfolioViewPage: React.FC = ({ }) => {
                       </EditButton>
                       <h2 style={{ color: themevars.text }}>Comments</h2>
 
-                      <CommentList>
+                      <CommentList
+                        style={{
+                          borderRadius: "0px",
+                          maxHeight: "800px",
+                          height: "63vh",
+                        }}
+                      >
                         {chats[posts[post].chatId]?.messages &&
-                          chats[posts[post].chatId].messages.length > 0 ? (
+                        chats[posts[post].chatId].messages.length > 0 ? (
                           chats[posts[post].chatId].messages.map(
                             (comment, index) => (
                               <CommentItem
@@ -329,17 +335,24 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                   justifyContent: "flex-start",
                                   alignItems: "center",
                                   display: "flex",
+                                  paddingInline: "30px",
+                                  width: "80vw",
+                                  backgroundColor:
+                                    index % 2 === 0
+                                      ? "rgb(242,242,242)"
+                                      : "#eeeeee",
                                 }}
                               >
                                 <Box
                                   style={{
                                     // marginRight: "20%",
-                                    width: "60vw",
+
+                                    padding: "10px",
+                                    width: "100%",
                                     flexDirection: "row",
                                     justifyContent: "flex-start",
                                     alignItems: "center",
                                     display: "flex",
-                                    padding: "10px",
                                   }}
                                 >
                                   <Box
@@ -372,18 +385,18 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                 >
                                   {comment.timestamp
                                     ? new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[0] +
-                                    ", " +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[0] +
-                                    ":" +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[1]
+                                        .toISOString()
+                                        .split("T")[0] +
+                                      ", " +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[0] +
+                                      ":" +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[1]
                                     : ""}
                                 </CommentText>
                               </CommentItem>
@@ -396,12 +409,29 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         )}
                       </CommentList>
                     </CommentsContent>
-                    <Paper style={{}}>
+                    <Paper
+                      style={{
+                        width: "100%",
+                        maxWidth: "870px",
+                        background: "lightgray",
+                        height: "8vh",
+
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
                       <TextField
+                        style={{
+                          background: "white",
+                          width: "60vw",
+                          margin: "auto",
+                        }}
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                       ></TextField>
                       <CommentSubmitButton
+                        style={{ margin: "auto" }}
                         onClick={async () => await handleCommentSubmit("", "")}
                       >
                         Submit Comment

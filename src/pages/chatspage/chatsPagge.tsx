@@ -195,7 +195,7 @@ export const ChatsPageComponent: React.FC = () => {
                       style={{
                         borderRadius: "0px",
                         maxHeight: "800px",
-                        height: "67vh",
+                        height: "63vh",
                       }}
                     >
                       {privateChats[privateChatId].messages.map(
@@ -215,7 +215,7 @@ export const ChatsPageComponent: React.FC = () => {
                                 display: "flex",
                                 width: "100%",
                                 backgroundColor:
-                                  i % 2 === 0 ? "rgb(242,242,242)" : "white",
+                                  i % 2 === 0 ? "rgb(242,242,242)" : "#eeeeee",
                               }}
                             >
                               <Box
