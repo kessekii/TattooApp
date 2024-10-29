@@ -162,11 +162,14 @@ export const CommentItem = styled.li`
 
 export const CommentAuthor = styled.span<{ theme }>`
   font-weight: bold;
-  margin-right: 5px;
+  font-size: 18px;
   color: ${(props) => props.theme.text};
 `;
 
 export const CommentText = styled.p`
+  margin-inline: 7px;
+  margin-top: 7px;
+  margin-bottom: 7px;
   color: ${({ theme }) => theme.text};
 `;
 

@@ -196,6 +196,7 @@ export const PopupContent = styled.div<{ theme }>`
   padding: 20px;
   border-radius: 10px;
   text-align: center;
+  display: ruby;
 `;
 
 // Map Button for triggering the map view
@@ -345,7 +346,7 @@ export const ReviewContent = styled.div<{ theme }>`
   background: ${(props) => props.theme.background};
   padding: 20px;
   border-radius: 10px;
-  width: 500px;
+  width: 90vw;
   position: relative;
   color: ${(props) => props.theme.text};
 `;
@@ -403,6 +404,8 @@ export const NewReviewForm = styled.div<{ theme }>`
   display: flex;
   flex-direction: column;
   margin-top: 20px;
+  width: 90vw;
+  justify-content: center;
 `;
 
 // Text area for review input with dynamic background and color
@@ -894,7 +897,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     }
   };
   const handleOpenChat = async () => {
-    await openPrivateChatByUsername(user.username, friend.username);
+    await openPrivateChatByUsername(friend.username, user.username);
   };
   const handleFollow = async () => {
     const user = JSON.parse(window.localStorage.getItem("user") || "{}");
@@ -906,7 +909,7 @@ const FriendPageComponent: React.FC<any> = ({ theme }) => {
     if (user.friends) {
       user.friends[username] = {};
     }
-    user.friends[username] = {
+    user.friends[friend.username] = {
       avatar: friend.profilePicture,
       nickname: friend.name,
       username: friend.username,

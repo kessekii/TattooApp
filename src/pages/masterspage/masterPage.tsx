@@ -271,7 +271,14 @@ export const FriendAvatar = styled.img`
   padding: 5px;
   cursor: pointer;
 `;
-
+export const FriendAvatarBig = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 7px;
+  padding: 5px;
+  cursor: pointer;
+`;
 // Popup for showing the friends list
 export const FriendsPopup = styled.div`
   position: fixed;
@@ -1074,19 +1081,19 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
             >
               Friends
             </Typefield>
-            {user &&
-              user.reviews &&
-              user.reviews?.length &&
-              user.friends &&
-              Object.keys(user.friends).map((friendKey, index) => (
+            {user && user.friends ? (
+              Object.keys(friend.friends || {}).map((friendId, index) => (
                 <FriendAvatar
                   theme={themevars}
                   key={index}
-                  src={user.friends[friendKey].avatar}
-                  alt={user.friends[friendKey].nickname}
+                  src={friend.friends[friendId].avatar}
+                  alt={friend.friends[friendId].nickname}
                   onClick={() => setShowFriends(true)}
                 />
-              ))}
+              ))
+            ) : (
+              <></>
+            )}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
         {/* <FollowButton
