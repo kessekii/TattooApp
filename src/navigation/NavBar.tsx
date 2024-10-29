@@ -7,7 +7,7 @@ import {
   FavoriteBorder,
   AccountCircle,
 } from "@mui/icons-material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 import { useTheme } from "../state/providers/themeProvider";
 import {
@@ -27,11 +27,12 @@ import { FaCog, FaUserEdit, FaUser } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import { useActions } from "../hooks/useActions";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { getChatsByUserId, getPostsByUserId } from "../../src/hooks/useChat";
+import { getChatsByUserId, getPostsByUserId, getUserById } from "../../src/hooks/useChat";
 
 import MessageIcon from "@mui/icons-material/Message";
 
 import { getNewsAction } from '../../src/state/action-creators'
+import { dataTransferItemsToFiles } from "stream-chat-react/dist/components/ReactFileUtilities";
 
 // Styled components using your custom theme
 
@@ -43,7 +44,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [chats, setChats] = useLocalStorage("chats", null);
-
+  const { username, postId } = useParams();
   const [isShrunk, setIsShrunk] = useState(false);
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const { isEditing, setIsEditingProfile } = useEditing();
@@ -52,6 +53,15 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
     if (isShrunk) {
       setIsShrunk(false); // Expand if the navbar is shrunk and there is user interaction
     }
+  };
+
+  const handleFriendClick = async (profileLink: string) => {
+    const firned = (await getUserById(profileLink)).payload;
+    setFriend(firned);
+    setFriendPosts((await getPostsByUserId(profileLink)).payload);
+    setFriendChats((await getChatsByUserId(profileLink)).payload);
+    window.location.href = profileLink;
+    navigate("../" + profileLink);
   };
 
   const navigate = useNavigate();
@@ -109,6 +119,14 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
       window.removeEventListener("click", handleUserInteraction);
     };
   }, [isShrunk]);
+
+  useEffect(() => {
+    if (username !== friend.name) {
+      const data = handleFriendClick(username)
+      console.log(data)
+    }
+  }, [])
+
 
   const SettingsPopupComponent = ({ onClose }) => {
     const { theme, themevars, toggleTheme } = useTheme();
@@ -182,7 +200,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
                     onClick={toggleMenu}
                   />
                   {isOpen && (
-                    <Menu isOpen={isOpen} theme={themevars.navbar}>
+                    <Menu isopen={isOpen} theme={themevars.navbar}>
                       <MenuItem
                         theme={themevars}
                         onClick={async () => {

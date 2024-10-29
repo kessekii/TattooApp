@@ -14,8 +14,8 @@ const lerp = (value, minWidth, maxWidth, minValue, maxValue) => {
 const ClippedSvgBackground = styled.div<{ background; scale }>`
   width: 100vw;
   height: 100vh;
-  background-image: ${({ background }: any) =>
-    background}; /* Set your background image */
+  background-image: url(${({ background }: any) =>
+    background}); /* Set your background image */
   background-size: cover; /* Ensure the background covers the entire container */
   background-position: top; /* Adjust the position of the image */
   top: 0;
@@ -32,13 +32,14 @@ const ClippedSvgBackground = styled.div<{ background; scale }>`
   z-index: -1;
 `;
 
-const Backdrop = (props: { screen }) => {
-  if (screen) {
+const Backdrop = (props: { screen: any, backdropImage: any }) => {
+  if (props.screen && props.backdropImage) {
+    console.log(props.screen, props.backdropImage)
     const scale = lerp(screen.width, 375, 1800, 0.99, 3.5);
 
     return (
       <ClippedSvgBackground
-        background="url('https://picsum.photos/seed/picsum/200/300')"
+        background={props.backdropImage}
         scale={scale}
       />
     );

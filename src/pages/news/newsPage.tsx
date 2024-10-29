@@ -5,12 +5,14 @@ import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useActions } from '../../hooks/useActions';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { TextField, Box } from '@mui/material';
+import { TextField, Box, Button } from '@mui/material';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import { useTheme } from '../../state/providers/themeProvider'; // Assuming you have a theme provider
 import { EditButton, ImageGrid, PopupContent, PopupOverlay } from '../masterspage/masterPage';
 import { makeEventAction } from '../../state/action-creators';
 import { ProfilePage } from '../masterspage/masterPage';
+import { useNavigate } from 'react-router-dom';
+import { getChatsByUserId, getPostsByUserId, getUserById } from '../../hooks/useChat';
 // Styled components with theme access
 const NewsFeedContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -39,7 +41,7 @@ const SearchBar = styled.div`
   border-color: ${({ theme }) => theme.buttonBackground};
   
   align-items: center;
-  
+  width: 25%;
 `;
 
 const SearchInput = styled.input`
@@ -99,7 +101,7 @@ justify-content: center;
   display: flex;
 `
 
-const NewsThumbnail = styled.img`
+const NewsThumbnail = styled.img <any>`
 display: block;
 max-width:44vw;
 max-height:48vh;
@@ -215,6 +217,11 @@ const NewsFeed = () => {
   const [newEvent, setNewEvent] = useState(initialNews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
+
+  const [friend, setFriend] = useLocalStorage("friend", null)
+
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const openModal = () => {
@@ -233,6 +240,25 @@ const NewsFeed = () => {
       };
       reader.readAsDataURL(event.target.files[0]);
     }
+  };
+  const handleFriendClick = async (name) => {
+    try {
+      if (name) {
+
+        const firned = (await getUserById(name)).payload;
+        setFriend(firned);
+        setFriendPosts((await getPostsByUserId(name)).payload);
+        setFriendChats((await getChatsByUserId(name)).payload);
+
+
+        window.location.href = name + "/portfolio";
+      }
+
+
+    } catch (e) {
+      console.log(e)
+    }
+
   };
 
 
@@ -288,50 +314,7 @@ const NewsFeed = () => {
     )
   }
 
-  const FeedComponent: any = () => {
-
-    return Object.values(news.posts).map((post: any) => {
-
-
-      return (
-
-        <NewsCard key={post.id}>
-          <div style={{ position: 'relative', height: '90%', display: 'flex', justifyContent: 'center' }}>
-
-            <FeedImageContainer>
-
-              <NewsThumbnail src={post.image} alt={post.description} />
-            </FeedImageContainer>
-          </div>
-          {/* <div style={{ position: 'relative', height: '20%' }}>
-
-            <NewsInfo>{post.description}</NewsInfo>
-          </div> */}
-          <div style={{ position: 'relative', height: '10%', backgroundColor: themevars.buttonBackground }}>
-            <StatsContainer>
-              <Stat><FaEye /> {post.views}</Stat>
-              <Stat><FaHeart /> {post.likes}</Stat>
-
-              <Stat><FaShare /> {post.shares}</Stat>
-            </StatsContainer>
-
-          </div>
-
-        </NewsCard>
-
-
-      )
-    }
-
-    )
-  }
-
-
-
-
-
-
-
+  const postus = Object.values(news.posts)
 
 
   return (
@@ -405,7 +388,7 @@ const NewsFeed = () => {
         <Tab active={false}>Friends</Tab>
       </Tabs>
 
-      {/* <NewsTitle>Featured work</NewsTitle>
+      <NewsTitle>Featured work</NewsTitle>
       <NewsCard key="featured">
         <NewsThumbnail src="https://via.placeholder.com/600x400" alt="Featured" />
         <StatsContainer>
@@ -422,11 +405,37 @@ const NewsFeed = () => {
             <FaShare /> 0
           </Stat>
         </StatsContainer>
-      </NewsCard> */}
+      </NewsCard>
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
         <NewsPageImageGrid >
 
-          <FeedComponent />
+          {postus && postus.length > 0 && postus.map((post: any) => {
+
+            return (
+
+              < NewsCard key={post.id} onClick={async (event) => await handleFriendClick(post.user)}>
+                <div style={{ position: 'relative', height: '90%', display: 'flex', justifyContent: 'center' }}>
+
+                  <FeedImageContainer >
+
+                    <NewsThumbnail src={post.image} alt={post.description} />
+                  </FeedImageContainer>
+                </div>
+
+                <div style={{ position: 'relative', height: '10%', backgroundColor: themevars.buttonBackground }}>
+                  <StatsContainer>
+                    <Stat><FaEye /> {post.views}</Stat>
+                    <Stat><FaHeart /> {post.likes}</Stat>
+
+                    <Stat><FaShare /> {post.shares}</Stat>
+                  </StatsContainer>
+
+                </div>
+
+              </NewsCard >
+
+            )
+          })}
         </NewsPageImageGrid>
       </div>
 

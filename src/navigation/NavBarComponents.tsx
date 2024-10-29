@@ -56,7 +56,7 @@ export const Avatar = styled.img`
   cursor: pointer;
 `;
 
-export const Menu = styled.div<{ isOpen: boolean }>`
+export const Menu = styled.div<{ isopen: boolean }>`
   position: absolute;
   bottom: 60px;
   right: -40px;
@@ -68,7 +68,7 @@ export const Menu = styled.div<{ isOpen: boolean }>`
   display: flex;
   flex-direction: column;
   
-  animation: ${({ isOpen }) => (isOpen ? flipIn : flipOut)} 0.6s ease-in-out forwards;
+  animation: ${({ isopen }) => (isopen ? flipIn : flipOut)} 0.6s ease-in-out forwards;
   transform-origin: top;
 `;
 
