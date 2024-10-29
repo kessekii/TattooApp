@@ -314,7 +314,7 @@ export const ChatsPageComponent: React.FC = () => {
                     <CommentSubmitButton
                       style={{ margin: "auto" }}
                       onClick={async () =>
-                        await handleCommentSubmit(privateChatId)
+                        await handleCommentSubmit(selectedChatId)
                       }
                     >
                       Submit Comment
