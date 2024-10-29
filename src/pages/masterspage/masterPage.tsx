@@ -36,7 +36,7 @@ export const ProfilePage = styled.div<{ theme }>`
   max-width: 100%;
   margin: 0 auto;
   width: 98%;
-
+  
   color: ${(props) => props.theme.text};
   background: transparent;
 `;
@@ -120,19 +120,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton)<{ theme }>`
+export const SaveButton = styled(EditButton) <{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton)<{ theme }>`
+export const CancelButton = styled(EditButton) <{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(EditButton)<{ following }>`
+export const FollowButton = styled(EditButton) <{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -513,7 +513,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton)<{ theme }>`
+export const IcButton = styled(IconButton) <{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -529,7 +529,7 @@ export const IcButton = styled(IconButton)<{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography)<{ theme; bold? }>`
+export const Typefield = styled(Typography) <{ theme; bold?}>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -555,19 +555,19 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   const [editProfile, setEditProfile] = useState(
     user
       ? {
-          name: user.name,
-          username: user.username,
-          description: user.description,
-          profilePicture: user.profilePicture,
-          location: user.location,
-        }
+        name: user.name,
+        username: user.username,
+        description: user.description,
+        profilePicture: user.profilePicture,
+        location: user.location,
+      }
       : {
-          name: "",
-          username: "",
-          description: "",
-          profilePicture: "",
-          location: "",
-        }
+        name: "",
+        username: "",
+        description: "",
+        profilePicture: "",
+        location: "",
+      }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     user && user.friends && Object.keys(user.friends).length > 0
@@ -590,6 +590,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
   const [calendarUpdated, setCalendarUpdated] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [newImage, setNewImage] = useState({ src: "", caption: "" });
+  const [newBackdropImage, setNewBackdropImage] = useState({ src: "" })
   const [isSettingsPopup, setSettingsPopup] = useState(false);
   const portfolioImages = [
     "https://via.placeholder.com/150/0000FF", // Replace these placeholders with actual portfolio images
@@ -623,9 +624,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
     const updatedReviews =
       user.reviews && user.reviews.length > 0
         ? [
-            ...user.reviews,
-            { photo: user.image, nickname: user.username, ...newReview },
-          ]
+          ...user.reviews,
+          { photo: user.image, nickname: user.username, ...newReview },
+        ]
         : [{ photo: user.image, nickname: user.username, ...newReview }];
     // setProfileData({
     //   ...user,
@@ -662,6 +663,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       description: editProfile.description,
       profilePicture: newImage.src !== "" ? newImage.src : user.profilePicture,
       location: editProfile.location,
+      backdropImage: newBackdropImage.src,
     };
     // setProfileData(newProfileData);
     await updateUser(newProfileData, setErrorMessage);
@@ -909,6 +911,15 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
       reader.readAsDataURL(event.target.files[0]);
     }
   };
+  const handleBackChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setNewBackdropImage({ ...newImage, src: reader.result as string });
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    }
+  };
 
   const handleFollow = () => {
     if (user && user.friends && Object.keys(user.friends).length > 0) {
@@ -949,14 +960,14 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
 
   return (
     <ProfilePage theme={themevars}>
-      <Backdrop screen />
+      <Backdrop screen backdropImage={user.backdropImage} />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
           {isEditing ? (
             <ProfileGrid>
               <ProfilePicture
                 theme={themevars}
-                src={newImage.src}
+                src={newImage.src ? newImage.src : user.image}
                 alt="Profile Picture"
               />
               <GridCell>
@@ -980,7 +991,12 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
                   value={editProfile.description}
                   onChange={handleInputChange}
                 />
-
+                <UploadInput
+                  theme={themevars}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBackChange}
+                />
                 <EditButton theme={themevars} onClick={handleLocationEditClick}>
                   Edit Location
                 </EditButton>
@@ -991,16 +1007,16 @@ const ProfilePageComponent: React.FC<any> = ({ theme }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={user && user.profilePicture ? user.profilePicture : ""}
+                  src={loggedInUser ? user.profilePicture : friend.profilePicture}
                   alt="Profile Picture"
                 />
               </div>
 
-              <GridCell>
+              {/* <GridCell>
                 {user && user.name && user.description && user.location && (
                   <div style={{ justifyContent: "start" }}></div>
                 )}
-              </GridCell>
+              </GridCell> */}
             </ProfileGrid>
           )}
 
