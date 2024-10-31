@@ -211,7 +211,7 @@ const NewsFeed = () => {
     shares: 0,
   };
 
-
+  const navigate = useNavigate()
   const { themevars } = useTheme()
   const [news, setNews] = useLocalStorage('news', null)
   const [newEvent, setNewEvent] = useState(initialNews);
@@ -220,7 +220,7 @@ const NewsFeed = () => {
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
 
-  const [friend, setFriend] = useLocalStorage("friend", null)
+
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -245,13 +245,10 @@ const NewsFeed = () => {
     try {
       if (name) {
 
-        const firned = (await getUserById(name)).payload;
-        setFriend(firned);
-        setFriendPosts((await getPostsByUserId(name)).payload);
-        setFriendChats((await getChatsByUserId(name)).payload);
 
 
-        window.location.href = name + "/portfolio";
+
+        navigate('/' + name + '/portfolio')
       }
 
 

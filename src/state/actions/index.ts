@@ -94,7 +94,7 @@ interface UpdateUserInterfaceReducer {
   payload: any;
 }
 
-interface NewsInterfaceReducer {
+export interface NewsInterfaceReducer {
   type: ActionType.NEWS;
   payload: {events: any, posts:any};
 }

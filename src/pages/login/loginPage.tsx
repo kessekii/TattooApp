@@ -48,6 +48,8 @@ const RepositoriesList = () => {
   const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
 
+  
+
   const tryLogin = async () => {
     try {
       if (loginF && password) {
@@ -76,7 +78,7 @@ const RepositoriesList = () => {
         setFriendChats(chatData.payload);
         setFriendPosts(postsData.payload);
         setPoints(pointsObject.payload);
-        console.log('SET NEWS   => ', newsData)
+        
         setNews(newsData);
         await auth.setUserFull(userData.payload);
 

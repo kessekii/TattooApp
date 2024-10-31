@@ -6,6 +6,7 @@ import {
   Route,
   Routes,
   useLocation,
+  useMatch,
   useNavigate,
   useParams,
 } from "react-router-dom";
@@ -30,12 +31,14 @@ import { getFirestore } from "firebase/firestore";
 import { MapPage } from "./pages/settings/home";
 import RegisterPage from "./pages/register/registerPage";
 import NewsFeed from "./pages/news/newsPage";
-import { createGlobalStyle, styled } from "styled-components";
+import { createGlobalStyle, keyframes, styled } from "styled-components";
 import { useTheme, useWindowDimensions } from "./state/providers/themeProvider";
 import useLocalStorage from "./hooks/useLocalStorage";
-import FriendPageComponent from "./pages/friendpage/friendPage";
-import FriendPortfolioViewPage from "./pages/friendpage/portfolioViewPage";
+
 import { ChatsPageComponent } from "./pages/chatspage/chatsPagge";
+import { getNewsAction, getProfileData } from "./state/action-creators";
+import { getChatsByUserId, getPointsInRadius, getPostsByUserId } from "./hooks/useChat";
+import { useAuth } from "./hooks/useAuth";
 
 export const GlobalStyle = createGlobalStyle<{ theme; children }>`
 root {
@@ -60,6 +63,33 @@ body {
 }
 `;
 
+const Spinner = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+`;
+
+const Loader = styled.div`
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${Spinner} 1s linear infinite;
+`;
+
 const firebaseConfig = {
   apiKey: "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
   authDomain: "streamingai-33a74.firebaseapp.com",
@@ -75,18 +105,25 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app, "streaminai");
 
 const App: React.FC = () => {
+
+  // Example: Trigger loading during data fetch
+
+
+
   // const { login, user } = useTypedSelector((state) => state);
-  // const { themevars } = useTheme()
+  const { themevars } = useTheme()
   const [user, setUser] = useLocalStorage("user", {});
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [news, setNews] = useLocalStorage("news", {});
-  const [profileData, setProfileData] = useState(user);
   const [screen, setScreen] = useLocalStorage("screen", {});
+  const [posts, setPosts] = useLocalStorage("posts", {});
+  const [chats, setChats] = useLocalStorage("chats", {});
 
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isErrorPromptOpened, setIsErrorPromptOpened] = useState(false);
-
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", {});
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", {});
+  const navigate = useNavigate()
   const handleResize = () => {
     console.log('PLAKTIVERA ')
     setScreen(window.innerWidth, window.innerHeight);
@@ -104,6 +141,12 @@ const App: React.FC = () => {
       setIsErrorPromptOpened(true);
     }
   }, [errorMessage]);
+
+
+
+
+
+
 
   return (
     <Routes >
@@ -128,15 +171,11 @@ const App: React.FC = () => {
             path="/:username"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                {Object.keys(user).length > 0 &&
-                  Object.keys(friend).length > 0 &&
-                  user &&
-                  friend &&
-                  user.username === friend.username ? (
-                  <ProfilePageComponent theme />
-                ) : (
-                  <FriendPageComponent theme />
-                )}
+
+                <ProfilePageComponent theme={themevars}
+
+                />
+
               </ProtectedRoute>
             }
           />
@@ -163,15 +202,9 @@ const App: React.FC = () => {
             path="/:username/portfolio"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-                {Object.keys(user).length > 0 &&
-                  Object.keys(friend).length > 0 &&
-                  user &&
-                  friend &&
-                  user.username === friend.username ? (
-                  <PortfolioViewPage />
-                ) : (
-                  <FriendPortfolioViewPage />
-                )}
+
+                <PortfolioViewPage />
+
               </ProtectedRoute>
             }
           />

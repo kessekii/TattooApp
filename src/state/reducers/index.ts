@@ -13,7 +13,7 @@ import userReducer from "./userReducer";
 import notifyReducer from "./notifyReducer";
 import modalReducer from "./modalReducer";
 import profileDataReducer from "./profileDataReducer";
-import newsReducer from "./newsReducer";
+
 
 const persistConfig = {
   key: "root",
@@ -58,7 +58,7 @@ export const rootReducer: Reducer<any, Action> = combineReducers({
   user: userReducer,
   notify: notifyReducer,
   modal: modalReducer,
-  news: newsReducer,
+
 });
 
 export const persistedReducer = persistReducer(persistConfig, rootReducer);

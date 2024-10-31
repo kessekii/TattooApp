@@ -170,7 +170,7 @@ const PortfolioEditorPage: React.FC = () => {
   const openModal = (index: number | null = null) => {
     setEditingIndex(index);
     if (index !== null) {
-      setNewImage(user.posts[index]);
+      setNewImage(posts[index]);
     } else {
       setNewImage({ src: "", caption: "" });
     }
@@ -195,7 +195,7 @@ const PortfolioEditorPage: React.FC = () => {
   // Handle dragging and dropping images
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
-    const reorderedImages = user.posts;
+    const reorderedImages = posts;
     const sourceIndex = result.source.index;
     const destinationIndex = result.destination.index;
     [reorderedImages[sourceIndex], reorderedImages[destinationIndex]] = [
@@ -222,7 +222,7 @@ const PortfolioEditorPage: React.FC = () => {
         comments: [],
         chatId: "",
       };
-      const pos = user.posts ? user.posts : {};
+      const pos = (posts && Object.keys(posts).length > 0) ? Object.values(posts) : {};
       updatedProfileData.posts =
         Object.keys(pos).length > 0
           ? { ...pos, [newUuid]: newPost }
@@ -248,7 +248,7 @@ const PortfolioEditorPage: React.FC = () => {
   // Delete image
   const handleDeleteImage = () => {
     const updatedProfileData = { ...user };
-    updatedProfileData.posts = user.posts.filter(
+    updatedProfileData.posts = Object.keys(posts).filter(
       (el, index) => index !== imageToDelete
     );
 
@@ -275,9 +275,9 @@ const PortfolioEditorPage: React.FC = () => {
           <Droppable droppableId="image-grid">
             {(provided) => (
               <ImageGrid ref={provided.innerRef} {...provided.droppableProps}>
-                {user.posts &&
-                  user.posts.length > 0 &&
-                  user.posts.map((post, index) => (
+                {posts &&
+                  Object.keys(posts).length > 0 &&
+                  Object.values(posts).map((post: any, index) => (
                     <Draggable
                       key={post.id}
                       draggableId={String(post.id)}

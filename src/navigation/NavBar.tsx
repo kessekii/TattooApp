@@ -8,7 +8,7 @@ import {
   AccountCircle,
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, keyframes } from "styled-components";
 import { useTheme } from "../state/providers/themeProvider";
 import {
   AvatarContainer,
@@ -27,25 +27,61 @@ import { FaCog, FaUserEdit, FaUser } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import { useActions } from "../hooks/useActions";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { getChatsByUserId, getPostsByUserId, getUserById } from "../../src/hooks/useChat";
+import { getChatsByUserId, getPointsInRadius, getPostsByUserId, getUserById } from "../../src/hooks/useChat";
 
 import MessageIcon from "@mui/icons-material/Message";
 
 import { getNewsAction } from '../../src/state/action-creators'
 import { dataTransferItemsToFiles } from "stream-chat-react/dist/components/ReactFileUtilities";
 
-// Styled components using your custom theme
+const Spinner = keyframes`
+
+100%{transform: rotate(1turn);
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.background};
+  z-index: 1000;
+`;
+
+const Loader = styled.div`
+width: 50px;
+  aspect-ratio: 1;
+  display: grid;
+  border: 8px solid #0000;
+  border-radius: 50%;
+  border-right-color: ${({ theme }) => theme.text};
+  animation: ${Spinner} 1s linear infinite;
+
+`;
+
+interface fetchDataType {
+  type: '/news' | '/map' | '/user' | '/chats'
+}
 
 const NavBar = (props: { screen: any, onResize: () => void }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [news, setNews] = useLocalStorage("news", null);
-  const [friend, setFriend] = useLocalStorage("friend", null);
+  const [friend, setFriend] = useLocalStorage("friend", {});
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const { username, postId } = useParams();
+
   const [isShrunk, setIsShrunk] = useState(false);
+  const [isMap, setIsMap] = useState(false);
+  const [loading, setLoading] = useLocalStorage("loading", false);
+  const [points, setPoints] = useLocalStorage("points", {});
+  const auth = useAuth();
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const { isEditing, setIsEditingProfile } = useEditing();
   const handleUserInteraction = () => {
@@ -54,14 +90,63 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
       setIsShrunk(false); // Expand if the navbar is shrunk and there is user interaction
     }
   };
+  const fetchData = async (username: string, { type }: fetchDataType) => {
+    console.log('FETCHING DATA FOR : ', type)
+    if (type) {
+      setLoading(true);
+      setIsMap(false)
+      switch (type) {
+        case '/news':
+          const newsData = await getNewsAction(user.location)
+
+          setNews(newsData)
+          setLoading(false);
+          break;
+        case '/user':
+          const userdata = await getUserById(username)
+          setFriend(userdata.payload)
+          const chatData = await getChatsByUserId(username);
+          setFriendChats(chatData.payload);
+          const postsData = await getPostsByUserId(username);
+          setFriendPosts(postsData.payload);
+          setLoading(false);
+          break;
+        case '/chats':
+
+          const userChats = await getChatsByUserId(user.name);
+
+          setChats(userChats.payload);
+          setLoading(false);
+          break;
+        case '/map':
+          setIsMap(true)
+          setLoading(false)
+          break;
+        default:
+          break;
+      }
+
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    if (username) {
+
+      fetchData(username, { type: '/user' });
+    }
+
+  }, [username]);
 
   const handleFriendClick = async (profileLink: string) => {
     const firned = (await getUserById(profileLink)).payload;
     setFriend(firned);
     setFriendPosts((await getPostsByUserId(profileLink)).payload);
     setFriendChats((await getChatsByUserId(profileLink)).payload);
-    window.location.href = profileLink;
-    navigate("../" + profileLink);
+    //window.location.href = profileLink;
+    navigate("/" + profileLink);
   };
 
   const navigate = useNavigate();
@@ -77,12 +162,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
 
   const handleNavigation = async (path: any, userData: any = user) => {
     try {
-      console.log('usrusr   : ', userData)
-      if (path.includes('news') && userData && userData.location) {
-        const newsData = await getNewsAction(userData.location)
-        console.log("setting news => ", newsData)
-        setNews(newsData)
-      }
+      await fetchData(username, { type: path });
 
 
       navigate(path);
@@ -120,12 +200,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
     };
   }, [isShrunk]);
 
-  useEffect(() => {
-    if (username !== friend.name) {
-      const data = handleFriendClick(username)
-      console.log(data)
-    }
-  }, [])
+
 
 
   const SettingsPopupComponent = ({ onClose }) => {
@@ -166,10 +241,11 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         left: 0,
       }}
     >
-      <NavContainer theme={themevars.navbar} isShrunk={isShrunk}>
+      <NavContainer isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
         <Toolbar>
-          <NavIcons theme={themevars} isShrunk={isShrunk}>
+          <NavIcons theme={themevars} isShrunk={isShrunk} >
             <IconButton
+
               onClick={
                 !isShrunk
                   ? () => handleNavigation("/")
@@ -204,43 +280,20 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
                       <MenuItem
                         theme={themevars}
                         onClick={async () => {
-                          const postsData = (
-                            await getPostsByUserId(user.username)
-                          ).payload;
-                          const chatsData = (
-                            await getChatsByUserId(user.username)
-                          ).payload;
-                          setUser(user);
-                          setFriend(user);
-                          setFriendPosts(postsData);
-                          setFriendChats(chatsData);
-                          setPosts(postsData);
-                          setChats(chatsData);
-                          console.log(window.location.href);
-                          if (window.location.href !== user.username) {
-                            const address = window.location.href.replace(
-                              "http://localhost:5173/",
-                              ""
-                            );
-                            window.location.href =
-                              "http://localhost:5173/" + user.username;
-                            navigate("/" + user.username);
-                          } else if (
-                            window.location.href.includes(user.username)
-                          ) {
-                            // window.location.href = user.username;
-                            navigate("/" + user.username);
-                          }
-                        }}
+
+                          navigate("/" + user.username);
+                        }
+                          // }
+                        }
                       >
                         <FaUser /> Profile
                       </MenuItem>
                       <MenuItem
                         theme={themevars}
                         onClick={async () => {
-                          await setIsEditingProfile();
-                          window.location.href = user.username;
+                          //window.location.href = user.username;
                           navigate("/" + user.username);
+                          await setIsEditingProfile();
                         }}
                       >
                         <FaUserEdit /> Edit Profile
@@ -260,8 +313,19 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         </Toolbar>
       </NavContainer>
       {openSettings && <SettingsPopupComponent onClose={setOpenSettings} />}
-      <div style={{ position: 'absolute', width: '100%' }}><Outlet /></div>
+      {
+        loading && (
+          <LoadingOverlay>
+            <Loader theme={themevars} />
+          </LoadingOverlay>
+        )
+      }
+      {(!loading || isMap) &&
 
+        <div style={{ position: 'absolute', width: '100%', backgroundColor: themevars.background }}>
+          <Outlet /></div>
+
+      }
     </div >
   );
 };

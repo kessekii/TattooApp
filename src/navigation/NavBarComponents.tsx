@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components';
-import { Box } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 
 
 const flipIn = keyframes`
@@ -24,24 +24,54 @@ const flipOut = keyframes`
   }
 `;
 
-export const NavContainer = styled.div<{ theme: any, isShrunk: boolean }>`
+const transIn = keyframes`
+0% {
+  border: 5px solid rgba(255,	195,	66, 0);
+ 
+  
+}
+100% {
+  
+  border: 5px solid rgba(255,	195,	66, 1);
+}
+`;
+
+const transOut = keyframes`
+  0% {
+   
+    border: 5px solid rgba(255,	195,	66, 1);
+  }
+  100% {
+    
+    border: 5px solid rgba(255,	195,	66, 0);
+  }
+`;
+
+export const NavContainer = styled.div<{ theme: any, isShrunk: boolean, isMap: boolean }>`
   background: ${(props) => props.theme.background};
+  transform-origin: center;
   position: fixed;
-  bottom: 0;
+  bottom:0;
+  -webkit-background-clip: padding-box; 
+    background-clip: padding-box;
+  border-width: 5px;
+  border-color: #ffc342;
   width: ${(props) => (props.isShrunk ? '60px' : '80%')}; /* Shrinks to 60px width when inactive */
   max-height: 60px;
   z-index: 1100;
+  animation: ${({ isMap }) => (isMap ? transIn : transOut)} 0.6s ease-in-out forwards;
   border-radius: 25px;
   margin-bottom: 25px;
   margin-inline: 25px; 
-  border-top: 1px solid  ${(props) => props.theme.border};
-  transition: width 0.3s ease; /* Smooth transition when shrinking */
+  transition: all 0.5s ease; /* Smooth transition when shrinking */
+  
 `;
 
 export const NavIcons = styled(Box) <{ theme: any, isShrunk: boolean }>`
   display: flex;
   justify-content: ${(props) => (props.isShrunk ? 'center' : 'space-around')}; /* Icons centered when shrunk */
   width: 100%;
+  
   transition: justify-content 0.3s ease; /* Smooth transition for icons */
 `;
 

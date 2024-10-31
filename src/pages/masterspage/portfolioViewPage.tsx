@@ -37,8 +37,9 @@ import {
 import { getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 
-const PortfolioViewPage: React.FC = ({}) => {
+const PortfolioViewPage: React.FC = ({ }) => {
   const [user, setUser] = useLocalStorage("user", null);
+  const [friend, setFriend] = useLocalStorage("friend", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [avatars, setAvatars] = useState({});
@@ -191,9 +192,9 @@ const PortfolioViewPage: React.FC = ({}) => {
         style={{
           overflow: "scroll",
         }}
-        // direction="row"
+      // direction="row"
       >
-        {user &&
+        {friend &&
           Object.keys(posts || {}).map((post) => (
             <Grid
               item
@@ -226,11 +227,11 @@ const PortfolioViewPage: React.FC = ({}) => {
                 <PostDetails>
                   <UserSection>
                     <UserAvatar
-                      src={user.profilePicture}
-                      alt={`${user.username} avatar`}
+                      src={friend.profilePicture}
+                      alt={`${friend.username} avatar`}
                     />
-                    <UserName onClick={() => navigate("../mastersPage")}>
-                      {user.name}
+                    <UserName onClick={() => navigate("../" + friend.username)}>
+                      {friend.name}
                     </UserName>
                   </UserSection>
                   <Description>{posts[post].description}</Description>
@@ -260,18 +261,18 @@ const PortfolioViewPage: React.FC = ({}) => {
                             <strong>
                               {chats[posts[post].chatId].messages?.length > 0
                                 ? chats[posts[post].chatId].messages[
-                                    chats[posts[post].chatId].messages.length -
-                                      1
-                                  ].author + ": "
+                                  chats[posts[post].chatId].messages.length -
+                                  1
+                                ].author + ": "
                                 : ""}
                             </strong>
                             <UserAvatar
                               src={
                                 avatars[
-                                  chats[posts[post].chatId].messages[
-                                    chats[posts[post].chatId].messages.length -
-                                      1
-                                  ].author
+                                chats[posts[post].chatId].messages[
+                                  chats[posts[post].chatId].messages.length -
+                                  1
+                                ].author
                                 ]
                               }
                             />
@@ -325,7 +326,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                         }}
                       >
                         {chats[posts[post].chatId]?.messages &&
-                        chats[posts[post].chatId].messages.length > 0 ? (
+                          chats[posts[post].chatId].messages.length > 0 ? (
                           chats[posts[post].chatId].messages.map(
                             (comment, index) => (
                               <CommentItem
@@ -385,18 +386,18 @@ const PortfolioViewPage: React.FC = ({}) => {
                                 >
                                   {comment.timestamp
                                     ? new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[0] +
-                                      ", " +
-                                      new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[1]
-                                        .split(":")[0] +
-                                      ":" +
-                                      new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[1]
-                                        .split(":")[1]
+                                      .toISOString()
+                                      .split("T")[0] +
+                                    ", " +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[0] +
+                                    ":" +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[1]
                                     : ""}
                                 </CommentText>
                               </CommentItem>
@@ -465,7 +466,7 @@ async function getAvatarByUserId(username: string) {
     );
 
     const result = await response.json();
-
+    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);

@@ -32,7 +32,8 @@ import {
 } from "../../../src/hooks/useChat";
 import { PostImage, UploadInput } from "../masterspage/masterPage";
 import zIndex from "@mui/material/styles/zIndex";
-import { styled } from "styled-components";
+import { keyframes, styled } from "styled-components";
+import { useTheme } from "../../state/providers/themeProvider";
 
 export const PointBox = styled.div`
   background: ${({ theme }) => theme.background};
@@ -44,6 +45,35 @@ export const PointBox = styled.div`
   position: relative;
   color: ${({ theme }) => theme.text};
 `;
+const fadeIn = keyframes`
+0% {
+  opacity: 0;
+ 
+  
+}
+100% {
+  
+  opacity 1;
+}
+`;
+
+const faded = keyframes`
+0% {
+  opacity: 0;
+ 
+  
+}
+100% {
+  
+  opacity 0;
+}
+`;
+
+export const PaperFade = styled.div<{ isLoaded: boolean }>`
+  opacity: ${({ isLoaded }) => (isLoaded ? '1' : '0')} ;
+  animation: ${({ isLoaded }) => (isLoaded ? fadeIn : faded)} 0.6s ease-in-out forwards; 
+`;
+
 type Poi = {
   key: string;
   location: google.maps.LatLngLiteral;
@@ -77,6 +107,7 @@ const PoiMarker = (props: {
   const [desc, setDesc] = useState<string>(props.point?.data?.desc || "");
   const [newImage, setNewImage] = useState({ src: "", caption: "" });
   const [isNewImage, setIsNewImage] = useState(false);
+  const { themevars } = useTheme()
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader();
@@ -104,13 +135,13 @@ const PoiMarker = (props: {
   const isAvailableEdit =
     Object.keys(user.points).includes(
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ) &&
     user.points[
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ].find((point) => point === props.point.pointId);
   console.log(isAvailableEdit, props.focusedPoint);
   // console.log(props.point.data);
@@ -158,7 +189,7 @@ const PoiMarker = (props: {
                 height: "40px",
                 background: "gray",
                 color: "white",
-
+                marginTop: "50px",
                 marginRight: "90px",
               }}
               onClick={async () => {
@@ -191,8 +222,7 @@ const PoiMarker = (props: {
                 height: "40px",
                 background: "gray",
                 color: "white",
-
-                marginBottom: "10px",
+                marginTop: "50px",
               }}
               onClick={async () => {
                 setIsEdit(false);
@@ -208,9 +238,9 @@ const PoiMarker = (props: {
         position={
           props.point && props.point?.location
             ? {
-                lng: props.point?.location?.lng,
-                lat: props.point?.location?.lat,
-              }
+              lng: props.point?.location?.lng,
+              lat: props.point?.location?.lat,
+            }
             : undefined
         }
         // onMouseEnter={() => {
@@ -234,9 +264,9 @@ const PoiMarker = (props: {
           <div
             style={{
               width: "300px",
-              height: "auto",
+              height: "300px",
               zIndex: 100,
-              background: "white",
+              background: themevars.background,
               position: "inherit",
               display: "flex",
             }}
@@ -290,10 +320,8 @@ const PoiMarker = (props: {
                       height: "40px",
                       background: "gray",
                       color: "white",
-
+                      marginTop: "150px",
                       marginRight: "40px",
-                      marginTop: "auto",
-                      marginBottom: "10px",
                     }}
                   >
                     {!isEdit ? "edit" : "save"}
@@ -319,8 +347,7 @@ const PoiMarker = (props: {
                       height: "40px",
                       color: "white",
                       background: "red",
-                      marginTop: "auto",
-                      marginBottom: "10px",
+                      marginTop: "150px",
                     }}
                   >
                     REMOVE
@@ -330,16 +357,7 @@ const PoiMarker = (props: {
                 {!isAvailableEdit && (
                   <Button
                     onClick={async () => {
-                      const firned = (await getUserById(props.point.owner))
-                        .payload;
-                      setFriend(firned);
-                      setFriendPosts(
-                        (await getPostsByUserId(props.point.owner)).payload
-                      );
-                      setFriendChats(
-                        (await getChatsByUserId(props.point.owner)).payload
-                      );
-                      window.location.href = props.point.owner;
+
                       navigate("../" + props.point.owner);
                     }}
                     style={{
@@ -347,8 +365,7 @@ const PoiMarker = (props: {
                       height: "40px",
                       color: "white",
                       background: "blue",
-                      marginTop: "auto",
-                      marginBottom: "10px",
+                      marginTop: "150px",
                     }}
                   >
                     TO OWNER PAGE
@@ -360,8 +377,8 @@ const PoiMarker = (props: {
         ) : (
           <Paper>
             {!isVisible &&
-            props.focusedPoint &&
-            props.focusedPoint !== props.pointId ? (
+              props.focusedPoint &&
+              props.focusedPoint !== props.pointId ? (
               <></>
             ) : (
               <PostImage
@@ -380,6 +397,7 @@ const PoiMarker = (props: {
     </>
   );
 };
+
 const tryRemovingAPoint = async (
   point: any,
 
@@ -505,14 +523,16 @@ export const MapPage = () => {
   const { addPoint } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
   const [user, setUser] = useLocalStorage("user", {});
+  const [loading, setLoading] = useLocalStorage("loading", null);
   const [points, setPoints] = useLocalStorage("points", {});
   const [cameraUpdateLock, setCameraUpdateLock] = useState(false);
   const [focusedPoint, setfocusedPoint] = useState<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false)
   const [cameraLocation, setCameraLocation] = useState({
     lat: 32.02119878251853,
     lng: 34.74333323660794,
   });
-
+  const { theme } = useTheme()
   const auth = useAuth();
   const handleCameraRefresh = async (
     ev: MapCameraChangedEvent,
@@ -548,6 +568,94 @@ export const MapPage = () => {
       setCameraLocation(ev.detail.center);
     }
   };
+
+  const { themevars } = useTheme()
+
+
+
+
+  const mapStyle = [
+    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+    {
+      featureType: "administrative.locality",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "poi.park",
+      elementType: "geometry",
+      stylers: [{ color: "#263c3f" }],
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#6b9a76" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#38414e" }],
+    },
+    {
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#212a37" }],
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#9ca5b3" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [{ color: "#746855" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#1f2835" }],
+    },
+    {
+      featureType: "road.highway",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#f3d19c" }],
+    },
+    {
+      featureType: "transit",
+      elementType: "geometry",
+      stylers: [{ color: "#2f3948" }],
+    },
+    {
+      featureType: "transit.station",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#d59563" }],
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#17263c" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#515c6d" }],
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text.stroke",
+      stylers: [{ color: "#17263c" }],
+    },
+  ]
+
+
   // useEffect(() => {
   //   if (!user) {
   //     setUser(Object.assign({}, user));
@@ -586,22 +694,28 @@ export const MapPage = () => {
       points,
     ]
   );
+
   const isMobile = window.innerWidth < window.innerHeight;
   return (
     <APIProvider
       apiKey="AIzaSyAGFYy06ioQhkJ1yOit5nequl-z05bNgm4"
       onLoad={() => console.log("Maps API has loaded.")}
     >
-      <Paper
+      <PaperFade
         style={{
           width: isMobile ? "100vw" : "900px",
           height: isMobile ? "100vh" : "600px",
+          background: themevars.background,
+
         }}
+        isLoaded={isLoaded}
       >
         <Map
           defaultZoom={15}
           id="map"
           mapId={"d4d9dfa4fa686c88"}
+          onTilesLoaded={() => setIsLoaded(true)}
+
           defaultCenter={{ lat: 32.02119878251853, lng: 34.74333323660794 }}
           onCameraChanged={async (e) => {
             if (!cameraUpdateLock) {
@@ -633,7 +747,10 @@ export const MapPage = () => {
         >
           {pointsStates}
         </Map>
-      </Paper>
+      </PaperFade>
     </APIProvider>
   );
 };
+
+
+

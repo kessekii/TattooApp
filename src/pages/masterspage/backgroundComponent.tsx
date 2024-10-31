@@ -34,7 +34,7 @@ const ClippedSvgBackground = styled.div<{ background; scale }>`
 
 const Backdrop = (props: { screen: any, backdropImage: any }) => {
   if (props.screen && props.backdropImage) {
-    console.log(props.screen, props.backdropImage)
+
     const scale = lerp(screen.width, 375, 1800, 0.99, 3.5);
 
     return (

@@ -75,10 +75,11 @@ const PostImage = styled.img`
 `;
 
 interface PortfolioImagePickerProps {
+  userData: any;
   onImageSelect: (image: string) => void; // Callback function to return the selected image
 }
 
-const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({
+const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ userData,
   onImageSelect,
 }) => {
   const [user, setUser] = useLocalStorage("user", null);
@@ -110,8 +111,8 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({
       {/* Grid of images */}
       {!confirmed && (
         <ImageGrid container spacing={2}>
-          {user.posts &&
-            Object.keys(user.posts).map((post, i) => (
+          {userData.posts &&
+            Object.keys(userData.posts).map((post, i) => (
               <PostImage
                 src={posts[post].image}
                 onClick={() => handleImageClick(posts[post].image, i)}
