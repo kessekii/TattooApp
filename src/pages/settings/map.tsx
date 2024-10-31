@@ -708,6 +708,10 @@ export const MapPage = () => {
         <Map
           defaultZoom={15}
           id="map"
+          fullscreenControl={false}
+          streetViewControl={false}
+          zoomControl={false}
+          mapTypeControl={false}
           mapId={"d4d9dfa4fa686c88"}
           onTilesLoaded={() => setIsLoaded(true)}
           defaultCenter={{ lat: 32.02119878251853, lng: 34.74333323660794 }}
