@@ -16,8 +16,35 @@ import { updateChatStraight } from "../../../src/state/action-creators";
 import { Box, Paper, TextField } from "@mui/material";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { ArrowBackIos, Send } from "@mui/icons-material";
+import { FaSearch } from "react-icons/fa";
+
 
 // Styled Components
+
+const SearchBar = styled.div`
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  left:10%;
+  background-color: ${({ theme }) => theme.buttonBackground};
+  border-radius: 25px;
+  border-color: ${({ theme }) => theme.buttonBackground};
+  
+  align-items: center;
+  width: 70vw;
+`;
+
+const SearchInput = styled.input`
+  border: none;
+  outline: none;
+  border-radius: 25px;
+  margin-left: 5px;
+  flex-grow: 2;
+  font-size: giant;
+  background: ${({ theme }) => theme.buttonBackground};
+  color: ${({ theme }) => theme.buttonText};
+`;
+
 const StyledCommentList = styled.div`
 font-family: 'Arial', sans-serif;
   
@@ -32,7 +59,7 @@ const StyledCommentsPopup = styled.div`
   padding: 10px;
   position: relative;
   border-radius: 10px;
-  height:95vh;
+  
   z-index: 1200;
 `;
 
@@ -254,7 +281,7 @@ export const ChatsPageComponent: React.FC = () => {
           key={`${i}-${message.author}`}
           style={{
             width: "100%",
-
+            background: themevars.background,
             flexDirection: isUserMessage ? "row-reverse" : "row",
           }}
         >
@@ -287,13 +314,16 @@ export const ChatsPageComponent: React.FC = () => {
   const participants = useMemo(
     () =>
       Object.keys(privateChats || {}).map((privateChatId) => {
+        console.log('eededed' + privateChats, privateChatId)
         const chatData = privateChats[privateChatId];
+
         const author = chatData.participants.find((e) => e !== user.username);
         const lastMessage = chatData.lastMessage?.text || "";
 
         return (
           <StyledCommentList key={privateChatId} style={{ background: themevars.background, border: "0", borderBottom: '2px', height: "fit-content", }}>
             {isMessagesPopupOpened && <>
+
               <StyledEditButton theme={themevars} style={{
                 width: '100%', height: '6vh', display: 'flex',
                 alignItems: "stretch",
@@ -301,7 +331,9 @@ export const ChatsPageComponent: React.FC = () => {
                 position: 'fixed',
                 top: '0',
                 zIndex: '2000',
-                background: themevars.buttonBackground,
+                backdropFilter: 'blur(10px)',
+                background: themevars.buttonBackground + '1A',
+
                 flexDirection: "column-reverse",
                 justifyContent: "center",
                 flexWrap: "wrap"
@@ -327,7 +359,8 @@ export const ChatsPageComponent: React.FC = () => {
             }
 
             {
-              chatData.messages?.length > 0 && isMessagesPopupOpened ? (
+              chatData.messages?.length > 0 &&
+                privateChatId === selectedChatId && isMessagesPopupOpened ? (
                 <StyledCommentsPopup style={{}} theme={themevars}>
 
                   <CommentsContent style={{ background: 'transparent' }} theme={themevars}>
@@ -367,11 +400,35 @@ export const ChatsPageComponent: React.FC = () => {
                 </StyledCommentsPopup>
               ) : (
                 <StyledCommentItem theme={themevars} isUser={author == user.name} key={`${privateChatId}-${author}`} style={{ flexDirection: "row", display: "flex", alignItems: "flex-end", justifyContent: 'center' }} onClick={() => handleOpenMessages(privateChatId)}>
-                  <Paper style={{ background: 'transparent', marginTop: "5px", marginBottom: "5px", display: "flex", padding: "10px", width: '100%', margin: "0px" }}>
+                  <StyledEditButton theme={themevars} style={{
+                    width: '100%', height: '6vh', display: 'flex',
+                    alignItems: "stretch",
+                    alignContent: "center",
+                    position: 'fixed',
+                    top: '0',
+                    zIndex: '2000',
+                    backdropFilter: 'blur(10px)',
+                    background: themevars.buttonBackground + '1A',
+
+                    flexDirection: "column-reverse",
+                    justifyContent: "center",
+                    flexWrap: "wrap"
+                  }} onClick={() => handleOpenMessages(privateChatId)}>
+
+                    <SearchBar>
+                      <FaSearch />
+                      <SearchInput placeholder="Search Chats..." />
+                    </SearchBar>
+
+                  </StyledEditButton>
+
+                  <Paper style={{ background: 'transparent', marginTop: "6vh", marginBottom: "5px", display: "flex", padding: "10px", width: '100%', }}>
                     <StyledFriendAvatar style={{ marginLeft: '15px' }} theme={themevars} src={user.friends[author]?.avatar} alt={author} />
                     <Box style={{ display: "flex", marginLeft: "15px", flexDirection: "column", width: "80vw", justifyContent: 'space-between' }}>
                       <StyledCommentAuthor style={{ background: 'transparent', fontWeight: 'bold' }} theme={themevars}>{author}</StyledCommentAuthor>
-                      <StyledCommentText style={{ marginInline: 'unset' }} theme={themevars}>{<p style={{ marginInline: 'unset', fontWeight: '500', color: themevars.accent, margin: '0' }}>{chatData.lastMessage?.author}: <text style={{ color: themevars.text }}> {lastMessage}</text></p>}</StyledCommentText>
+
+                      <StyledCommentText style={{ marginInline: 'unset' }} theme={themevars}>{<p style={{ marginInline: 'unset', fontWeight: '500', color: themevars.accent, margin: '0' }}>{chatData.lastMessage?.author} <text style={{ color: themevars.text }}> {lastMessage}</text></p>}
+                      </StyledCommentText>
                     </Box>
                     <StyledCommentText style={{ float: "right", fontSize: 15, color: themevars.text }}>
                       {new Date().getTime() -
