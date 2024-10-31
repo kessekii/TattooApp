@@ -597,7 +597,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const [newImage, setNewImage] = useState({ src: "", caption: "" });
   const [newBackdropImage, setNewBackdropImage] = useState({ src: "" })
   const [isSettingsPopup, setSettingsPopup] = useState(false);
-
+  const [screen, setScreen] = useLocalStorage('screen', null);
   const [showAddReview, setShowAddReview] = useState(false); // To handle new review form
   const [newReview, setNewReview] = useState({ text: "", mark: 5 }); // New review state
 
@@ -1000,7 +1000,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   return (
     <ProfilePage theme={themevars}>
-      <Backdrop screen backdropImage={friend.backdropImage} />
+      <Backdrop screen={screen} backdropImage={friend.backdropImage} />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
           {isEditing ? (

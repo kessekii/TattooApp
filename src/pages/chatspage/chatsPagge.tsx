@@ -80,10 +80,10 @@ const StyledEditButton = styled.button`
 const StyledCommentItem = styled.div<({ isUser }) >`
   display: flex;
   flex-direction: ${(props) =>
-    props.isUser ? "row-reverse" : "row"};
+    props.isUser ? "column-reverse" : "column"};
   width: 100%;
   padding: 0;
-  
+  marginBottom: 25px;
   borderRadius: 25px;
 `;
 
@@ -94,9 +94,13 @@ const StyledCommentText = styled.div`
   color: ${(props) => props.theme.text};
 `;
 const StyledCommentTimeText = styled.div<({ isUser }) >`
-  font-size: 15px;
-  align-self: ${(props) => props.isUser ? "end" : "unset"}; 
-  margin-inline: 10px;
+  font-size: 10px;
+  position: absolute;
+  display: flex;
+  
+  align-self: ${(props) => props.isUser ? "bottom" : "bottom"}; 
+  margin-inline: 7px;
+  transform: translateY(calc(5vh + 16px));
   opacity: 0.5;
   color: ${(props) => props.theme.text};
 `;
@@ -285,6 +289,7 @@ export const ChatsPageComponent: React.FC = () => {
           style={{
             width: "100%",
             background: themevars.background,
+
             flexDirection: isUserMessage ? "row-reverse" : "row",
           }}
         >
@@ -295,7 +300,7 @@ export const ChatsPageComponent: React.FC = () => {
               alignItems: "center",
               padding: '7px',
               position: 'relative',
-              marginBottom: '5px',
+              marginBottom: '20px',
               borderRadius: "15px",
               background: themevars.buttonBackground,
               //backgroundColor: i % 2 === 0 ? "rgb(242,242,242)" : "#eeeeee",
@@ -306,9 +311,9 @@ export const ChatsPageComponent: React.FC = () => {
             <Box style={{ display: "flex", flexDirection: "column", }}>
 
               <StyledCommentText>{message.text}</StyledCommentText>
-              <StyledCommentTimeText isUser={message.author == user.username} style={{ fontSize: 15 }}>{formatDate(message.timestamp)}</StyledCommentTimeText>
             </Box>
           </Box>
+          <StyledCommentTimeText isUser={message.author == user.username} style={{ fontSize: 13 }}>{formatDate(message.timestamp)}</StyledCommentTimeText>
         </StyledCommentItem >
       );
     });
