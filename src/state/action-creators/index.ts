@@ -99,125 +99,123 @@ export interface NewsItem {
   shares: number;
 }
 
-
-
-const handlePosts = async(filter: any) => {
+const handlePosts = async (filter: any) => {
   try {
-
     const headers = {
       Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
     };
-    const { data } = await AxiosCustom.post(endpoints.GETPOSTS, {city: filter.split(',')[0]}, {
-      headers,
-    });
-    return data
+    const { data } = await AxiosCustom.post(
+      endpoints.GETPOSTS,
+      { city: filter.split(",")[0] },
+      {
+        headers,
+      }
+    );
+    return data;
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
-  
-}
+};
 //------------NEWS OPERATIONS ------------
 export const getNewsAction = async (filter: string) => {
-  
-    try {
-      const headers = {
-        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-      };
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
 
-      // const loggetting = await AxiosCustom.post(
-      //   "http://localhost:8000",
-      //   loginParams,
-      //   {
-      //     headers,
-      //   }
-      // );
-      // console.log(loggetting.request);
-      
-      const { data } = await AxiosCustom.post(endpoints.NEWS, {city: filter.split(',')[0], country: filter.split(',')[1]}, {
+    // const loggetting = await AxiosCustom.post(
+    //   "http://46.117.80.103:4000:8000",
+    //   loginParams,
+    //   {
+    //     headers,
+    //   }
+    // );
+    // console.log(loggetting.request);
+
+    const { data } = await AxiosCustom.post(
+      endpoints.NEWS,
+      { city: filter.split(",")[0], country: filter.split(",")[1] },
+      {
         headers,
-      });
+      }
+    );
 
-      
-     
+    type PointData = {
+      pointId: string;
+      data: Record<string, any>; // adjust type as needed for data structure
+    };
+    type PostData = {
+      id: string;
+      data: Record<string, any>; // adjust type as needed for data structure
+    };
 
-      type PointData = {
-        pointId: string;
-        data: Record<string, any>; // adjust type as needed for data structure
-      };
-      type PostData = {
-        id: string;
-        data: Record<string, any>; // adjust type as needed for data structure
-      };
-      
-      function transformEventsData(inputData: { [key: number]: PointData[] }): Record<string, any> {
-        console.log('transformEventsData', inputData)
-        return Object.assign(
-          {},
-          ...Object.values(inputData).flat().map(item => ({ [item.pointId]: {...item} })).filter((pointId: any) => {
-          
-            return ( !pointId.undefined )
-          }
-        )
-      )
+    function transformEventsData(inputData: {
+      [key: number]: PointData[];
+    }): Record<string, any> {
+      console.log("transformEventsData", inputData);
+      return Object.assign(
+        {},
+        ...Object.values(inputData)
+          .flat()
+          .map((item) => ({ [item.pointId]: { ...item } }))
+          .filter((pointId: any) => {
+            return !pointId.undefined;
+          })
+      );
     }
-    function omitFieldsFromData(data: Record<string, any>, omitFields: string[]): Record<string, any> {
+    function omitFieldsFromData(
+      data: Record<string, any>,
+      omitFields: string[]
+    ): Record<string, any> {
       return Object.fromEntries(
         Object.entries(data).filter(([key]) => !omitFields.includes(key))
       );
     }
-      
-   
-      
-     
-      const postsPayload = await  handlePosts(filter)
-      const eventsDataDict: Record<string, any> = transformEventsData(data.payload.events)
-      const postsDataDict: Record<string, any> = postsPayload.payload.posts
 
-      
-     
-        // .map((autdat) => autdat).filter((out) => out.pointId !== undefined)
-      console.log('postsData ', postsDataDict)
-    
-      return ({events: eventsDataDict, posts: postsDataDict});
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  };
+    const postsPayload = await handlePosts(filter);
+    const eventsDataDict: Record<string, any> = transformEventsData(
+      data.payload.events
+    );
+    const postsDataDict: Record<string, any> = postsPayload.payload.posts;
 
+    // .map((autdat) => autdat).filter((out) => out.pointId !== undefined)
+    console.log("postsData ", postsDataDict);
+
+    return { events: eventsDataDict, posts: postsDataDict };
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
 
 export const makeEventAction = async (payload: any) => {
-  
-    try {
-      const headers = {
-        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-      };
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
 
-      // const loggetting = await AxiosCustom.post(
-      //   "http://localhost:8000",
-      //   loginParams,
-      //   {
-      //     headers,
-      //   }
-      // );
-      // console.log(loggetting.request);
-      const { data } = await AxiosCustom.post(endpoints.MAKEEVENT, payload, {
-        headers,
-      });
+    // const loggetting = await AxiosCustom.post(
+    //   "http://46.117.80.103:4000:8000",
+    //   loginParams,
+    //   {
+    //     headers,
+    //   }
+    // );
+    // console.log(loggetting.request);
+    const { data } = await AxiosCustom.post(endpoints.MAKEEVENT, payload, {
+      headers,
+    });
 
-
-      if (!data.successful) {
-        return data.payload;
-      }
-
-
+    if (!data.successful) {
       return data.payload;
-    } catch (err) {
-      console.log(err);
-      return false;
     }
-}
 
+    return data.payload;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
 
 // --------- USERS OPERATION --------
 export const loginAction = (loginParams: any, setErrorMessage: any) => {
@@ -229,7 +227,7 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
       const user = JSON.stringify(loginParams);
       console.log(user);
       // const loggetting = await AxiosCustom.post(
-      //   "http://localhost:8000",
+      //   "http://46.117.80.103:4000:8000",
       //   loginParams,
       //   {
       //     headers,
@@ -528,7 +526,7 @@ export const getProfileData = async (username: any) => {
         headers,
       }
     );
-    
+
     return data;
   } catch (err) {
     console.log(err);

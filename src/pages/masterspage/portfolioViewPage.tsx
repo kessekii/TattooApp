@@ -462,7 +462,7 @@ async function getAvatarByUserId(username: string) {
   try {
     // console.log("id", chatId, username);
     const response = await fetch(
-      "http://localhost:4000/users/getAvatarByUserId",
+      "http://46.117.80.103:4000/users/getAvatarByUserId",
       {
         method: "POST",
         headers: {
