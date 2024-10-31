@@ -71,7 +71,7 @@ const RepositoriesList = () => {
           false
         );
 
-        setUser(userData.payload);
+
         setFriend(userData.payload);
         setPosts(postsData.payload);
         setChats(chatData.payload);

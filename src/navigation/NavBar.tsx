@@ -9,7 +9,7 @@ import {
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
-import { useTheme } from "../state/providers/themeProvider";
+import { useTheme, useWindowDimensions } from "../state/providers/themeProvider";
 import {
   AvatarContainer,
   Menu,
@@ -75,8 +75,9 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [chats, setChats] = useLocalStorage("chats", null);
+  const [screen, setScreen] = useLocalStorage("screen", null);
   const { username, postId } = useParams();
-
+  const dim = useWindowDimensions()
   const [isShrunk, setIsShrunk] = useState(false);
   const [isMap, setIsMap] = useState(false);
   const [loading, setLoading] = useLocalStorage("loading", false);
@@ -92,6 +93,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
   };
   const [hideNav, setHideNav] = useLocalStorage('hideNav', null)
   const fetchData = async (username: string, { type }: fetchDataType) => {
+    setScreen(dim)
     console.log('FETCHING DATA FOR : ', type)
     if (type) {
       setLoading(true);
@@ -246,7 +248,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         left: 0,
       }}
     >
-      <NavContainer hideNav={hideNav} isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
+      <NavContainer style={{ visibility: hideNav ? 'hidden' : 'visible' }} hideNav={hideNav} isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
         <Toolbar>
           <NavIcons theme={themevars} isShrunk={isShrunk} >
 

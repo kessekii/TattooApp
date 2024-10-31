@@ -229,13 +229,13 @@ const PortfolioEditorPage: React.FC = () => {
           : { [newUuid]: newPost };
     }
 
-    const newUser = (
+    const newUser =
       await createChatByUsername(updatedProfileData, setErrorMessage, newUuid)
-    ).payload;
+
     // updateUser(updatedProfileData, setErrorMessage);
     const postsData = await getPostsByUserId(updatedProfileData.username);
     const chatsData = await getChatsByUserId(updatedProfileData.username);
-    setUser(newUser);
+    setUser(newUser.payload);
     setIsNewImage(false);
     setPosts(postsData.payload);
     setChats(chatsData.payload);
