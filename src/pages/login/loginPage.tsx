@@ -41,14 +41,14 @@ const RepositoriesList = () => {
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [news, setNews] = useLocalStorage("news", null);
   const [screen, setScreen] = useLocalStorage("screen", null);
-  const dims = useWindowDimensions()
+
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const auth = useAuth();
   const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
 
-  
+
 
   const tryLogin = async () => {
     try {
@@ -56,31 +56,7 @@ const RepositoriesList = () => {
         loginAction({ username: loginF, password: password }, setErrorMessage);
         await auth.login(password, loginF);
         // await auth.setUserFull(user);
-        const userData = await getProfileData(loginF);
-        // console.log("1", payload.event);
-        // const temp = { ...userData.payload.event, events: [], chats: [], points: [] };
 
-        const chatData = await getChatsByUserId(loginF);
-        const postsData = await getPostsByUserId(loginF);
-        const newsData = await getNewsAction(userData.payload.location)
-        const pointsObject = await getPointsInRadius(
-          {
-            lat: 32.02119878251853,
-            lng: 34.74333323660794,
-          },
-          false
-        );
-        setScreen(dims);
-        setUser(userData.payload);
-        setFriend(userData.payload);
-        setPosts(postsData.payload);
-        setChats(chatData.payload);
-        setFriendChats(chatData.payload);
-        setFriendPosts(postsData.payload);
-        setPoints(pointsObject.payload);
-        
-        setNews(newsData);
-        await auth.setUserFull(userData.payload);
 
         navigate("/" + loginF);
       }
