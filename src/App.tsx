@@ -28,7 +28,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-import { MapPage } from "./pages/settings/home";
+import { MapPage } from "./pages/settings/map";
 import RegisterPage from "./pages/register/registerPage";
 import NewsFeed from "./pages/news/newsPage";
 import { createGlobalStyle, keyframes, styled } from "styled-components";
@@ -37,7 +37,11 @@ import useLocalStorage from "./hooks/useLocalStorage";
 
 import { ChatsPageComponent } from "./pages/chatspage/chatsPagge";
 import { getNewsAction, getProfileData } from "./state/action-creators";
-import { getChatsByUserId, getPointsInRadius, getPostsByUserId } from "./hooks/useChat";
+import {
+  getChatsByUserId,
+  getPointsInRadius,
+  getPostsByUserId,
+} from "./hooks/useChat";
 import { useAuth } from "./hooks/useAuth";
 
 export const GlobalStyle = createGlobalStyle<{ theme; children }>`
@@ -105,27 +109,24 @@ export const auth = getAuth(app);
 export const firestore = getFirestore(app, "streaminai");
 
 const App: React.FC = () => {
-
   // Example: Trigger loading during data fetch
 
-
-
   // const { login, user } = useTypedSelector((state) => state);
-  const { themevars } = useTheme()
+  const { themevars } = useTheme();
   const [user, setUser] = useLocalStorage("user", {});
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [news, setNews] = useLocalStorage("news", {});
   const [screen, setScreen] = useLocalStorage("screen", {});
   const [posts, setPosts] = useLocalStorage("posts", {});
   const [chats, setChats] = useLocalStorage("chats", {});
-  const [hideNav, setHideNav] = useLocalStorage('hideNav', false)
+  const [hideNav, setHideNav] = useLocalStorage("hideNav", false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isErrorPromptOpened, setIsErrorPromptOpened] = useState(false);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", {});
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", {});
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleResize = () => {
-    console.log('PLAKTIVERA ')
+    console.log("PLAKTIVERA ");
     setScreen(window.innerWidth, window.innerHeight);
   };
 
@@ -142,20 +143,16 @@ const App: React.FC = () => {
     }
   }, [errorMessage]);
 
-
-
-
-
-
-
   return (
-    <Routes >
+    <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/notlogged" element={<NotLogged />} />
       <Route path="*" element={<NotFound />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoutes />}>
-        <Route element={<ResponsiveDrawer screen={screen} onResize={handleResize} />}>
+        <Route
+          element={<ResponsiveDrawer screen={screen} onResize={handleResize} />}
+        >
           {/* NewStreamPage Route
           <Route
             path="/newstream"
@@ -171,11 +168,7 @@ const App: React.FC = () => {
             path="/:username"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-
-                <ProfilePageComponent theme={themevars}
-
-                />
-
+                <ProfilePageComponent theme={themevars} />
               </ProtectedRoute>
             }
           />
@@ -202,9 +195,7 @@ const App: React.FC = () => {
             path="/:username/portfolio"
             element={
               <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
-
                 <PortfolioViewPage />
-
               </ProtectedRoute>
             }
           />

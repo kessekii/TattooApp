@@ -37,7 +37,7 @@ import {
 import { getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 
-const PortfolioViewPage: React.FC = ({ }) => {
+const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [chats, setChats] = useLocalStorage("chats", null);
@@ -53,7 +53,10 @@ const PortfolioViewPage: React.FC = ({ }) => {
   const [newComment, setNewComment] = useState(""); // To hold new comment input
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
   const { themevars } = useTheme();
-
+  let loggedInUser = user.name === friend.name;
+  let userShown = loggedInUser ? user : friend;
+  let chatsShown = loggedInUser ? chats : friendChats;
+  let postsShown = loggedInUser ? posts : friendPosts;
   const navigate = useNavigate();
 
   const handleCommentsClick = (postId: string) => {
@@ -73,56 +76,46 @@ const PortfolioViewPage: React.FC = ({ }) => {
   const handleCommentSubmit = async (chatss: any, users: any) => {
     if (selectedPostId !== null && newComment.trim() !== "") {
       const user = JSON.parse(window.localStorage.getItem("user") || "{}");
+      const friend = JSON.parse(window.localStorage.getItem("friend") || "{}");
+      let loggedInUser = user.name === friend.name;
+      let userShown = loggedInUser ? user : friend;
+      const chats = JSON.parse(
+        window.localStorage.getItem(loggedInUser ? "chats" : "friendChats") ||
+          "{}"
+      );
+      const posts = JSON.parse(
+        window.localStorage.getItem(loggedInUser ? "posts" : "friendPosts") ||
+          "{}"
+      );
 
-      const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
-      const posts = JSON.parse(window.localStorage.getItem("posts") || "{}");
-      // Find the selected post
-      // const updatedPosts = user.posts.map((post) => {
-      //     post.id === selectedPostId && post.comments && post.comments.length > 0) {
-      //         // Add the new comment to the selected post
-      //         return {
-      //             ...post,
-      //             comments: [...post.comments, { author: user.username, text: newComment }],
-      //         };
-      //     }
-      //     return {
-      //         ...post,
-      //         comments: [{ author: user.username, text: newComment }],
-
-      //     }
-      // })
-
-      const filteredPost = user && posts ? posts[selectedPostId] : [];
-
+      const filteredPost =
+        userShown && posts ? posts[selectedPostId] : { chatId: "" };
+      console.log("Selected Post Id:", selectedPostId);
       const chat =
         chats && Object.keys(chats).length === 0
           ? {}
           : chats[filteredPost.chatId];
 
-      console.log(chat, selectedPostId);
-
       if (chat?.messages && chat.messages?.length > 0) {
-        console.log("not first");
         chat.messages.push({
           author: user.username,
           text: newComment,
           timestamp: new Date().getTime(),
         });
 
-        const newChatData = (
-          await updateChatStraight(chat, filteredPost.chatId)
-        ).payload;
+        await updateChatStraight(chat, filteredPost.chatId);
 
         if (!chats[filteredPost.chatId]) {
           chats[filteredPost.chatId] = {};
         }
-        const postsData = (await getPostsByUserId(user.username)).payload;
+        const postsData = (await getPostsByUserId(userShown.username)).payload;
         chats[filteredPost.chatId].messages = chat.messages;
-        const newUserData = await getProfileData(user.username);
-        setUser({ ...newUserData.payload });
-
-        setChats(chats);
-        setPosts(postsData);
+        const newUserData = await getProfileData(userShown.username);
+        loggedInUser
+          ? setUser({ ...newUserData.payload })
+          : setFriend({ ...newUserData.payload });
+        loggedInUser ? setChats(chats) : setFriendChats(chats);
+        loggedInUser ? setPosts(postsData) : setFriendPosts(postsData);
       } else if (
         !chats ||
         (chat && (!chat.messages || chat.messages.length === 0))
@@ -138,15 +131,17 @@ const PortfolioViewPage: React.FC = ({ }) => {
         ];
 
         await updateChatStraight(chat, filteredPost.chatId);
-        const postsData = (await getPostsByUserId(user.username)).payload;
+        const postsData = (await getPostsByUserId(userShown.username)).payload;
         if (!chats[filteredPost.chatId]) {
           chats[filteredPost.chatId] = {};
         }
         chats[filteredPost.chatId].messages = chat.messages;
-        const newUserData = await getProfileData(user.username);
-        setUser({ ...newUserData.payload });
-        setChats(chats);
-        setPosts(postsData);
+        const newUserData = await getProfileData(userShown.username);
+        loggedInUser
+          ? setUser({ ...newUserData.payload })
+          : setFriend({ ...newUserData.payload });
+        loggedInUser ? setChats(chats) : setFriendChats(chats);
+        loggedInUser ? setPosts(postsData) : setFriendPosts(postsData);
       }
 
       console.log();
@@ -160,7 +155,10 @@ const PortfolioViewPage: React.FC = ({ }) => {
   };
 
   const hadleGetAvatars = async () => {
-    const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
+    const chats = JSON.parse(
+      window.localStorage.getItem(loggedInUser ? "chats" : "friendChats") ||
+        "{}"
+    );
     let allTouchedUsers = {};
 
     for (let chatid of Object.keys(chats)) {
@@ -188,14 +186,15 @@ const PortfolioViewPage: React.FC = ({ }) => {
     >
       <Grid
         container
-        key={user.username + "gridccc"}
+        key={userShown.username + "gridccc"}
         style={{
           overflow: "scroll",
         }}
-      // direction="row"
+        // direction="row"
       >
-        {friend && friendPosts &&
-          Object.keys(friend.posts || {}).map((post) => (
+        {userShown &&
+          postsShown &&
+          Object.keys(userShown.posts || {}).map((post) => (
             <Grid
               item
               style={{
@@ -213,7 +212,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
             >
               <PostWrapper key={post} style={{ objectFit: "contain" }}>
                 <PostImage
-                  src={friendPosts[post].image}
+                  src={postsShown[post].image}
                   alt={`Post ${post}`}
                   style={{
                     width: "80vw",
@@ -227,20 +226,22 @@ const PortfolioViewPage: React.FC = ({ }) => {
                 <PostDetails>
                   <UserSection>
                     <UserAvatar
-                      src={friend.profilePicture}
-                      alt={`${friend.username} avatar`}
+                      src={userShown.profilePicture}
+                      alt={`${userShown.username} avatar`}
                     />
-                    <UserName onClick={() => navigate("../" + friend.username)}>
-                      {friend.name}
+                    <UserName
+                      onClick={() => navigate("../" + userShown.username)}
+                    >
+                      {userShown.name}
                     </UserName>
                   </UserSection>
-                  <Description>{friendPosts[post].description}</Description>
+                  <Description>{postsShown[post].description}</Description>
                   {/* <Caption>
                     <strong>{posts[post].user && posts[post].user.name}</strong>{" "}
                     {posts[post].description}
                   </Caption> */}
 
-                  {chats && chats[friendPosts[post].chatId] ? (
+                  {chatsShown && chatsShown[postsShown[post].chatId] ? (
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
@@ -251,28 +252,33 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         alignItems: "center",
                       }}
                     >
-                      {chats[friendPosts[post].chatId]?.messages?.length === 0 ? (
+                      {chatsShown[postsShown[post].chatId]?.messages?.length ===
+                      0 ? (
                         <>No comments yet</>
                       ) : (
                         <>
                           <Box
-                            style={{ flexDirection: "column", display: "flex" }}
+                            style={{
+                              flexDirection: "column",
+                              display: "flex",
+                            }}
                           >
                             <strong>
-                              {chats[friendPosts[post].chatId].messages?.length > 0
-                                ? chats[friendPosts[post].chatId].messages[
-                                  chats[friendPosts[post].chatId].messages.length -
-                                  1
-                                ].author + ": "
+                              {chatsShown[postsShown[post].chatId].messages
+                                ?.length > 0
+                                ? chatsShown[postsShown[post].chatId].messages[
+                                    chatsShown[postsShown[post].chatId].messages
+                                      .length - 1
+                                  ].author + ": "
                                 : ""}
                             </strong>
                             <UserAvatar
                               src={
                                 avatars[
-                                chats[friendPosts[post].chatId].messages[
-                                  chats[friendPosts[post].chatId].messages.length -
-                                  1
-                                ].author
+                                  chatsShown[postsShown[post].chatId].messages[
+                                    chatsShown[postsShown[post].chatId].messages
+                                      .length - 1
+                                  ].author
                                 ]
                               }
                             />
@@ -281,8 +287,9 @@ const PortfolioViewPage: React.FC = ({ }) => {
                             style={{ marginTop: "13px", marginLeft: "20px" }}
                           >
                             {
-                              chats[friendPosts[post].chatId].messages[
-                                chats[friendPosts[post].chatId].messages.length - 1
+                              chatsShown[postsShown[post].chatId].messages[
+                                chatsShown[postsShown[post].chatId].messages
+                                  .length - 1
                               ].text
                             }
                           </Typography>
@@ -301,7 +308,8 @@ const PortfolioViewPage: React.FC = ({ }) => {
                     </LikeButton>
                     <Box onClick={() => handleCommentsClick(post)}>
                       View all{" "}
-                      {chats[friendPosts[post].chatId]?.messages?.length || 0}{" "}
+                      {chatsShown[postsShown[post].chatId]?.messages?.length ||
+                        0}{" "}
                       comments
                     </Box>
                   </LikeSection>
@@ -325,9 +333,10 @@ const PortfolioViewPage: React.FC = ({ }) => {
                           height: "63vh",
                         }}
                       >
-                        {chats[friendPosts[post].chatId]?.messages &&
-                          chats[friendPosts[post].chatId].messages.length > 0 ? (
-                          chats[friendPosts[post].chatId].messages.map(
+                        {chatsShown[postsShown[post].chatId]?.messages &&
+                        chatsShown[postsShown[post].chatId].messages.length >
+                          0 ? (
+                          chatsShown[postsShown[post].chatId].messages.map(
                             (comment, index) => (
                               <CommentItem
                                 key={index + comment.author}
@@ -386,18 +395,18 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                 >
                                   {comment.timestamp
                                     ? new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[0] +
-                                    ", " +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[0] +
-                                    ":" +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[1]
+                                        .toISOString()
+                                        .split("T")[0] +
+                                      ", " +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[0] +
+                                      ":" +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[1]
                                     : ""}
                                 </CommentText>
                               </CommentItem>
