@@ -234,8 +234,8 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         background: themevars.background,
         position: "fixed",
         display: "flex",
-        justifyContent: !hideNav ? "center" : "end",
 
+        justifyContent: !hideNav ? "center" : "end",
         alignItems: "top",
         height: "100%",
         width: "100%",
@@ -246,7 +246,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         left: 0,
       }}
     >
-      <NavContainer hideNav={hideNav} isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
+      <NavContainer style={{ visibility: hideNav ? 'hidden' : 'visible' }} hideNav={hideNav} isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
         <Toolbar>
           <NavIcons theme={themevars} isShrunk={isShrunk} >
 

@@ -125,7 +125,7 @@ export const CommentsContent = styled.div`
   background: ${({ theme }) => theme.background};
   padding: 8px;
   border-radius: 0px;
-  width: calc(100% - 15px);
+  width: calc(100% - 18px);
   max-height: 86vh;
 
   overflow-y: auto;
@@ -175,7 +175,7 @@ export const CommentText = styled.p`
 
 export const CommentInput = styled.input`
   width: 95%;
-  padding: 10px;
+  paddingInline: 10px;
   margin-top: 10px;
   border-radius: 0px;
   border: 1px solid #dbdbdb;
