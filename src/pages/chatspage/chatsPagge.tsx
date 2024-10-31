@@ -51,6 +51,9 @@ font-family: 'Arial', sans-serif;
   width: 100%;
   borderRadius: 25px;
  height: fit-content;
+  borderradius: 25px;
+
+  height: fit-content;
 `;
 
 const StyledCommentsPopup = styled.div`

@@ -236,8 +236,8 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         background: themevars.background,
         position: "fixed",
         display: "flex",
-        justifyContent: !hideNav ? "center" : "end",
 
+        justifyContent: !hideNav ? "center" : "end",
         alignItems: "top",
         height: "100%",
         width: "100%",

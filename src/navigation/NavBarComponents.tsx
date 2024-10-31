@@ -73,7 +73,7 @@ export const NavContainer = styled.div<{
   transition: all 0.5s ease; /* Smooth transition when shrinking */
 `;
 
-export const NavIcons = styled(Box)<{ theme: any; isShrunk: boolean }>`
+export const NavIcons = styled(Box) <{ theme: any, isShrunk: boolean }>`
   display: flex;
   justify-content: ${(props) =>
     props.isShrunk
