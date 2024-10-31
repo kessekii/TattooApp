@@ -1131,7 +1131,8 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                   alt={friend.friends[friendKey].nickname}
                   onClick={() => setShowFriends(true)}
                 />
-              ))}
+              ))
+            }
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
 
@@ -1148,7 +1149,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               handleAddPhotoClick();
           }}
         >
-          {!loggedInUser ? user.friends[friend.username]
+          {!loggedInUser && user && user.friends ? user.friends[friend.username]
             ? "Unfollow"
             : "Follow"
             : <Add style={{ color: themevars.icons.color }} />}

@@ -296,22 +296,25 @@ const NewsFeed = () => {
   }, []);
 
   const SliderComponent: any = () => {
+    if (news && news.events)
+      return Object.values(news.events).map((slide: any) => {
 
-    return Object.values(news.events).map((slide: any) => {
 
+        return (
+          <Slide key={slide.pointId}>
+            <SlideImage src={slide.data.icon} alt={slide.data.desc} />
+            <SlideTitle>{slide.data.name}</SlideTitle>
+          </Slide>
+        )
+      }
 
-      return (
-        <Slide key={slide.pointId}>
-          <SlideImage src={slide.data.icon} alt={slide.data.desc} />
-          <SlideTitle>{slide.data.name}</SlideTitle>
-        </Slide>
       )
-    }
-
-    )
   }
+  let postus = []
+  if (news && news.posts) {
 
-  const postus = Object.values(news.posts)
+    postus = Object.values(news.posts)
+  }
 
 
   return (

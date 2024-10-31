@@ -39,7 +39,7 @@ import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 
 const PortfolioViewPage: React.FC = ({ }) => {
   const [user, setUser] = useLocalStorage("user", null);
-  const [friend, setFriend] = useLocalStorage("friend", null);
+  const [friend, setFriend] = useLocalStorage("friend", {});
   const [chats, setChats] = useLocalStorage("chats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [avatars, setAvatars] = useState({});
@@ -194,8 +194,8 @@ const PortfolioViewPage: React.FC = ({ }) => {
         }}
       // direction="row"
       >
-        {friend &&
-          Object.keys(posts || {}).map((post) => (
+        {friend && friendPosts &&
+          Object.keys(friend.posts || {}).map((post) => (
             <Grid
               item
               style={{
@@ -213,7 +213,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
             >
               <PostWrapper key={post} style={{ objectFit: "contain" }}>
                 <PostImage
-                  src={posts[post].image}
+                  src={friendPosts[post].image}
                   alt={`Post ${post}`}
                   style={{
                     width: "80vw",
@@ -234,13 +234,13 @@ const PortfolioViewPage: React.FC = ({ }) => {
                       {friend.name}
                     </UserName>
                   </UserSection>
-                  <Description>{posts[post].description}</Description>
+                  <Description>{friendPosts[post].description}</Description>
                   {/* <Caption>
                     <strong>{posts[post].user && posts[post].user.name}</strong>{" "}
                     {posts[post].description}
                   </Caption> */}
 
-                  {chats && chats[posts[post].chatId] ? (
+                  {chats && chats[friendPosts[post].chatId] ? (
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
@@ -251,7 +251,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         alignItems: "center",
                       }}
                     >
-                      {chats[posts[post].chatId]?.messages?.length === 0 ? (
+                      {chats[friendPosts[post].chatId]?.messages?.length === 0 ? (
                         <>No comments yet</>
                       ) : (
                         <>
@@ -259,9 +259,9 @@ const PortfolioViewPage: React.FC = ({ }) => {
                             style={{ flexDirection: "column", display: "flex" }}
                           >
                             <strong>
-                              {chats[posts[post].chatId].messages?.length > 0
-                                ? chats[posts[post].chatId].messages[
-                                  chats[posts[post].chatId].messages.length -
+                              {chats[friendPosts[post].chatId].messages?.length > 0
+                                ? chats[friendPosts[post].chatId].messages[
+                                  chats[friendPosts[post].chatId].messages.length -
                                   1
                                 ].author + ": "
                                 : ""}
@@ -269,8 +269,8 @@ const PortfolioViewPage: React.FC = ({ }) => {
                             <UserAvatar
                               src={
                                 avatars[
-                                chats[posts[post].chatId].messages[
-                                  chats[posts[post].chatId].messages.length -
+                                chats[friendPosts[post].chatId].messages[
+                                  chats[friendPosts[post].chatId].messages.length -
                                   1
                                 ].author
                                 ]
@@ -281,8 +281,8 @@ const PortfolioViewPage: React.FC = ({ }) => {
                             style={{ marginTop: "13px", marginLeft: "20px" }}
                           >
                             {
-                              chats[posts[post].chatId].messages[
-                                chats[posts[post].chatId].messages.length - 1
+                              chats[friendPosts[post].chatId].messages[
+                                chats[friendPosts[post].chatId].messages.length - 1
                               ].text
                             }
                           </Typography>
@@ -301,7 +301,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                     </LikeButton>
                     <Box onClick={() => handleCommentsClick(post)}>
                       View all{" "}
-                      {chats[posts[post].chatId]?.messages?.length || 0}{" "}
+                      {chats[friendPosts[post].chatId]?.messages?.length || 0}{" "}
                       comments
                     </Box>
                   </LikeSection>
@@ -325,9 +325,9 @@ const PortfolioViewPage: React.FC = ({ }) => {
                           height: "63vh",
                         }}
                       >
-                        {chats[posts[post].chatId]?.messages &&
-                          chats[posts[post].chatId].messages.length > 0 ? (
-                          chats[posts[post].chatId].messages.map(
+                        {chats[friendPosts[post].chatId]?.messages &&
+                          chats[friendPosts[post].chatId].messages.length > 0 ? (
+                          chats[friendPosts[post].chatId].messages.map(
                             (comment, index) => (
                               <CommentItem
                                 key={index + comment.author}
