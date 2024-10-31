@@ -249,31 +249,29 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
       <NavContainer hideNav={hideNav} isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
         <Toolbar>
           <NavIcons theme={themevars} isShrunk={isShrunk} >
-            <IconButton
 
-              onClick={
-                !isShrunk
-                  ? () => handleNavigation("/")
-                  : () => setIsShrunk(false)
-              }
-            >
-              <Home style={{ color: themevars.icons.color }} />
-            </IconButton>
+            {isShrunk && <AvatarContainer>
+              <Avatar
+                src={user.profilePicture} // Replace with actual avatar URL
+                alt="User Avatar"
+                onClick={() => setIsShrunk(false)}
+              />
+
+
+
+            </AvatarContainer>}
             {!isShrunk && (
               <>
                 <IconButton onClick={() => handleNavigation("/map")}>
-                  <Search style={{ color: themevars.icons.color }} />
-                </IconButton>
-                <IconButton onClick={() => handleNavigation("/news")}>
                   <Explore style={{ color: themevars.icons.color }} />
                 </IconButton>
-                <IconButton onClick={() => handleNavigation("/notifications")}>
-                  <FavoriteBorder style={{ color: themevars.icons.color }} />
+                <IconButton onClick={() => handleNavigation("/news")}>
+                  <Search style={{ color: themevars.icons.color }} />
                 </IconButton>
+
                 <IconButton onClick={() => handleNavigation("/chats")}>
                   <MessageIcon style={{ color: themevars.icons.color }} />
                 </IconButton>
-
                 <AvatarContainer>
                   <Avatar
                     src={user.profilePicture} // Replace with actual avatar URL
@@ -309,9 +307,20 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
                       >
                         <FaCog /> Settings
                       </MenuItem>
+                      <MenuItem
+                        theme={themevars}
+                        onClick={
+                          !isShrunk
+                            ? () => handleNavigation("/")
+                            : () => setIsShrunk(false)
+                        }
+                      >
+                        <FaCog /> Logout
+                      </MenuItem>
                     </Menu>
                   )}
                 </AvatarContainer>
+
               </>
             )}
           </NavIcons>
