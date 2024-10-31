@@ -24,8 +24,8 @@ const TimeGrid = styled(Grid)`
 `;
 
 const TimeSlot = styled.div<{ selected: boolean }>`
-  width: 70px;
-  height: 50px;
+  width: 8vw;
+  height: 8vw;
   display: flex;
   align-items: center;
   justify-content: center;

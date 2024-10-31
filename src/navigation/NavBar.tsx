@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AppBar, Toolbar, IconButton, Box, Avatar } from "@mui/material";
 import {
   Home,
@@ -90,6 +90,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
       setIsShrunk(false); // Expand if the navbar is shrunk and there is user interaction
     }
   };
+  const [hideNav, setHideNav] = useLocalStorage('hideNav', null)
   const fetchData = async (username: string, { type }: fetchDataType) => {
     console.log('FETCHING DATA FOR : ', type)
     if (type) {
@@ -98,11 +99,12 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
       switch (type) {
         case '/news':
           const newsData = await getNewsAction(user.location)
-
+          setHideNav(false)
           setNews(newsData)
           setLoading(false);
           break;
         case '/user':
+          setHideNav(false)
           const userdata = await getUserById(username)
           setFriend(userdata.payload)
           const chatData = await getChatsByUserId(username);
@@ -119,6 +121,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
           setLoading(false);
           break;
         case '/map':
+          setHideNav(false)
           setIsMap(true)
           setLoading(false)
           break;
@@ -223,13 +226,15 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
     );
   };
 
+
+
   return (
     <div
       style={{
         background: themevars.background,
         position: "fixed",
         display: "flex",
-        justifyContent: "center",
+        justifyContent: !hideNav ? "center" : "end",
 
         alignItems: "top",
         height: "100%",
@@ -241,7 +246,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         left: 0,
       }}
     >
-      <NavContainer isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
+      <NavContainer hideNav={hideNav} isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
         <Toolbar>
           <NavIcons theme={themevars} isShrunk={isShrunk} >
             <IconButton

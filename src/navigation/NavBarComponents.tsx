@@ -47,7 +47,7 @@ const transOut = keyframes`
   }
 `;
 
-export const NavContainer = styled.div<{ theme: any, isShrunk: boolean, isMap: boolean }>`
+export const NavContainer = styled.div<{ hideNav: boolean, theme: any, isShrunk: boolean, isMap: boolean }>`
   background: ${(props) => props.theme.background};
   transform-origin: center;
   position: fixed;
@@ -56,6 +56,7 @@ export const NavContainer = styled.div<{ theme: any, isShrunk: boolean, isMap: b
     background-clip: padding-box;
   border-width: 5px;
   border-color: #ffc342;
+  visibility: ${({ hideNav }) => (hideNav ? 'hidden' : 'visible')};
   width: ${(props) => (props.isShrunk ? '60px' : '80%')}; /* Shrinks to 60px width when inactive */
   max-height: 60px;
   z-index: 1100;

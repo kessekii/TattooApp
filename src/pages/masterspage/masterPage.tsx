@@ -178,7 +178,7 @@ export const PopupOverlay = styled("div")`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  max-width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
@@ -192,6 +192,8 @@ export const PopupContent = styled.div<{ theme }>`
   background-color: ${(props) => props.theme.background};
   color: ${(props) => props.theme.text};
   padding: 20px;
+  width: 100vw;
+  display: border-box;
   border-radius: 10px;
   text-align: center;
 `;
@@ -350,7 +352,7 @@ export const ReviewContent = styled.div<{ theme }>`
   background: ${(props) => props.theme.background};
   padding: 20px;
   border-radius: 10px;
-  width: 500px;
+  width: ;
   position: relative;
   color: ${(props) => props.theme.text};
 `;

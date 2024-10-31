@@ -118,7 +118,7 @@ const App: React.FC = () => {
   const [screen, setScreen] = useLocalStorage("screen", {});
   const [posts, setPosts] = useLocalStorage("posts", {});
   const [chats, setChats] = useLocalStorage("chats", {});
-
+  const [hideNav, setHideNav] = useLocalStorage('hideNav', false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isErrorPromptOpened, setIsErrorPromptOpened] = useState(false);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", {});

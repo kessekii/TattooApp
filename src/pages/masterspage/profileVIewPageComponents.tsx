@@ -123,10 +123,10 @@ export const CommentsPopup = styled.div`
 
 export const CommentsContent = styled.div`
   background: ${({ theme }) => theme.background};
-  padding: 20px;
+  padding: 8px;
   border-radius: 0px;
-  width: 95%;
-  max-height: 80vh;
+  width: calc(100% - 15px);
+  max-height: 86vh;
 
   overflow-y: auto;
   position: relative;

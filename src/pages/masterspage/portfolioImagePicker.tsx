@@ -82,7 +82,7 @@ interface PortfolioImagePickerProps {
 const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ userData,
   onImageSelect,
 }) => {
-  const [user, setUser] = useLocalStorage("user", null);
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<boolean>(false);
@@ -114,8 +114,8 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({ userData,
           {userData.posts &&
             Object.keys(userData.posts).map((post, i) => (
               <PostImage
-                src={posts[post].image}
-                onClick={() => handleImageClick(posts[post].image, i)}
+                src={friendPosts[post].image}
+                onClick={() => handleImageClick(friendPosts[post].image, i)}
                 alt={`Post ${i}`}
               />
             ))}

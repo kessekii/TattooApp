@@ -1,4 +1,5 @@
-import useLocalStorage from "../../../src/hooks/useLocalStorage";
+import styled from "styled-components";
+import { useTheme } from "../../state/providers/themeProvider";
 import {
   getChatsByUserId,
   getPrivateChatsByUserId,
@@ -6,33 +7,115 @@ import {
 import { Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import {
-  CommentAuthor,
-  CommentInput,
-  CommentItem,
-  CommentList,
+
   CommentsContent,
-  CommentsPopup,
-  CommentSubmitButton,
-  CommentText,
 } from "../masterspage/profileVIewPageComponents";
-import {
-  EditButton,
-  FriendAvatar,
-  FriendAvatarBig,
-} from "../masterspage/masterPage";
-import { useTheme } from "../../state/providers/themeProvider";
+
+
 import { updateChatStraight } from "../../../src/state/action-creators";
 import { Box, Paper, TextField } from "@mui/material";
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { ArrowBackIos, Send } from "@mui/icons-material";
+
+// Styled Components
+const StyledCommentList = styled.div`
+font-family: 'Arial', sans-serif;
+  
+  width: 100%;
+   borderRadius: 25px;
+  
+ height: fit-content;
+`;
+
+const StyledCommentsPopup = styled.div`
+  background: ${(props) => props.theme.background};
+  color: ${(props) => props.theme.popup.text};
+  padding: 10px;
+  position: relative;
+  border-radius: 10px;
+  height:95vh;
+  z-index: 1200;
+`;
+
+const StyledEditButton = styled.button`
+  background: ${(props) => props.theme.background};
+  color: ${(props) => props.theme.popup.text};
+  border: none;
+  cursor: pointer;
+  width: 5vw;
+  height: 5vw;
+  margin-bottom: 25px;
+`;
+
+const StyledCommentItem = styled.div<({ isUser }) >`
+  display: flex;
+  flex-direction: ${(props) =>
+    props.isUser ? "row-reverse" : "row"};
+  width: 100%;
+  padding: 0;
+  
+  borderRadius: 25px;
+`;
+
+const StyledCommentText = styled.div`
+  font-size: 15px;
+
+  margin-inline: 10px;
+  color: ${(props) => props.theme.text};
+`;
+const StyledCommentTimeText = styled.div<({ isUser }) >`
+  font-size: 15px;
+  align-self: ${(props) => props.isUser ? "end" : "unset"}; 
+  margin-inline: 10px;
+  opacity: 0.5;
+  color: ${(props) => props.theme.text};
+`;
+
+const StyledFriendAvatar = styled.img`
+  height: 50px;
+  width: 50px;
+  
+  border-radius: 50%;
+`;
+
+const StyledCommentSubmitButton = styled.button`
+  background: transparent;
+  color: ${(props) => props.theme.text};
+  border: none;
+  cursor: pointer;
+  width: 5vw;
+  height: 5vw;
+  margin-bottom: 25px;
+  cursor: pointer;
+`;
+
+const StyledCommentAuthor = styled.div`
+  color: ${(props) => props.theme.text};
+`;
+
+// Component
 export const ChatsPageComponent: React.FC = () => {
   function timeout(delay: number) {
     return new Promise((res) => setTimeout(res, delay));
   }
+  const formatDate = (timestamp) => {
+    const timeDiff = new Date().getTime() - timestamp;
+    if (timeDiff > 604800000) {
+      return new Date(timestamp).toUTCString().split(", ")[1].split(" ", 2).join(" ");
+    } else if (timeDiff > 86400000) {
+      return new Date(timestamp).toUTCString().split(",")[0];
+    }
+    const [hours, minutes] = new Date(timestamp).toISOString().split("T")[1].split(":");
+    return `${hours}:${minutes}`;
+  };
   const [user, setUser] = useLocalStorage("user", null);
+  const [friend, setFriend] = useLocalStorage("friend", null);
   const [loader, setloader] = useState(false);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [newComment, setNewComment] = useState("");
   const [isMessagesPopupOpened, setIsMessagesPopupOpened] = useState(false);
   const [selectedChatId, setselectedChatId] = useState<any>({});
+  const [hideNav, setHideNav] = useLocalStorage('hideNav', false)
   const { toggleTheme, themevars } = useTheme();
   const [privateChats, setPrivateChats] = useState<any>({});
   const handleLoadCHats = async () => {
@@ -46,6 +129,7 @@ export const ChatsPageComponent: React.FC = () => {
   const handleOpenMessages = (privateChatId: string) => {
     setselectedChatId(privateChatId);
     setIsMessagesPopupOpened(!isMessagesPopupOpened);
+    setHideNav(true)
   };
   const handleCommentSubmit = async (privateChatId: string) => {
     console.log(privateChatId, "dfsdfdsf", newComment);
@@ -157,280 +241,150 @@ export const ChatsPageComponent: React.FC = () => {
     return () => privateChats;
   }, [loader]);
 
+  const renderMessages = (messages) => {
+    return messages.map((message, i) => {
+      const isUserMessage = message.author === user.username;
+      const avatar = isUserMessage ? user.profilePicture : user.friends[message.author]?.avatar;
+
+      return (
+        <StyledCommentItem
+          isUser={isUserMessage}
+          key={`${i}-${message.author}`}
+          style={{
+            width: "100%",
+
+            flexDirection: isUserMessage ? "row-reverse" : "row",
+          }}
+        >
+          <Box
+            style={{
+              height: "5vh",
+              display: "flex",
+              alignItems: "center",
+              padding: '7px',
+              position: 'relative',
+              marginBottom: '5px',
+              borderRadius: "15px",
+              background: themevars.buttonBackground,
+              //backgroundColor: i % 2 === 0 ? "rgb(242,242,242)" : "#eeeeee",
+              flexDirection: isUserMessage ? "row-reverse" : "row",
+            }}
+          >
+            <StyledFriendAvatar theme={themevars} src={avatar || ""} alt={message.author} />
+            <Box style={{ display: "flex", flexDirection: "column", }}>
+
+              <StyledCommentText>{message.text}</StyledCommentText>
+              <StyledCommentTimeText isUser={message.author == user.username} style={{ fontSize: 15 }}>{formatDate(message.timestamp)}</StyledCommentTimeText>
+            </Box>
+          </Box>
+        </StyledCommentItem >
+      );
+    });
+  };
+
   const participants = useMemo(
     () =>
       Object.keys(privateChats || {}).map((privateChatId) => {
-        const author = privateChats[privateChatId].participants.filter(
-          (e) => e !== user.username
-        );
-        const antiauthor = privateChats[privateChatId].participants.filter(
-          (e) => e === user.username
-        );
-        const lastMessage = privateChats[privateChatId].lastMessage.text;
+        const chatData = privateChats[privateChatId];
+        const author = chatData.participants.find((e) => e !== user.username);
+        const lastMessage = chatData.lastMessage?.text || "";
 
         return (
-          <CommentList
-            style={{
-              height: "10vh",
-              width: "100%",
-              borderRadius: "0px",
-              maxHeight: "800px",
-            }}
-          >
-            {privateChats[privateChatId].messages &&
-            privateChats[privateChatId].messages.length > 0 &&
-            isMessagesPopupOpened ? (
-              <>
-                <CommentsPopup>
-                  <CommentsContent theme={themevars.popup}>
-                    <EditButton
-                      theme={themevars.popup}
-                      onClick={() => handleOpenMessages(privateChatId)}
-                    >
-                      X
-                    </EditButton>
-
-                    <CommentList
-                      style={{
-                        borderRadius: "0px",
-                        maxHeight: "800px",
-                        height: "63vh",
-                      }}
-                    >
-                      {privateChats[selectedChatId].messages.map(
-                        (message: any, i: number) => {
-                          console.log(message.author, user.friends);
-                          let avatar = "";
-                          if (message.author === user.username) {
-                            avatar = user.profilePicture;
-                          }
-                          return (
-                            <CommentItem
-                              key={i + message.author}
-                              style={{
-                                width: "100%",
-                                // display: "contents",
-                                flexDirection:
-                                  message.author === user.username
-                                    ? "row-reverse"
-                                    : "row",
-                              }}
-                            >
-                              <Box
-                                style={{
-                                  height: "50px",
-                                  width: "fit-content",
-
-                                  float:
-                                    message.author === user.username
-                                      ? "right"
-                                      : "left",
-                                  justifyContent: "flex-start",
-                                  alignItems: "center",
-                                  display: "flex",
-                                  borderRadius: "15px",
-                                  backgroundColor:
-                                    i % 2 === 0
-                                      ? "rgb(242,242,242)"
-                                      : "#eeeeee",
-                                  flexDirection:
-                                    message.author === user.username
-                                      ? "row-reverse"
-                                      : "row",
-                                  // padding: "10px",
-                                }}
-                              >
-                                <CommentText
-                                  style={{
-                                    fontSize: 15,
-                                  }}
-                                >
-                                  {new Date().getTime() - message.timestamp >
-                                  604800000
-                                    ? new Date(message.timestamp)
-                                        .toUTCString()
-                                        .split(", ")[1]
-                                        .split(" ", 2)
-                                        .map((e) => e + " ")
-                                    : new Date().getTime() - message.timestamp >
-                                        86400000
-                                      ? new Date(message.timestamp)
-                                          .toUTCString()
-                                          .split(",")[0]
-                                      : // .split("T")[0] +
-
-                                        new Date(message.timestamp)
-                                          .toISOString()
-                                          .split("T")[1]
-                                          .split(":")[0] +
-                                        ":" +
-                                        new Date(message.timestamp)
-                                          .toISOString()
-                                          .split("T")[1]
-                                          .split(":")[1]}
-                                </CommentText>
-
-                                <FriendAvatar
-                                  theme={themevars}
-                                  key={i}
-                                  src={
-                                    avatar !== ""
-                                      ? avatar
-                                      : user.friends[author].avatar
-                                  }
-                                  alt={message.author}
-                                />
-                                <CommentText style={{}}>
-                                  {message.text}
-                                </CommentText>
-                              </Box>
-                            </CommentItem>
-                          );
-                        }
-                      )}
-                    </CommentList>
-                  </CommentsContent>
-                  <Paper
-                    style={{
-                      width: "100%",
-                      maxWidth: "870px",
-                      background: "lightgray",
-                      height: "8vh",
-
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <TextField
-                      style={{
-                        background: "white",
-                        width: "60vw",
-                        margin: "auto",
-                      }}
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                    ></TextField>
-                    <CommentSubmitButton
-                      style={{ margin: "auto" }}
-                      onClick={async () =>
-                        await handleCommentSubmit(selectedChatId)
-                      }
-                    >
-                      Submit Comment
-                    </CommentSubmitButton>
-                  </Paper>
-                </CommentsPopup>
-              </>
-            ) : privateChats[privateChatId].messages &&
-              privateChats[privateChatId].messages.length > 0 &&
-              !isMessagesPopupOpened ? (
-              <CommentItem
-                key={0 + author}
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-start",
-
-                  display: "flex",
-                  alignItems: "flex-end",
-                }}
-                onClick={() => handleOpenMessages(privateChatId)}
-              >
+          <StyledCommentList key={privateChatId} style={{ background: themevars.background, border: "0", borderBottom: '2px', height: "fit-content", }}>
+            {chatData.messages?.length > 0 && isMessagesPopupOpened ? (
+              <StyledCommentsPopup style={{}} theme={themevars}>
+                <CommentsContent style={{ background: 'transparent' }} theme={themevars}>
+                  <StyledEditButton theme={themevars} onClick={() => handleOpenMessages(privateChatId)}>
+                    <ArrowBackIos style={{ color: themevars.text }} />
+                  </StyledEditButton>
+                  <StyledCommentList style={{ height: "100%" }}>
+                    {renderMessages(chatData.messages)}
+                  </StyledCommentList>
+                </CommentsContent>
                 <Paper
                   style={{
-                    // marginRight: "20%",
-
-                    flexDirection: "row",
-                    justifyContent: "flex-start",
-                    alignItems: "center",
+                    width: "100%",
+                    maxWidth: "100vw",
+                    boxShadow: "unset",
+                    position: 'fixed',
+                    bottom: '0',
+                    left: '0',
+                    background: themevars.background,
+                    height: "min-content",
                     display: "flex",
-                    padding: "10px",
+                    padding: "5px",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
-                  onClick={() => handleOpenMessages(privateChatId)}
                 >
-                  <FriendAvatarBig
-                    theme={themevars}
-                    key={0 + "sdsdsss"}
-                    src={user.friends[author].avatar}
-                    alt={author}
+                  <TextField
+                    style={{ background: "white", width: "80vw", border: 'unset', margin: "auto 0", }}
+                    value={newComment}
+                    placeholder="Write a message..."
+                    rows={5}
+                    onChange={(e) => setNewComment(e.target.value)}
+
                   />
-                  <Box
-                    style={{
-                      flexDirection: "column",
-                      display: "flex",
-                      width: "50vw",
-                      // background: "green",
-                    }}
-                  >
-                    <CommentAuthor style={{ float: "left" }}>
-                      {author}
-                    </CommentAuthor>
-                    <CommentText style={{ float: "left" }}>
-                      {privateChats[privateChatId].lastMessage.text}
-                    </CommentText>
+                  <StyledCommentSubmitButton style={{ margin: "auto" }} onClick={() => handleCommentSubmit(selectedChatId)}>
+                    <Send style={{ color: themevars.text }} />
+                  </StyledCommentSubmitButton>
+                </Paper>
+              </StyledCommentsPopup>
+            ) : (
+              <StyledCommentItem theme={themevars} isUser={author == user.name} key={`${privateChatId}-${author}`} style={{ flexDirection: "row", display: "flex", alignItems: "flex-end", justifyContent: 'center' }} onClick={() => handleOpenMessages(privateChatId)}>
+                <Paper style={{ background: themevars.buttonBackground, marginTop: "5px", marginBottom: "5px", display: "flex", padding: "10px", width: '100%', margin: "0px" }}>
+                  <StyledFriendAvatar style={{ marginInline: '10px' }} theme={themevars} src={user.friends[author]?.avatar} alt={author} />
+                  <Box style={{ display: "flex", marginLeft: "15px", flexDirection: "column", width: "80vw", justifyContent: 'space-between' }}>
+                    <StyledCommentAuthor style={{ background: 'transparent', fontWeight: 'bold' }} theme={themevars}>{author}</StyledCommentAuthor>
+                    <StyledCommentText style={{ marginInline: 'unset' }} theme={themevars}>{<><b style={{ marginInline: 'unset', color: themevars.accent }}>{chatData.lastMessage?.author}</b>: {lastMessage}</>}</StyledCommentText>
                   </Box>
-                  <CommentText style={{ float: "right", fontSize: 15 }}>
+                  <StyledCommentText style={{ float: "right", fontSize: 15, color: themevars.text }}>
                     {new Date().getTime() -
                       privateChats[privateChatId].lastMessage.timestamp >
-                    259200000
+                      259200000
                       ? new Date(
-                          privateChats[privateChatId].lastMessage.timestamp
-                        )
-                          .toUTCString()
-                          .split(", ")[1]
-                          .split(" ", 2)
-                          .map((e) => e + " ")
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toUTCString()
+                        .split(", ")[1]
+                        .split(" ", 2)
+                        .map((e) => e + " ")
                       : new Date().getTime() -
-                            privateChats[privateChatId].lastMessage.timestamp >
-                          86400000
-                        ? new Date(
-                            privateChats[privateChatId].lastMessage.timestamp
-                          )
-                            .toUTCString()
-                            .split(",")[0]
-                        : // .split("T")[0] +
+                      privateChats[privateChatId].lastMessage.timestamp >
+                      86400000
+                      && new Date(
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toUTCString()
+                        .split(",")[0]
 
-                          new Date(
-                            privateChats[privateChatId].lastMessage.timestamp
-                          )
-                            .toISOString()
-                            .split("T")[1]
-                            .split(":")[0] +
-                          ":" +
-                          new Date(
-                            privateChats[privateChatId].lastMessage.timestamp
-                          )
-                            .toISOString()
-                            .split("T")[1]
-                            .split(":")[1]}
-                  </CommentText>
+                        .split("T")[0] + " " +
+
+                      new Date(
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toISOString()
+                        .split("T")[1]
+                        .split(":")[0] +
+                      ":" +
+                      new Date(
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toISOString()
+                        .split("T")[1]
+                        .split(":")[1]
+                    }
+                  </StyledCommentText>
                 </Paper>
-              </CommentItem>
-            ) : (
-              <CommentItem onClick={() => handleOpenMessages(privateChatId)}>
-                <CommentAuthor>{author}</CommentAuthor>
-              </CommentItem>
-            )}
-          </CommentList>
-          // <CommentInput
-          //   type="text"
-          //   placeholder="Write a comment..."
-          //   value={newComment}
-          //   onChange={handleNewCommentChange}
-          // />
+              </StyledCommentItem>
+            )
+            }
+          </StyledCommentList >
         );
       }),
-    [
-      chats,
-      privateChats,
-      isMessagesPopupOpened,
-      newComment,
-      user,
-      selectedChatId,
-    ]
+    [privateChats, isMessagesPopupOpened, newComment, user, selectedChatId]
   );
 
-  //   const chatsComponents = (async () => await handleLoadCHats(), [chats]);
-  //   chatsComponents;
   return <>{participants}</>;
 };
+

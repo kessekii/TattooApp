@@ -17,7 +17,7 @@ export const lightTheme = {
 	buttonBackground: "#d1d9e0", // Light gray for buttons to contrast against the background.
 	buttonText: "#2c3e50", // Dark text on buttons for readability.
 	border: "#b0bcc6", 
-	 // A medium gray-blue for borders to maintain subtlety and structure.
+	accent: "#42a3ff", // A medium gray-blue for borders to maintain subtlety and structure.
   };
   
   export const darkTheme = {
@@ -37,6 +37,7 @@ export const lightTheme = {
 	buttonBackground: "#3b4a54", // A darker gray with a hint of blue for buttons to make them stand out.
 	buttonText: "#f8f9fa", // Off-white for high contrast on buttons.
 	border: "#5e6f7a", // Subtle grayish-blue for borders to maintain the dark theme.
+	accent: "#ffc342",
   };
 const theme = {
   lightTheme: lightTheme,
