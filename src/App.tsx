@@ -114,6 +114,7 @@ const App: React.FC = () => {
   // const { login, user } = useTypedSelector((state) => state);
   const { themevars } = useTheme();
   const [user, setUser] = useLocalStorage("user", {});
+  const [currentTheme, setCurrentTheme] = useLocalStorage("theme", "light");
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [news, setNews] = useLocalStorage("news", {});
   const [screen, setScreen] = useLocalStorage("screen", {});

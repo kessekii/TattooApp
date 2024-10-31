@@ -1,30 +1,32 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import themes from "../../utils/theme"
+import React, { createContext, useState, useContext, useEffect } from "react";
+import themes from "../../utils/theme";
+import useLocalStorage from "../../../src/hooks/useLocalStorage";
 export interface ThemeContextType {
   theme: string;
   themevars: any;
   toggleTheme: () => void;
 }
 
-
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
   return {
     width,
-    height
+    height,
   };
 }
 
 export function useWindowDimensions() {
-  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions()
+  );
 
   useEffect(() => {
     function handleResize() {
       setWindowDimensions(getWindowDimensions());
     }
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return windowDimensions;
@@ -34,27 +36,24 @@ export function useWindowDimensions() {
 const ThemeToggleContext = createContext<ThemeContextType>({
   theme: "light",
   themevars: themes.lightTheme,
-  toggleTheme: () => { },
+  toggleTheme: () => {},
 });
 
 // Провайдер для переключения тем
 export const ThemeToggleProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [currentTheme, setCurrentTheme] = useState<string>("light");
+  const [isThemeDark, setCurrentTheme] = useLocalStorage("theme", false);
 
   const toggleTheme = () => {
-    setCurrentTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setCurrentTheme(isThemeDark ? false : true);
   };
-
-
 
   return (
     <ThemeToggleContext.Provider
       value={{
-        theme: currentTheme,
-        themevars:
-          currentTheme == "light" ? themes.lightTheme : themes.darkTheme,
+        theme: isThemeDark,
+        themevars: !isThemeDark ? themes.lightTheme : themes.darkTheme,
         toggleTheme,
       }}
     >
