@@ -423,7 +423,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                       style={{
                         width: "100%",
                         maxWidth: "870px",
-                        background: "lightgray",
+                        background: themevars.buttonBackground,
                         height: "8vh",
 
                         display: "flex",
