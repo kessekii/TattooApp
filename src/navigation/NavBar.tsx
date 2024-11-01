@@ -138,6 +138,13 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setLoading(false);
           break;
           return;
+        case "/chats":
+          const userChatsupd = await getChatsByUserId(user.name);
+
+          setChats(userChatsupd.payload);
+          setLoading(false);
+          break;
+          return;
         case "/map":
           setHideNav(false);
           setIsMap(true);
