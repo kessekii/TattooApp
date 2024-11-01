@@ -24,6 +24,36 @@ export const getChatByChatId = async (chatId: string, username: string) => {
     console.log("error", error);
   }
 };
+export const updateUserAndImage = async (
+  username: any,
+  image: any,
+  backdrop: any
+) => {
+  try {
+    const response = await fetch(
+      "http://46.117.80.103:4000/users/updateUserAndImage",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          user: username,
+          image: image,
+          backdrop: backdrop,
+        }),
+      }
+    );
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
 export const getPostsByUserId = async (username: string) => {
   try {
     // console.log("id", chatId, username);
@@ -64,12 +94,57 @@ export const getPrivateChatsByUserId = async (username: string) => {
     );
 
     const result = await response.json();
-    console.log(result);
+
     return result;
   } catch (error) {
     console.log("error", error);
   }
 };
+export const getImageByImageId = async (imageId: string) => {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://46.117.80.103:4000/images/getImageByImageId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ imageId: imageId }),
+      }
+    );
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+export const getImageIdsByUserId = async (username: string) => {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://46.117.80.103:4000/images/getImageIdsByUserId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
 export const getChatsByUserId = async (username: string) => {
   try {
     // console.log("id", chatId, username);

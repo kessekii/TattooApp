@@ -16,6 +16,7 @@ import {
   getChatsByUserId,
   getPostsByUserId,
   getUserById,
+  updateUserAndImage,
 } from "../../../src/hooks/useChat";
 import { useTheme } from "../../state/providers/themeProvider";
 import {
@@ -25,11 +26,17 @@ import {
   Link,
   Add,
 } from "@mui/icons-material";
-import { Grid, IconButton, Typography } from "@mui/material";
+import {
+  getAvatarGroupUtilityClass,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { useEditing } from "../../hooks/useEditing";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 import Backdrop from "../masterspage/backgroundComponent";
 import { fetchData } from "@utils/helpers/navigationHelper";
+import { getAvatarByUserId } from "./portfolioViewPage";
 
 // ProfilePage styling with dynamic background and text color
 export const ProfilePage = styled.div<{ theme }>`
@@ -37,7 +44,7 @@ export const ProfilePage = styled.div<{ theme }>`
   max-width: 100%;
   margin: 0 auto;
   width: 98%;
-  
+
   color: ${(props) => props.theme.text};
   background: transparent;
 `;
@@ -121,19 +128,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton) <{ theme }>`
+export const SaveButton = styled(EditButton)<{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton) <{ theme }>`
+export const CancelButton = styled(EditButton)<{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(EditButton) <{ following }>`
+export const FollowButton = styled(EditButton)<{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -352,7 +359,7 @@ export const ReviewContent = styled.div<{ theme }>`
   background: ${(props) => props.theme.background};
   padding: 20px;
   border-radius: 10px;
-  width: ;
+  width:;
   position: relative;
   color: ${(props) => props.theme.text};
 `;
@@ -516,7 +523,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton) <{ theme }>`
+export const IcButton = styled(IconButton)<{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -532,7 +539,7 @@ export const IcButton = styled(IconButton) <{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography) <{ theme; bold?}>`
+export const Typefield = styled(Typography)<{ theme; bold? }>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -546,33 +553,34 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   const [user, setUser] = useLocalStorage("user", {});
   const [friend, setFriend] = useLocalStorage("friend", {});
-
-  const navigate = useNavigate()
+  const [images, setImages] = useLocalStorage("images", {});
+  const [avatars, setAvatars] = useLocalStorage("avatars", {});
+  const navigate = useNavigate();
   const [chats, setChats] = useLocalStorage("chats", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [openedUser, setOpenedUser] = useLocalStorage("openedUser", null);
   const [loading, setLoading] = useLocalStorage("loading", false);
   const { username, postId } = useParams();
-  let loggedInUser = user.name === friend.name
+  let loggedInUser = user.name === friend.name;
   const { isEditing, setIsEditingProfile } = useEditing();
 
   const [editProfile, setEditProfile] = useState(
     friend
       ? {
-        name: friend.name,
-        username: friend.username,
-        description: friend.description,
-        profilePicture: friend.profilePicture,
-        location: friend.location,
-      }
+          name: friend.name,
+          username: friend.username,
+          description: friend.description,
+          profilePicture: friend.profilePicture,
+          location: friend.location,
+        }
       : {
-        name: "",
-        username: "",
-        description: "",
-        profilePicture: "",
-        location: "",
-      }
+          name: "",
+          username: "",
+          description: "",
+          profilePicture: "",
+          location: "",
+        }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     friend && friend.friends && Object.keys(friend.friends).length > 0
@@ -595,7 +603,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const [calendarUpdated, setCalendarUpdated] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [newImage, setNewImage] = useState({ src: "", caption: "" });
-  const [newBackdropImage, setNewBackdropImage] = useState({ src: "" })
+  const [newBackdropImage, setNewBackdropImage] = useState({ src: "" });
   const [isSettingsPopup, setSettingsPopup] = useState(false);
 
   const [showAddReview, setShowAddReview] = useState(false); // To handle new review form
@@ -621,9 +629,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     const updatedReviews =
       friend.reviews && friend.reviews.length > 0
         ? [
-          ...friend.reviews,
-          { photo: friend.image, nickname: friend.username, ...newReview },
-        ]
+            ...friend.reviews,
+            { photo: friend.image, nickname: friend.username, ...newReview },
+          ]
         : [{ photo: friend.image, nickname: friend.username, ...newReview }];
     // setProfileData({
     //   ...friend,
@@ -642,11 +650,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       reviews: updatedReviews,
     });
 
-
     setNewReview({ text: "", mark: 5 }); // Reset form
     setShowAddReview(false); // Close form
   };
-
 
   // Toggle edit mode
   const handleEditClick = async () => {
@@ -655,21 +661,43 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   // Save changes
   const handleSaveClick = async (updateUser: any, setErrorMessage: any) => {
+    const newBackdropImageObject = {
+      src:
+        newBackdropImage.src !== ""
+          ? newBackdropImage.src
+          : friend.backdropImage,
+      owner: user.username,
+      timestamp: new Date().getTime(),
+      id: "",
+    };
+    const newImageObject = {
+      src: newImage.src !== "" ? newImage.src : friend.profilePicture,
+      owner: user.username,
+      timestamp: new Date().getTime(),
+      id: "",
+    };
     const newProfileData = {
       ...friend,
       name: editProfile.name,
-      //   username: username,
       description: editProfile.description,
-      profilePicture: newImage.src !== "" ? newImage.src : friend.profilePicture,
       location: editProfile.location,
-      backdropImage: newBackdropImage.src,
     };
-    // setProfileData(newProfileData);
-    await updateUser(newProfileData, setErrorMessage);
-    await setIsEditingProfile();
-    setUser(newProfileData);
 
-    setChats(newProfileData.chats);
+    // await updateUser(newProfileData, setErrorMessage);
+    const result = await updateUserAndImage(
+      newProfileData,
+      newImageObject,
+      newBackdropImageObject
+    );
+    console.log(result.payload);
+    setImages({
+      ...images,
+      [result.payload.image.id]: result.payload.image,
+      [result.payload.backdrop.id]: result.payload.backdrop,
+    });
+
+    await setIsEditingProfile();
+    setUser(result.payload.user);
   };
 
   // Cancel editing
@@ -733,39 +761,36 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   };
 
   useEffect(() => {
-    return console.log('username : ', username)
-
-
-  }, [username])
+    return console.log("username : ", username);
+  }, [username]);
   useEffect(() => {
-    return console.log('loading : ', loading)
+    return console.log("loading : ", loading);
+  }, [loading]);
 
-
-  }, [loading])
-
-
-  const profileComponent = useMemo(() =>
-    friend && friend.name && friend.description && friend.location && (
-      <div style={{ justifyContent: "start" }}>
-        <Typefield style={{ fontWeight: "700" }}>
-          {friend && friend.name}
-        </Typefield>
-        <Typefield style={{ fontWeight: "400", opacity: "0.5" }}>
-          {friend.location}
-        </Typefield>
-        <Typefield style={{ color: themevars.text }}>
-          {friend.description}
-        </Typefield>
-      </div>
-    )
-    , [!loading])
+  const profileComponent = useMemo(
+    () =>
+      friend &&
+      friend.name &&
+      friend.description &&
+      friend.location && (
+        <div style={{ justifyContent: "start" }}>
+          <Typefield style={{ fontWeight: "700" }}>
+            {friend && friend.name}
+          </Typefield>
+          <Typefield style={{ fontWeight: "400", opacity: "0.5" }}>
+            {friend.location}
+          </Typefield>
+          <Typefield style={{ color: themevars.text }}>
+            {friend.description}
+          </Typefield>
+        </div>
+      ),
+    [!loading]
+  );
 
   useEffect(() => {
-    return console.log('friend : loading : ', loading, friend)
-
-
-  }, [!loading])
-
+    return console.log("friend : loading : ", loading, friend);
+  }, [!loading]);
 
   const postsComponents = useMemo(
     () =>
@@ -784,19 +809,23 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             }}
             xs={6}
           >
-            {friendPosts && friendPosts[post] && friendPosts[post].image &&
+            {friendPosts && friendPosts[post] && friendPosts[post].image && (
               <Post key={post}>
                 <PostImage
                   src={friendPosts[post].image}
                   onClick={() => {
-                    console.log('TO PORTFOLIO')
-                    return navigate("/" + friend.name + "/portfolio")
-                  }
-                  }
+                    console.log("TO PORTFOLIO");
+                    return navigate("/" + friend.name + "/portfolio");
+                  }}
                   alt={`Post ${post}`}
-                  style={{ width: "30vw", height: "30vw", objectFit: "contain" }}
+                  style={{
+                    width: "30vw",
+                    height: "30vw",
+                    objectFit: "contain",
+                  }}
                 />
-              </Post>}
+              </Post>
+            )}
           </Grid>
         ))
       ) : (
@@ -959,11 +988,25 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       reader.readAsDataURL(event.target.files[0]);
     }
   };
+  const avatarComponents = () => {
+    let friendAvatarArray = [];
+    for (let username of Object.keys(friend.friends)) {
+      friendAvatarArray = [
+        ...friendAvatarArray,
+        <FriendAvatar
+          theme={themevars}
+          key={username + "avatar"}
+          src={avatars[username].src}
+          alt={friend.friends[username].nickname}
+          onClick={() => setShowFriends(true)}
+        />,
+      ];
+    }
+
+    return friendAvatarArray;
+  };
 
   const handleFollow = async () => {
-
-
-
     if (Object.keys(user.friends).length === 0 || !user.friends) {
       user.friends = {};
     }
@@ -971,7 +1014,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       user.friends[username] = {};
     }
     user.friends[username] = {
-      avatar: friend.profilePicture,
+      avatarId: friend.profilePicture,
       nickname: friend.name,
       username: friend.username,
     };
@@ -984,7 +1027,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     }
 
     friend.friends[user.username] = {
-      avatar: user.profilePicture,
+      avatarId: user.profilePicture,
       nickname: user.name,
       username: user.username,
     };
@@ -1047,7 +1090,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={loggedInUser ? friend.profilePicture : friend.profilePicture}
+                  src={
+                    loggedInUser ? friend.profilePicture : friend.profilePicture
+                  }
                   alt="Profile Picture"
                 />
               </div>
@@ -1060,9 +1105,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             </ProfileGrid>
           )}
 
-          <ProfileDescription>
-            {profileComponent}
-          </ProfileDescription>
+          <ProfileDescription>{profileComponent}</ProfileDescription>
 
           {isEditing ? (
             <GridTwo>
@@ -1122,19 +1165,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             >
               Friends
             </Typefield>
-            {friend &&
-
-              friend.friends &&
-              Object.keys(friend.friends).map((friendKey, index) => (
-                <FriendAvatar
-                  theme={themevars}
-                  key={index}
-                  src={friend.friends[friendKey].avatar}
-                  alt={friend.friends[friendKey].nickname}
-                  onClick={() => setShowFriends(true)}
-                />
-              ))
-            }
+            {friend && friend.friends ? avatarComponents() : <></>}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
 
@@ -1143,27 +1174,24 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
           theme={themevars}
           following={isFollowing}
           onClick={async () => {
-
-            console.log('loggedInUser', loggedInUser)
-            !loggedInUser ?
-
-              await handleFollow() :
-              handleAddPhotoClick();
+            console.log("loggedInUser", loggedInUser);
+            !loggedInUser ? await handleFollow() : handleAddPhotoClick();
           }}
         >
-          {!loggedInUser && user && user.friends ? user.friends[friend.username]
-            ? "Unfollow"
-            : "Follow"
-            : <Add style={{ color: themevars.icons.color }} />}
+          {!loggedInUser && user && user.friends ? (
+            user.friends[friend.username] ? (
+              "Unfollow"
+            ) : (
+              "Follow"
+            )
+          ) : (
+            <Add style={{ color: themevars.icons.color }} />
+          )}
         </FollowButton>
       </FriendsSection>
 
       <ProfilePosts style={{ display: "contents" }}>
-        <Grid
-          container
-          style={{ overflow: "scroll", marginTop: "24px" }}
-
-        >
+        <Grid container style={{ overflow: "scroll", marginTop: "24px" }}>
           {postsComponents}
         </Grid>
       </ProfilePosts>
@@ -1247,16 +1275,13 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             <h2>Friends List</h2>
             <FriendsList theme={themevars}>
               {Object.keys(friend.friends).map((follower: any, index) => {
-                console.log('follower : ' + index + ' : ', follower)
+                console.log("follower : " + index + " : ", follower);
                 return (
                   <FriendItem
                     theme={themevars}
                     key={index}
-                    onClick={() =>
-                      navigate('/' + follower)
-                    }
+                    onClick={() => navigate("/" + follower)}
                   >
-
                     <FriendPhoto
                       theme={themevars}
                       src={friend.friends[follower].avatar}
@@ -1281,7 +1306,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                     {isFollowing ? "Unfollow" : "Follow"}
                   </FollowButton> */}
                   </FriendItem>
-                )
+                );
               })}
             </FriendsList>
           </FriendsContent>
@@ -1321,7 +1346,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             </EditButton>
             {!loggedInUser ? (
               <>
-                <PortfolioImagePicker onImageSelect={handleImageSelect} userData={friend} />{" "}
+                <PortfolioImagePicker
+                  onImageSelect={handleImageSelect}
+                  userData={friend}
+                />{" "}
                 <CalendarComponent
                   setClosePopup={handleCalendarClick}
                   availableHours={friend.calendar}

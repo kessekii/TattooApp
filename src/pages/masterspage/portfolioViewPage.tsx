@@ -458,7 +458,7 @@ const PortfolioViewPage: React.FC = ({}) => {
 };
 
 export default PortfolioViewPage;
-async function getAvatarByUserId(username: string) {
+export async function getAvatarByUserId(username: string) {
   try {
     // console.log("id", chatId, username);
     const response = await fetch(
