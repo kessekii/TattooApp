@@ -78,7 +78,7 @@ interface fetchDataType {
 }
 
 const NavBar = (props: { screen: any; onResize: () => void }) => {
-  const [user, setUser] = useLocalStorage("user", null);
+  const [user, setUser] = useLocalStorage("user", {});
   const [news, setNews] = useLocalStorage("news", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
@@ -132,10 +132,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setImageIds(imagesIds.payload);
           setLoading(false);
 
-          break;
-          return;
-        case "/chats":
-          const userChats = await getChatsByUserId(user.name);
+          const userChats = await getChatsByUserId(friend.name);
 
           setChats(userChats.payload);
           setLoading(false);
@@ -243,8 +240,8 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         background: themevars.background,
         position: "fixed",
         display: "flex",
-        justifyContent: !hideNav ? "center" : "end",
 
+        justifyContent: !hideNav ? "center" : "end",
         alignItems: "top",
         height: "100%",
         width: "100%",

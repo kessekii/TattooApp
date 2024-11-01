@@ -25,7 +25,7 @@ const flipOut = keyframes`
 
 const transIn = keyframes`
 0% {
-  border: 5px solid rgba(255,	195,	66, 0);
+  border: 5px solid #8dadec00;
  
   
 }
@@ -42,7 +42,7 @@ const transOut = keyframes`
   }
   100% {
     
-    border: 5px solid rgba(255,	195,	66, 0);
+    border: 5px solid #8dadec00;
   }
 `;
 
@@ -73,7 +73,7 @@ export const NavContainer = styled.div<{
   transition: all 0.5s ease; /* Smooth transition when shrinking */
 `;
 
-export const NavIcons = styled(Box)<{ theme: any; isShrunk: boolean }>`
+export const NavIcons = styled(Box) <{ theme: any, isShrunk: boolean }>`
   display: flex;
   justify-content: ${(props) =>
     props.isShrunk

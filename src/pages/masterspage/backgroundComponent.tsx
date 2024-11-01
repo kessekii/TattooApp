@@ -29,7 +29,7 @@ const ClippedSvgBackground = styled.div<{ background; scale }>`
   transform: scaleY(0.26) scaleX(${({ scale }: any) => scale}); /* Adjust the scale as needed */
   transform-origin: top left; /* Anchor the scale to the top-right corner */
   position: absolute;
-  z-index: -1;
+  z-index: 0;
 `;
 
 const Backdrop = (props: { screen: any, backdropImage: any }) => {
