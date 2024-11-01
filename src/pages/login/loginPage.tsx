@@ -16,16 +16,23 @@ import {
 import AxiosCustom from "../../utils/Axios";
 
 import { ForgotPasswordPopup } from "./forgotPasswordComponent";
-import { useTheme, useWindowDimensions } from "../../state/providers/themeProvider";
+import {
+  useTheme,
+  useWindowDimensions,
+} from "../../state/providers/themeProvider";
 import {
   getPointByQuadIdAndPointId,
   getChatByChatId,
   getPointsInRadius,
   getChatsByUserId,
   getPostsByUserId,
+  getImageIdsByUserId,
+  getImageByImageId,
 } from "../../hooks/useChat";
 import { getNewsAction, getProfileData } from "../../state/action-creators";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
+import { get } from "video.js/dist/types/tech/middleware";
+import { getAvatars } from "./../../utils/helpers/helperFuncs";
 
 const RepositoriesList = () => {
   const { theme, themevars, toggleTheme } = useTheme(); // Access custom theme
@@ -38,17 +45,18 @@ const RepositoriesList = () => {
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
+
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [news, setNews] = useLocalStorage("news", null);
+  const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
+  const [images, setImages] = useLocalStorage("images", null);
   const [screen, setScreen] = useLocalStorage("screen", null);
-
+  const [avatars, setAvatars] = useLocalStorage("avatars", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const auth = useAuth();
   const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
-
-
 
   const tryLogin = async () => {
     try {
@@ -62,7 +70,7 @@ const RepositoriesList = () => {
 
         const chatData = await getChatsByUserId(loginF);
         const postsData = await getPostsByUserId(loginF);
-        const newsData = await getNewsAction(userData.payload.location)
+        const newsData = await getNewsAction(userData.payload.location);
         const pointsObject = await getPointsInRadius(
           {
             lat: 32.02119878251853,
@@ -70,8 +78,19 @@ const RepositoriesList = () => {
           },
           false
         );
+        const imageIds = await getImageIdsByUserId(loginF);
 
-
+        const avatarIds: any[] = await getAvatars(userData.payload, setAvatars);
+        const unique = imageIds.payload.filter(
+          (obj) => !avatarIds.some((id) => obj === id)
+        );
+        let newimages = {};
+        for (let imageId of unique) {
+          const image = await getImageByImageId(imageId);
+          newimages = { ...newimages, [imageId]: image.payload };
+        }
+        setImages(newimages);
+        setImageIds(imageIds.payload);
         setFriend(userData.payload);
         setPosts(postsData.payload);
         setChats(chatData.payload);
@@ -169,7 +188,9 @@ const RepositoriesList = () => {
         <LoginButton
           variant="contained"
           size="large"
-          onClick={async () => await tryLogin()}
+          onClick={async () => {
+            await tryLogin();
+          }}
           style={{ marginBottom: "5px" }}
         >
           Login

@@ -36,13 +36,16 @@ import {
 } from "../../state/action-creators";
 import { getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
+import { getAvatarIdsByChatId } from "./../../utils/helpers/helperFuncs";
 
 const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [chats, setChats] = useLocalStorage("chats", null);
+  const [avatars, setAvatars] = useLocalStorage("avatars", null);
+  const [images, setImages] = useLocalStorage("images", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
-  const [avatars, setAvatars] = useState({});
+
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const { updateUser, updateChat } = useActions();
@@ -159,20 +162,19 @@ const PortfolioViewPage: React.FC = ({}) => {
       window.localStorage.getItem(loggedInUser ? "chats" : "friendChats") ||
         "{}"
     );
-    let allTouchedUsers = {};
+
+    let avatarsObj = {};
 
     for (let chatid of Object.keys(chats)) {
-      chats[chatid].participants.map((e, index) => {
-        allTouchedUsers[chats[chatid].participants[index]] = "";
-      });
+      const avatars = await getAvatarIdsByChatId(chatid);
+      for (let avatar of avatars) {
+        avatarsObj = { ...avatarsObj, [avatar.owner]: avatar.src };
+      }
+
       // console.log(touchedPart);
     }
-    console.log(allTouchedUsers);
-    for (let userTouchedId of Object.keys(allTouchedUsers)) {
-      const avatar = await getAvatarByUserId(userTouchedId);
-      allTouchedUsers[userTouchedId] = avatar.payload;
-    }
-    setAvatars(allTouchedUsers);
+
+    await setAvatars(avatarsObj);
   };
   useEffect(() => {
     console.log(avatars);
@@ -212,7 +214,7 @@ const PortfolioViewPage: React.FC = ({}) => {
             >
               <PostWrapper key={post} style={{ objectFit: "contain" }}>
                 <PostImage
-                  src={postsShown[post].image}
+                  src={images[postsShown[post].image].src}
                   alt={`Post ${post}`}
                   style={{
                     width: "80vw",
@@ -226,7 +228,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                 <PostDetails>
                   <UserSection>
                     <UserAvatar
-                      src={userShown.profilePicture}
+                      src={avatars[userShown.username].src}
                       alt={`${userShown.username} avatar`}
                     />
                     <UserName
@@ -279,7 +281,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                                     chatsShown[postsShown[post].chatId].messages
                                       .length - 1
                                   ].author
-                                ]
+                                ].src
                               }
                             />
                           </Box>
@@ -380,7 +382,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                                       {comment.author}
                                     </CommentAuthor>
                                     <UserAvatar
-                                      src={avatars[comment.author]}
+                                      src={avatars[comment.author].src}
                                     ></UserAvatar>
 
                                     {/*  */}
@@ -457,12 +459,11 @@ const PortfolioViewPage: React.FC = ({}) => {
   );
 };
 
-export default PortfolioViewPage;
-async function getAvatarByUserId(username: string) {
+export async function getAvatarByUserId(username: string) {
   try {
     // console.log("id", chatId, username);
     const response = await fetch(
-      "http://46.117.80.103:4000/users/getAvatarByUserId",
+      "http://localhost:4000/users/getAvatarByUserId",
       {
         method: "POST",
         headers: {
@@ -481,3 +482,5 @@ async function getAvatarByUserId(username: string) {
     console.log("error", error);
   }
 }
+
+export default PortfolioViewPage;

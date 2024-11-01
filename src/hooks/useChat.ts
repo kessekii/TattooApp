@@ -5,7 +5,7 @@ export const getChatByChatId = async (chatId: string, username: string) => {
   try {
     console.log("id", chatId, username);
     const response = await fetch(
-      "http://46.117.80.103:4000/chats/getChatByChatId",
+      "http://localhost:4000/chats/getChatByChatId",
       {
         method: "POST",
         headers: {
@@ -24,11 +24,41 @@ export const getChatByChatId = async (chatId: string, username: string) => {
     console.log("error", error);
   }
 };
+export const updateUserAndImage = async (
+  username: any,
+  image: any,
+  backdrop: any
+) => {
+  try {
+    const response = await fetch(
+      "http://localhost:4000/users/updateUserAndImage",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          user: username,
+          image: image,
+          backdrop: backdrop,
+        }),
+      }
+    );
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
 export const getPostsByUserId = async (username: string) => {
   try {
     // console.log("id", chatId, username);
     const response = await fetch(
-      "http://46.117.80.103:4000/posts/getPostsByUserId",
+      "http://localhost:4000/posts/getPostsByUserId",
       {
         method: "POST",
         headers: {
@@ -51,7 +81,7 @@ export const getPrivateChatsByUserId = async (username: string) => {
   try {
     // console.log("id", chatId, username);
     const response = await fetch(
-      "http://46.117.80.103:4000/chats/getPrivateChatsByUserId",
+      "http://localhost:4000/chats/getPrivateChatsByUserId",
       {
         method: "POST",
         headers: {
@@ -64,17 +94,62 @@ export const getPrivateChatsByUserId = async (username: string) => {
     );
 
     const result = await response.json();
-    console.log(result);
+
     return result;
   } catch (error) {
     console.log("error", error);
   }
 };
+export const getImageByImageId = async (imageId: string) => {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://localhost:4000/images/getImageByImageId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ imageId: imageId }),
+      }
+    );
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+export const getImageIdsByUserId = async (username: string) => {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://localhost:4000/images/getImageIdsByUserId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
 export const getChatsByUserId = async (username: string) => {
   try {
     // console.log("id", chatId, username);
     const response = await fetch(
-      "http://46.117.80.103:4000/chats/getChatsByUserId",
+      "http://localhost:4000/chats/getChatsByUserId",
       {
         method: "POST",
         headers: {
@@ -99,7 +174,7 @@ export const getPointByQuadIdAndPointId = async (
 ) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/points/getPointByQuadIdAndPointId",
+      "http://localhost:4000/points/getPointByQuadIdAndPointId",
       {
         method: "POST",
         headers: {
@@ -125,7 +200,7 @@ export const createPointByUsername = async (
 ) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/points/createPointByUsername",
+      "http://localhost:4000/points/createPointByUsername",
       {
         method: "POST",
         headers: {
@@ -151,7 +226,7 @@ export const createPointByUsername = async (
 export const getPointsInRadius = async (location: any, blocked: any) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/points/getPointsInRadius",
+      "http://localhost:4000/points/getPointsInRadius",
       {
         method: "POST",
         headers: {
@@ -174,7 +249,7 @@ export const getPointsInRadius = async (location: any, blocked: any) => {
 export const deletePointbyPointId = async (quadId: string, pointId: string) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/points/deletePointbyPointId",
+      "http://localhost:4000/points/deletePointbyPointId",
       {
         method: "POST",
         headers: {
@@ -195,18 +270,15 @@ export const deletePointbyPointId = async (quadId: string, pointId: string) => {
 };
 export const getUserById = async (username: string) => {
   try {
-    const response = await fetch(
-      "http://46.117.80.103:4000/users/getProfileData",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ username: username }),
-      }
-    );
+    const response = await fetch("http://localhost:4000/users/getProfileData", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ username: username }),
+    });
 
     const result = response.json();
     console.log(result);
@@ -217,18 +289,15 @@ export const getUserById = async (username: string) => {
 };
 export const updatePointbyPointId = async (quadId: string, point: string) => {
   try {
-    const response = await fetch(
-      "http://46.117.80.103:4000/points/updatePoint",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ quadId: quadId, point: point }),
-      }
-    );
+    const response = await fetch("http://localhost:4000/points/updatePoint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ quadId: quadId, point: point }),
+    });
 
     const result = response.json();
     console.log(result);
@@ -239,18 +308,15 @@ export const updatePointbyPointId = async (quadId: string, point: string) => {
 };
 export const updatePoint = async (point: any) => {
   try {
-    const response = await fetch(
-      "http://46.117.80.103:4000/points/updatePoint",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ point: point }),
-      }
-    );
+    const response = await fetch("http://localhost:4000/points/updatePoint", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ point: point }),
+    });
 
     const result = await response.json();
     console.log(result);
@@ -266,7 +332,7 @@ export const useChat = () => {
   const sendMessage = async (id: string, message: string) => {
     try {
       const response = await fetch(
-        "http://46.117.80.103:4000/chats/addToChatByChatId",
+        "http://localhost:4000/chats/addToChatByChatId",
         {
           method: "POST",
           headers: {
