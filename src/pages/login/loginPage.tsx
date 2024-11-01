@@ -32,7 +32,7 @@ import {
 import { getNewsAction, getProfileData } from "../../state/action-creators";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 import { get } from "video.js/dist/types/tech/middleware";
-import { getAvatarByUserId } from "../masterspage/portfolioViewPage";
+import { getAvatars } from "./../../utils/helpers/helperFuncs";
 
 const RepositoriesList = () => {
   const { theme, themevars, toggleTheme } = useTheme(); // Access custom theme
@@ -49,6 +49,7 @@ const RepositoriesList = () => {
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [news, setNews] = useLocalStorage("news", null);
   const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
+  const [images, setImages] = useLocalStorage("images", null);
   const [screen, setScreen] = useLocalStorage("screen", null);
   const [avatars, setAvatars] = useLocalStorage("avatars", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
@@ -56,20 +57,6 @@ const RepositoriesList = () => {
   const auth = useAuth();
   const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
-
-  const getAvatars = async () => {
-    let avatarsImagesObject = {};
-
-    for (let username of Object.keys(friend.friends || {})) {
-      const image = await getAvatarByUserId(username);
-      avatarsImagesObject = {
-        ...avatarsImagesObject,
-        [username]: image.payload,
-      };
-
-      setAvatars(avatarsImagesObject);
-    }
-  };
 
   const tryLogin = async () => {
     try {
@@ -93,6 +80,16 @@ const RepositoriesList = () => {
         );
         const imageIds = await getImageIdsByUserId(loginF);
 
+        const avatarIds: any[] = await getAvatars(userData.payload, setAvatars);
+        const unique = imageIds.payload.filter(
+          (obj) => !avatarIds.some((id) => obj === id)
+        );
+        let newimages = {};
+        for (let imageId of unique) {
+          const image = await getImageByImageId(imageId);
+          newimages = { ...newimages, [imageId]: image.payload };
+        }
+        setImages(newimages);
         setImageIds(imageIds.payload);
         setFriend(userData.payload);
         setPosts(postsData.payload);
@@ -192,9 +189,7 @@ const RepositoriesList = () => {
           variant="contained"
           size="large"
           onClick={async () => {
-            await tryLogin(),
-              setImageIds(await getImageIdsByUserId(loginF)),
-              await getAvatars();
+            await tryLogin();
           }}
           style={{ marginBottom: "5px" }}
         >

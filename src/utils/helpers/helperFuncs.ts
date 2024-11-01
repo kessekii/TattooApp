@@ -1,3 +1,7 @@
+import axios from "axios";
+import { getAvatarByUserId } from "../../../src/pages/masterspage/portfolioViewPage";
+import AxiosCustom from "../../utils/Axios";
+
 //main function to generate nodes for the checkboxes. Mainly used for publisher media capabilities.
 export const generateNodesFromArray = (arr: string[], structure: any) => {
   try {
@@ -16,6 +20,49 @@ export const generateNodesFromArray = (arr: string[], structure: any) => {
   } catch (error) {
     console.error(error);
     return [];
+  }
+};
+export const getAvatars = async (friend, setAvatars) => {
+  let avatarsImagesObject = {};
+  let avatarsIds = [];
+  const imageUser = await getAvatarByUserId(friend.username);
+  avatarsImagesObject = {
+    ...avatarsImagesObject,
+    [friend.username]: imageUser.payload,
+  };
+  avatarsIds.push(imageUser.payload.id);
+
+  for (let friendUsername of Object.keys(friend.friends || {})) {
+    const image = await getAvatarByUserId(friendUsername);
+    avatarsImagesObject = {
+      ...avatarsImagesObject,
+      [friendUsername]: image.payload,
+    };
+    avatarsIds.push(image.payload.id);
+    setAvatars(avatarsImagesObject);
+  }
+  return avatarsIds;
+};
+export const getAvatarIdsByChatId = async (chatId) => {
+  try {
+    const response = await fetch(
+      "http://localhost:4000/points/getImageIdsByChatId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ chatId: chatId }),
+      }
+    );
+
+    const result = response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
   }
 };
 export const filterContactsByType = (arr: any, type: string) => {

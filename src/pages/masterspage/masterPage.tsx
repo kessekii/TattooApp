@@ -812,7 +812,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             {friendPosts && friendPosts[post] && friendPosts[post].image && (
               <Post key={post}>
                 <PostImage
-                  src={friendPosts[post].image}
+                  src={images[friendPosts[post].image].src}
                   onClick={() => {
                     console.log("TO PORTFOLIO");
                     return navigate("/" + friend.name + "/portfolio");
@@ -988,23 +988,16 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       reader.readAsDataURL(event.target.files[0]);
     }
   };
-  const avatarComponents = () => {
-    let friendAvatarArray = [];
-    for (let username of Object.keys(friend.friends)) {
-      friendAvatarArray = [
-        ...friendAvatarArray,
-        <FriendAvatar
-          theme={themevars}
-          key={username + "avatar"}
-          src={avatars[username].src}
-          alt={friend.friends[username].nickname}
-          onClick={() => setShowFriends(true)}
-        />,
-      ];
-    }
 
-    return friendAvatarArray;
-  };
+  const avatarComponents = Object.keys(friend.friends).map((fri) => (
+    <FriendAvatar
+      theme={themevars}
+      key={fri + "avatar"}
+      src={avatars[fri].src}
+      alt={avatars[fri].owner}
+      onClick={() => setShowFriends(true)}
+    />
+  ));
 
   const handleFollow = async () => {
     if (Object.keys(user.friends).length === 0 || !user.friends) {
@@ -1090,9 +1083,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={
-                    loggedInUser ? friend.profilePicture : friend.profilePicture
-                  }
+                  src={avatars[user.username].src}
                   alt="Profile Picture"
                 />
               </div>
@@ -1165,7 +1156,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             >
               Friends
             </Typefield>
-            {friend && friend.friends ? avatarComponents() : <></>}
+            {avatarComponents}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
 
@@ -1284,7 +1275,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                   >
                     <FriendPhoto
                       theme={themevars}
-                      src={friend.friends[follower].avatar}
+                      src={avatars[follower].src}
                       alt={friend.friends[follower].nickname}
                     />
                     <FriendNickname theme={themevars}>

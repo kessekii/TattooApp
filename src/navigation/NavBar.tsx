@@ -9,7 +9,10 @@ import {
 } from "@mui/icons-material";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
-import { useTheme, useWindowDimensions } from "../state/providers/themeProvider";
+import {
+  useTheme,
+  useWindowDimensions,
+} from "../state/providers/themeProvider";
 import {
   AvatarContainer,
   Menu,
@@ -27,12 +30,20 @@ import { FaCog, FaUserEdit, FaUser } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import { useActions } from "../hooks/useActions";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { getChatsByUserId, getPointsInRadius, getPostsByUserId, getUserById } from "../../src/hooks/useChat";
+import {
+  getChatsByUserId,
+  getImageIdsByUserId,
+  getPointsInRadius,
+  getPostsByUserId,
+  getUserById,
+} from "../../src/hooks/useChat";
 
 import MessageIcon from "@mui/icons-material/Message";
 
-import { getNewsAction } from '../../src/state/action-creators'
+import { getNewsAction } from "../../src/state/action-creators";
 import { dataTransferItemsToFiles } from "stream-chat-react/dist/components/ReactFileUtilities";
+import { getAvatarByUserId } from "../../src/pages/masterspage/portfolioViewPage";
+import { getAvatars } from "./../utils/helpers/helperFuncs";
 
 const Spinner = keyframes`
 
@@ -53,31 +64,32 @@ const LoadingOverlay = styled.div`
 `;
 
 const Loader = styled.div`
-width: 50px;
+  width: 50px;
   aspect-ratio: 1;
   display: grid;
   border: 8px solid #0000;
   border-radius: 50%;
   border-right-color: ${({ theme }) => theme.text};
   animation: ${Spinner} 1s linear infinite;
-
 `;
 
 interface fetchDataType {
-  type: '/news' | '/map' | '/user' | '/chats'
+  type: "/news" | "/map" | "/user" | "/chats";
 }
 
-const NavBar = (props: { screen: any, onResize: () => void }) => {
+const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [news, setNews] = useLocalStorage("news", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
+  const [avatars, setAvatars] = useLocalStorage("avatars", null);
+  const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [screen, setScreen] = useLocalStorage("screen", null);
   const { username, postId } = useParams();
-  const dim = useWindowDimensions()
+  const dim = useWindowDimensions();
   const [isShrunk, setIsShrunk] = useState(false);
   const [isMap, setIsMap] = useState(false);
   const [loading, setLoading] = useLocalStorage("loading", false);
@@ -91,58 +103,61 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
       setIsShrunk(false); // Expand if the navbar is shrunk and there is user interaction
     }
   };
-  const [hideNav, setHideNav] = useLocalStorage('hideNav', null)
+  const [hideNav, setHideNav] = useLocalStorage("hideNav", null);
   const fetchData = async (username: string, { type }: fetchDataType) => {
-    setScreen(dim)
-    console.log('FETCHING DATA FOR : ', type)
+    setScreen(dim);
+    console.log("FETCHING DATA FOR : ", type);
     if (type) {
       setLoading(true);
-      setIsMap(false)
+      setIsMap(false);
       switch (type) {
-        case '/news':
-          const newsData = await getNewsAction(user.location)
-          setHideNav(false)
-          setNews(newsData)
+        case "/news":
+          const newsData = await getNewsAction(user.location);
+          setHideNav(false);
+          setNews(newsData);
           setLoading(false);
           break;
-        case '/user':
-          setHideNav(false)
-          const userdata = await getUserById(username)
-          setFriend(userdata.payload)
+          return;
+        case "/user":
+          setHideNav(false);
+
+          const userdata = await getUserById(username);
+          setFriend(userdata.payload);
           const chatData = await getChatsByUserId(username);
           setFriendChats(chatData.payload);
           const postsData = await getPostsByUserId(username);
           setFriendPosts(postsData.payload);
+          await getAvatars(friend, setAvatars);
+          const imagesIds = await getImageIdsByUserId(username);
+          setImageIds(imagesIds.payload);
           setLoading(false);
-          break;
-        case '/chats':
 
+          break;
+          return;
+        case "/chats":
           const userChats = await getChatsByUserId(user.name);
 
           setChats(userChats.payload);
           setLoading(false);
           break;
-        case '/map':
-          setHideNav(false)
-          setIsMap(true)
-          setLoading(false)
+          return;
+        case "/map":
+          setHideNav(false);
+          setIsMap(true);
+          setLoading(false);
           break;
+          return;
         default:
           break;
+          return;
       }
-
-
     }
-
   };
 
   useEffect(() => {
-
     if (username) {
-
-      fetchData(username, { type: '/user' });
+      fetchData(username, { type: "/user" });
     }
-
   }, [username]);
 
   const handleFriendClick = async (profileLink: string) => {
@@ -155,11 +170,10 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
   };
 
   const navigate = useNavigate();
-  const { themevars } = useTheme()
+  const { themevars } = useTheme();
 
-  const [openSettings, setOpenSettings] = useState(false)
+  const [openSettings, setOpenSettings] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
 
   const toggleMenu = () => {
     setIsOpen((prevState) => !prevState);
@@ -169,11 +183,9 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
     try {
       await fetchData(username, { type: path });
 
-
       navigate(path);
-
     } catch (e) {
-      console.log(encodeURIComponent)
+      console.log(encodeURIComponent);
     }
   };
 
@@ -205,9 +217,6 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
     };
   }, [isShrunk]);
 
-
-
-
   const SettingsPopupComponent = ({ onClose }) => {
     const { theme, themevars, toggleTheme } = useTheme();
     return (
@@ -228,8 +237,6 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
     );
   };
 
-
-
   return (
     <div
       style={{
@@ -241,27 +248,31 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
         alignItems: "top",
         height: "100%",
         width: "100%",
-        overflowY: 'scroll',
-        overflowX: 'hidden',
+        overflowY: "scroll",
+        overflowX: "hidden",
         maxHeight: "100vh",
         top: 0,
         left: 0,
       }}
     >
-      <NavContainer style={{ visibility: hideNav ? 'hidden' : 'visible' }} hideNav={hideNav} isMap={isMap} theme={themevars.navbar} isShrunk={isShrunk}>
+      <NavContainer
+        style={{ visibility: hideNav ? "hidden" : "visible" }}
+        hideNav={hideNav}
+        isMap={isMap}
+        theme={themevars.navbar}
+        isShrunk={isShrunk}
+      >
         <Toolbar>
-          <NavIcons theme={themevars} isShrunk={isShrunk} >
-
-            {isShrunk && <AvatarContainer>
-              <Avatar
-                src={user.profilePicture} // Replace with actual avatar URL
-                alt="User Avatar"
-                onClick={() => setIsShrunk(false)}
-              />
-
-
-
-            </AvatarContainer>}
+          <NavIcons theme={themevars} isShrunk={isShrunk}>
+            {isShrunk && (
+              <AvatarContainer>
+                <Avatar
+                  src={avatars[user.username].src} // Replace with actual avatar URL
+                  alt="User Avatar"
+                  onClick={() => setIsShrunk(false)}
+                />
+              </AvatarContainer>
+            )}
             {!isShrunk && (
               <>
                 <IconButton onClick={() => handleNavigation("/map")}>
@@ -276,7 +287,7 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
                 </IconButton>
                 <AvatarContainer>
                   <Avatar
-                    src={user.profilePicture} // Replace with actual avatar URL
+                    src={avatars[user.username].src} // Replace with actual avatar URL
                     alt="User Avatar"
                     onClick={toggleMenu}
                   />
@@ -284,10 +295,10 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
                     <Menu isopen={isOpen} theme={themevars.navbar}>
                       <MenuItem
                         theme={themevars}
-                        onClick={async () => {
-
-                          navigate("/" + user.username);
-                        }
+                        onClick={
+                          async () => {
+                            navigate("/" + user.username);
+                          }
                           // }
                         }
                       >
@@ -322,27 +333,29 @@ const NavBar = (props: { screen: any, onResize: () => void }) => {
                     </Menu>
                   )}
                 </AvatarContainer>
-
               </>
             )}
           </NavIcons>
         </Toolbar>
       </NavContainer>
       {openSettings && <SettingsPopupComponent onClose={setOpenSettings} />}
-      {
-        loading && (
-          <LoadingOverlay>
-            <Loader theme={themevars} />
-          </LoadingOverlay>
-        )
-      }
-      {(!loading || isMap) &&
-
-        <div style={{ position: 'absolute', width: '100%', backgroundColor: themevars.background }}>
-          <Outlet /></div>
-
-      }
-    </div >
+      {loading && (
+        <LoadingOverlay>
+          <Loader theme={themevars} />
+        </LoadingOverlay>
+      )}
+      {(!loading || isMap) && (
+        <div
+          style={{
+            position: "absolute",
+            width: "100%",
+            backgroundColor: themevars.background,
+          }}
+        >
+          <Outlet />
+        </div>
+      )}
+    </div>
   );
 };
 
