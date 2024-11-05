@@ -35,6 +35,7 @@ import { PostImage, UploadInput } from "../masterspage/masterPage";
 import zIndex from "@mui/material/styles/zIndex";
 import { keyframes, styled } from "styled-components";
 import { useTheme } from "../../state/providers/themeProvider";
+import { getPointImageByPointId } from "../../utils/helpers/helperFuncs";
 
 export const PointBox = styled.div`
   background: ${({ theme }) => theme.background};
@@ -101,9 +102,7 @@ const PoiMarker = (props: {
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [user, setUser] = useLocalStorage("user", {});
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", {});
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", {});
+
   const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState<string>(props.point?.data?.name || "");
@@ -211,7 +210,8 @@ const PoiMarker = (props: {
 
                   props.setPoints,
                   props.cameraLocation,
-                  newImage.src
+                  newImage.src,
+                  setMapImages
                 );
                 setIsEdit(false);
               }}
@@ -435,7 +435,8 @@ const tryEditingAPoint = async (
 
   setPoints: any,
   cameraLocation: any,
-  newImage: any
+  newImage: any,
+  setMapImages: any
 ) => {
   const headers = {
     Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
@@ -444,13 +445,42 @@ const tryEditingAPoint = async (
   const point_lng = point.location.lng.toFixed(2).toString();
   const coord = point_lat + ":" + point_lng;
   point.imageSrc = newImage;
+
   const newUserData = (await updatePointbyPointId(coord, point)).payload;
   // console.log("EEEE", userData);
 
-  const pointsObject = await getPointsInRadius(cameraLocation, false);
+  const pointsInRadius = (await getPointsInRadius(cameraLocation, false))
+    .payload;
 
+  //
+  // let inumeratel = user;
+  // inumeratel.points = pointsInRadius;
+  // if (pointsInRadius) {
+  //   setCameraUpdateLock(false);
+  // }
+  const mapImagesByRadios = {};
+  for (let pointId of Object.keys(pointsInRadius)) {
+    let quadId =
+      pointsInRadius[pointId].location.lat.toFixed(2) +
+      ":" +
+      pointsInRadius[pointId].location.lng.toFixed(2);
+    console.log(quadId);
+    const image = await getPointImageByPointId(pointId, quadId);
+    if (!image) continue;
+    console.log(image.payload);
+
+    mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.payload.src;
+  }
+  const userMapImages: any = await getUserMapImagesByUserId(
+    newUserData.username
+  );
+  if (!userMapImages.payload) return;
+  console.log(userMapImages.payload);
+  setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
+
+  setPoints(pointsInRadius);
   setUser(newUserData);
-  setPoints(pointsObject.payload);
+
   await auth.setUserFull(newUserData);
   // setFocusedPoint(null);
 };
@@ -567,8 +597,25 @@ export const MapPage = () => {
       if (pointsInRadius) {
         setCameraUpdateLock(false);
       }
-      const userMapImages = await getUserMapImagesByUserId(user.username);
-      setMapImages(userMapImages.payload);
+      const mapImagesByRadios = {};
+      for (let pointId of Object.keys(pointsInRadius)) {
+        let quadId =
+          pointsInRadius[pointId].location.lat.toFixed(2) +
+          ":" +
+          pointsInRadius[pointId].location.lng.toFixed(2);
+        console.log(quadId);
+        const image = await getPointImageByPointId(pointId, quadId);
+        if (!image) continue;
+        console.log(image.payload);
+
+        mapImagesByRadios[pointsInRadius[pointId].data.icon] =
+          image.payload.src;
+      }
+      const userMapImages: any = await getUserMapImagesByUserId(user.username);
+      if (!userMapImages.payload) return;
+
+      console.log(userMapImages.payload);
+      setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
       setUser(user);
       setPoints(pointsInRadius);
       setCameraLocation(ev.detail.center);
@@ -695,6 +742,7 @@ export const MapPage = () => {
       setErrorMessage,
       points,
       mapImages,
+      setMapImages,
     ]
   );
 

@@ -22,10 +22,13 @@ export const generateNodesFromArray = (arr: string[], structure: any) => {
     return [];
   }
 };
-export const getPointImageByPointId = async (pointId: string) => {
+export const getPointImageByPointId = async (
+  pointId: string,
+  quadId: string
+) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/points/getPointImageByPointIds",
+      "http://localhost:4000/images/getPointImageByPointId",
       {
         method: "POST",
         headers: {
@@ -33,7 +36,7 @@ export const getPointImageByPointId = async (pointId: string) => {
           Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ pointId: pointId }),
+        body: JSON.stringify({ pointId: pointId, quadId: quadId }),
       }
     );
 
@@ -70,7 +73,7 @@ export const getAvatars = async (friend, setAvatars) => {
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/points/getImageIdsByChatId",
+      "http://localhost:4000/points/getImageIdsByChatId",
       {
         method: "POST",
         headers: {

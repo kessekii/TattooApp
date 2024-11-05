@@ -190,8 +190,30 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
 
           //   setPoints({ ...points, [point]: image });
           // }
-          const useMapImages = await getUserMapImagesByUserId(username);
-          setMapImages({ ...useMapImages.payload });
+          const useMapImages = await getUserMapImagesByUserId(user.username);
+
+          const pointsInRaduis = await getPointsInRadius(
+            {
+              lat: 32.02119878251853,
+              lng: 34.74333323660794,
+            },
+            false
+          );
+          console.log(pointsInRaduis);
+          let newMapimages = {};
+          for (let pointId of Object.keys(pointsInRaduis.payload)) {
+            let quadId =
+              pointsInRaduis.payload[pointId].location.lat.toFixed(2) +
+              ":" +
+              pointsInRaduis.payload[pointId].location.lng.toFixed(2);
+            console.log(quadId);
+            const image = await getPointImageByPointId(pointId, quadId);
+            console.log(image.payload);
+
+            newMapimages[pointsInRaduis.payload[pointId].data.icon] =
+              image.payload.src;
+          }
+          setMapImages({ ...useMapImages.payload, ...newMapimages });
           setHideNav(false);
           setIsMap(true);
           setLoading(false);
@@ -317,7 +339,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             {isShrunk && (
               <AvatarContainer>
                 <Avatar
-                  src={avatars[user.username].src} // Replace with actual avatar URL
+                  src={avatars[user.username]?.src} // Replace with actual avatar URL
                   alt="User Avatar"
                   onClick={() => setIsShrunk(false)}
                 />
@@ -337,7 +359,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
                 </IconButton>
                 <AvatarContainer>
                   <Avatar
-                    src={avatars[user.username].src} // Replace with actual avatar URL
+                    src={avatars[user.username]?.src} // Replace with actual avatar URL
                     alt="User Avatar"
                     onClick={toggleMenu}
                   />
