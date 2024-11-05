@@ -54,7 +54,7 @@ const StyledCommentList = styled.div`
 const StyledCommentsPopup = styled.div`
   background: ${(props) => props.theme.background};
   color: ${(props) => props.theme.popup.text};
-  padding: 10px;
+
   position: relative;
   border-radius: 10px;
 
@@ -351,6 +351,7 @@ export const ChatsPageComponent: React.FC = () => {
                     alignItems: "stretch",
                     alignContent: "flex-start",
                     position: "fixed",
+
                     top: "0",
                     zIndex: "2000",
                     backdropFilter: "blur(10px)",
@@ -366,23 +367,6 @@ export const ChatsPageComponent: React.FC = () => {
                     <ArrowBackIos style={{ alignSelf: "start" }} />
                   </div>
                 </StyledEditButton>
-                <StyledEditButton
-                  theme={themevars}
-                  style={{
-                    width: "100%",
-                    height: "6vh",
-                    display: "flex",
-                    alignItems: "stretch",
-                    alignContent: "flex-start",
-                    position: "relative",
-                    top: "0",
-                    visibility: "hidden",
-
-                    flexDirection: "column-reverse",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                  }}
-                ></StyledEditButton>
               </>
             )}
 
@@ -432,6 +416,10 @@ export const ChatsPageComponent: React.FC = () => {
                   </StyledCommentSubmitButton>
                 </Box>
               </StyledCommentsPopup>
+            ) : chatData.messages?.length > 0 &&
+              privateChatId !== selectedChatId &&
+              isMessagesPopupOpened ? (
+              <></>
             ) : (
               <StyledCommentItem
                 theme={themevars}
@@ -474,7 +462,7 @@ export const ChatsPageComponent: React.FC = () => {
                 <Paper
                   style={{
                     background: "transparent",
-                    marginTop: "6vh",
+                    // marginTop: "6vh",
                     marginBottom: "5px",
                     display: "flex",
                     padding: "10px",
@@ -575,5 +563,5 @@ export const ChatsPageComponent: React.FC = () => {
     [privateChats, isMessagesPopupOpened, newComment, user, selectedChatId]
   );
 
-  return <>{participants}</>;
+  return <Box style={{ paddingTop: "15vw" }}>{participants}</Box>;
 };
