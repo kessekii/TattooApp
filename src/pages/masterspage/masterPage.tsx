@@ -44,6 +44,8 @@ import { fetchData } from "../../utils/helpers/navigationHelper";
 import { getAvatarByUserId } from "./portfolioViewPage";
 import { Chat } from "stream-chat-react";
 
+import Resizer from "react-image-file-resizer";
+import { blobToImage, imageToBlob } from "../../utils/helpers/helperFuncs";
 // ProfilePage styling with dynamic background and text color
 export const ProfilePage = styled.div<{ theme }>`
   font-family: Arial, sans-serif;
@@ -667,6 +669,30 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   // Save changes
   const handleSaveClick = async (updateUser: any, setErrorMessage: any) => {
+    let resizedBackdrop: any = "";
+    let resizedImage: any = "";
+
+    // Resizer.imageFileResizer(
+    //   resizedBackdropBlob, // Is the file of the image which will resized.
+    //   200, // Is the maxWidth of the resized new image.
+    //   200, // Is the maxHeight of the resized new image.
+    //   "jpg", // Is the compressFormat of the resized new image.
+    //   100, // Is the quality of the resized new image.
+    //   0, // Is the degree of clockwise rotation to apply to uploaded image.
+    //   (img) => (resizedBackdrop = img) // Is the callBack function of the resized new image URI.
+    //   // Is the minHeight of the resized new image.
+    // );
+    // await Resizer.imageFileResizer(
+    //   resizedImageBlob, // Is the file of the image which will resized.
+    //   100, // Is the maxWidth of the resized new image.
+    //   100, // Is the maxHeight of the resized new image.
+    //   "jpg", // Is the compressFormat of the resized new image.
+    //   100, // Is the quality of the resized new image.
+    //   0, // Is the degree of clockwise rotation to apply to uploaded image.
+    //   (img) => (resizedImage = img) // Is the callBack function of the resized new image URI.
+    //   // Is the minHeight of the resized new image.
+    // );
+    console.log(newBackdropImage, newImage);
     const newBackdropImageObject = {
       src:
         newBackdropImage.src !== ""
@@ -674,13 +700,15 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
           : friend.backdropImage,
       owner: user.username,
       timestamp: new Date().getTime(),
-      id: "",
+      id: user.backdrop ? user.backdrop : "",
     };
+
+    console.log(resizedImage);
     const newImageObject = {
       src: newImage.src !== "" ? newImage.src : friend.profilePicture,
       owner: user.username,
       timestamp: new Date().getTime(),
-      id: "",
+      id: user.profilePicture ? user.profilePicture : "",
     };
     const newProfileData = {
       ...friend,
@@ -704,6 +732,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     await setIsEditingProfile();
     setAvatars({ ...avatars, [user.username]: result.payload.image });
     setUser(result.payload.user);
+    setFriend(result.payload.user);
   };
 
   // Cancel editing
@@ -970,7 +999,23 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader();
       reader.onload = () => {
-        setNewImage({ ...newImage, src: reader.result as string });
+        Resizer.imageFileResizer(
+          event.target.files[0],
+          200,
+          200,
+          "JPEG",
+          100,
+          0,
+          async (uri) => {
+            console.log(uri);
+            if (typeof uri === "string") {
+              setNewImage({ src: uri, caption: "" });
+            }
+          },
+          "base64",
+          200,
+          200
+        );
       };
       reader.readAsDataURL(event.target.files[0]);
     }
@@ -979,7 +1024,23 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader();
       reader.onload = () => {
-        setNewBackdropImage({ ...newImage, src: reader.result as string });
+        Resizer.imageFileResizer(
+          event.target.files[0],
+          300,
+          300,
+          "JPEG",
+          100,
+          0,
+          async (uri) => {
+            console.log(uri);
+            if (typeof uri === "string") {
+              setNewBackdropImage({ src: uri });
+            }
+          },
+          "base64",
+          200,
+          200
+        );
       };
       reader.readAsDataURL(event.target.files[0]);
     }

@@ -12,7 +12,7 @@ import {
   Pin,
 } from "@vis.gl/react-google-maps";
 import { Typography } from "antd";
-
+import Resizer from "react-image-file-resizer";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { User } from "../register/registerPage";
@@ -114,7 +114,24 @@ const PoiMarker = (props: {
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader();
       reader.onload = () => {
-        setNewImage({ ...newImage, src: reader.result as string });
+        Resizer.imageFileResizer(
+          event.target.files[0],
+          100,
+          100,
+          "JPEG",
+          100,
+          0,
+          async (uri) => {
+            console.log(uri);
+            if (typeof uri === "string") {
+              setNewImage({ src: uri, caption: "" });
+            }
+          },
+          "base64",
+          100,
+          100
+        );
+
         setIsNewImage(true);
       };
       reader.readAsDataURL(event.target.files[0]);
@@ -467,9 +484,19 @@ const tryEditingAPoint = async (
     console.log(quadId);
     const image = await getPointImageByPointId(pointId, quadId);
     if (!image) continue;
+    const imageToBlob = async (imageSrc: string): Promise<Blob> => {
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      return blob;
+    };
+
+    let resizedImage: any = "";
+
+    const resizedImageBlob = await imageToBlob(newImage.src);
     console.log(image.payload);
 
-    mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.payload.src;
+    console.log(resizedImage);
+    mapImagesByRadios[pointsInRadius[pointId].data.icon] = resizedImage;
   }
   const userMapImages: any = await getUserMapImagesByUserId(
     newUserData.username

@@ -18,7 +18,7 @@ import {
   getPostsByUserId,
 } from "../../../src/hooks/useChat";
 import { s } from "vite/dist/node/types.d-aGj9QkWt";
-
+import Resizer from "react-image-file-resizer";
 // Styled components
 const EditorContainer = styled.div`
   display: flex;
@@ -198,7 +198,24 @@ const PortfolioEditorPage: React.FC = () => {
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader();
       reader.onload = () => {
-        setNewImage({ ...newImage, src: reader.result as string });
+        Resizer.imageFileResizer(
+          event.target.files[0],
+          300,
+          300,
+          "JPEG",
+          100,
+          0,
+          async (uri) => {
+            console.log(uri);
+            if (typeof uri === "string") {
+              setNewImage({ src: uri, caption: "" });
+            }
+          },
+          "base64",
+          200,
+          200
+        );
+
         setIsNewImage(true);
       };
       reader.readAsDataURL(event.target.files[0]);

@@ -2,6 +2,20 @@ import axios from "axios";
 import { getAvatarByUserId } from "../../../src/pages/masterspage/portfolioViewPage";
 import AxiosCustom from "../../utils/Axios";
 
+export const imageToBlob = async (imageSrc: string): Promise<Blob> => {
+  const response = await fetch(imageSrc);
+  const blob = await response.blob();
+  return blob;
+};
+export const blobToImage = async (blob: any): Promise<string> => {
+  const reader = new FileReader();
+  reader.readAsDataURL(blob);
+  return new Promise((resolve) => {
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+  });
+};
 //main function to generate nodes for the checkboxes. Mainly used for publisher media capabilities.
 export const generateNodesFromArray = (arr: string[], structure: any) => {
   try {
@@ -72,6 +86,7 @@ export const getAvatars = async (friend) => {
   // setAvatars(avatarsImagesObject);
   return [avatarsIds, avatarsImagesObject];
 };
+
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
     const response = await fetch(
