@@ -42,7 +42,7 @@ import {
 
 import MessageIcon from "@mui/icons-material/Message";
 
-import { getNewsAction } from "../../src/state/action-creators";
+import { getNewsAction, getTrendingPostsByCityAction } from "../../src/state/action-creators";
 import { dataTransferItemsToFiles } from "stream-chat-react/dist/components/ReactFileUtilities";
 import { getAvatarByUserId } from "../../src/pages/masterspage/portfolioViewPage";
 import {
@@ -121,6 +121,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       switch (type) {
         case "/news":
           const newsData = await getNewsAction(user.location);
+
           setHideNav(false);
           setNews(newsData);
           setLoading(false);

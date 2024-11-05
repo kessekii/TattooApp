@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { FaSearch, FaHeart, FaComment, FaShare, FaEye } from "react-icons/fa";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
@@ -14,7 +14,7 @@ import {
   PopupContent,
   PopupOverlay,
 } from "../masterspage/masterPage";
-import { makeEventAction } from "../../state/action-creators";
+import { getChatsByChatId, getPostByPostId, getPostImageByPostId, makeEventAction } from "../../state/action-creators";
 import { ProfilePage } from "../masterspage/masterPage";
 import { useNavigate } from "react-router-dom";
 import {
@@ -216,7 +216,7 @@ const NewsFeed = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-
+  const [newsPosts, setNewsPosts] = useState<any>({})
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const openModal = () => {
@@ -279,6 +279,8 @@ const NewsFeed = () => {
     return () => clearInterval(slideInterval);
   }, []);
 
+
+
   const SliderComponent: any = () => {
     if (news && news.events)
       return Object.values(news.events).map((slide: any) => {
@@ -290,10 +292,97 @@ const NewsFeed = () => {
         );
       });
   };
-  let postus = [];
-  if (news && news.posts) {
-    postus = Object.values(news.posts);
+  const getImageData = async (id: string) => {
+
+    const data = await getPostByPostId(id)
+    const imageData = await getPostImageByPostId(id)
+
+    const commentsData = await getChatsByChatId(data.chatId)
+    console.log(commentsData)
+    const allData = Object.assign({}, ({ ...data, comments: commentsData.payload.messages.length, image: imageData.src }))
+    console.log("allData", allData)
+    return ({ id: id, data: { ...allData } })
+
   }
+
+  const handlePosts = async (news: any) => {
+
+    try {
+      if (news && news.posts) {
+        let arr = []
+        for (const pst of news.posts.comments) {
+          console.log('POSTUS ::: ', pst)
+          const postsFull = await getImageData((pst));
+          console.log('postsFull ::: ', postsFull)
+          arr.push(postsFull)
+        }
+        console.log("arr :::   ", arr)
+        setNewsPosts(arr)
+        return arr
+
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  useEffect(() => {
+    handlePosts(news)
+
+
+  }, [news])
+
+  useEffect(() => {
+    console.log(newsPosts)
+
+
+  }, [newsPosts])
+
+
+  const postsFeed = useMemo(() => Object.values(newsPosts || {}).map((post: any) =>
+    <NewsCard
+      key={post.data.id}
+      onClick={async (event) => await handleFriendClick(post.data.user.name)}
+    >
+      <div
+        style={{
+          position: "relative",
+          height: "90%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <FeedImageContainer>
+          <NewsThumbnail src={post.data.image} alt={post.data.description} />
+        </FeedImageContainer>
+      </div>
+
+      <div
+        style={{
+          position: "relative",
+          height: "10%",
+          backgroundColor: themevars.buttonBackground,
+        }}
+      >
+        <StatsContainer>
+          <Stat>
+            <FaComment /> {post.data.comments}
+          </Stat>
+          <Stat>
+            <FaHeart /> {post.data.likes}
+          </Stat>
+
+          <Stat>
+            <FaShare /> {post.data.shares}
+          </Stat>
+        </StatsContainer>
+      </div>
+    </NewsCard>
+
+
+
+
+  ), [newsPosts]);
 
   return (
     <NewsFeedContainer theme={themevars}>
@@ -362,13 +451,13 @@ const NewsFeed = () => {
         <Tab active={false}>Friends</Tab>
       </Tabs>
 
-      <NewsTitle>Featured work</NewsTitle>
+      {/* <NewsTitle>Featured work</NewsTitle>
       <NewsCard key="featured">
         {/* <NewsThumbnail
           src="https://via.placeholder.com/600x400"
           alt="Featured"
         /> */}
-        <StatsContainer>
+      {/* <StatsContainer>
           <Stat>
             <FaEye /> 0
           </Stat>
@@ -382,7 +471,7 @@ const NewsFeed = () => {
             <FaShare /> 0
           </Stat>
         </StatsContainer>
-      </NewsCard>
+      </NewsCard> */}
       <div
         style={{
           display: "flex",
@@ -391,50 +480,8 @@ const NewsFeed = () => {
         }}
       >
         <NewsPageImageGrid>
-          {postus &&
-            postus.length > 0 &&
-            postus.map((post: any) => {
-              return (
-                <NewsCard
-                  key={post.id}
-                  onClick={async (event) => await handleFriendClick(post.user)}
-                >
-                  <div
-                    style={{
-                      position: "relative",
-                      height: "90%",
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <FeedImageContainer>
-                      <NewsThumbnail src={post.image} alt={post.description} />
-                    </FeedImageContainer>
-                  </div>
 
-                  <div
-                    style={{
-                      position: "relative",
-                      height: "10%",
-                      backgroundColor: themevars.buttonBackground,
-                    }}
-                  >
-                    <StatsContainer>
-                      <Stat>
-                        <FaEye /> {post.views}
-                      </Stat>
-                      <Stat>
-                        <FaHeart /> {post.likes}
-                      </Stat>
-
-                      <Stat>
-                        <FaShare /> {post.shares}
-                      </Stat>
-                    </StatsContainer>
-                  </div>
-                </NewsCard>
-              );
-            })}
+          {news && newsPosts && postsFeed}
         </NewsPageImageGrid>
       </div>
     </NewsFeedContainer>

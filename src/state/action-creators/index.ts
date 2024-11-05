@@ -116,6 +116,61 @@ const handlePosts = async (filter: any) => {
     console.log(e);
   }
 };
+
+export const getPostImageByPostId = async (postId: any) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+    const { data } = await AxiosCustom.post(
+      endpoints.GETPOSTIMAGEBYPOSTID,
+      { postId },
+      {
+        headers,
+      }
+    );
+    
+    return data.payload;
+  } catch (e) {
+    console.log(e);
+  }
+}; 
+export const getPostByPostId = async (postId: any) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+    const { data } = await AxiosCustom.post(
+      endpoints.GETPOSTBYPOSTID,
+      { postId },
+      {
+        headers,
+      }
+    );
+    
+    return data.payload;
+  } catch (e) {
+    console.log(e);
+  }
+};
+export const getTrendingPostsByCityAction = async (city: any) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+    console.log(city)
+    const { data } = await AxiosCustom.post(
+      endpoints.GETTRENDINGPOSTS,
+      { city },
+      {
+        headers,
+      }
+    );
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
 //------------NEWS OPERATIONS ------------
 export const getNewsAction = async (filter: string) => {
   try {
@@ -144,10 +199,7 @@ export const getNewsAction = async (filter: string) => {
       pointId: string;
       data: Record<string, any>; // adjust type as needed for data structure
     };
-    type PostData = {
-      id: string;
-      data: Record<string, any>; // adjust type as needed for data structure
-    };
+ 
 
     function transformEventsData(inputData: {
       [key: number]: PointData[];
@@ -171,11 +223,11 @@ export const getNewsAction = async (filter: string) => {
       );
     }
 
-    const postsPayload = await handlePosts(filter);
+    const postsPayload = await getTrendingPostsByCityAction({city: filter.split(",")[0]});
     const eventsDataDict: Record<string, any> = transformEventsData(
       data.payload.events
     );
-    const postsDataDict: Record<string, any> = postsPayload.payload.posts;
+    const postsDataDict: Record<string, any> = postsPayload.payload;
 
     // .map((autdat) => autdat).filter((out) => out.pointId !== undefined)
 
@@ -539,6 +591,29 @@ export const addNotificationAction = (message, type) => {
     }
   };
 };
+
+
+
+export const getChatsByChatId = async (chatId: any) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+    console.log('jyfujfkufkuf', chatId )
+    const { data } = await AxiosCustom.post(
+      endpoints.GETCHATBYCHATID,
+      {chatId},
+      {
+        headers,
+      }
+    );
+    return data;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
 
 export const getProfileData = async (username: any) => {
   try {

@@ -186,5 +186,9 @@ export enum endpoints {
   PROFILEDATA_U = "profile/update",
   ADD_POINT = "users/addPoint",
   UPDATE_USER = "users/update",
-  GETPOSTS =  "news/getPosts"
+  GETPOSTS =  "news/getPosts",
+  GETPOSTBYPOSTID =  "posts/getPostByPostId",
+  GETTRENDINGPOSTS = "news/getTrendingPostsByCity",
+  GETPOSTIMAGEBYPOSTID = "images/getPostImageByPostId",
+  GETCHATBYCHATID =   "chats/getChatByChatId"
 }
