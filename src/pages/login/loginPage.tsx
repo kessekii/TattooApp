@@ -65,7 +65,7 @@ const RepositoriesList = () => {
         await auth.login(password, loginF);
         // await auth.setUserFull(user);
         const userData = await getProfileData(loginF);
-        // console.log("1", payload.event);
+        //
         // const temp = { ...userData.payload.event, events: [], chats: [], points: [] };
 
         const chatData = await getChatsByUserId(loginF);
@@ -88,7 +88,6 @@ const RepositoriesList = () => {
         for (let imageId of unique) {
           const image = await getImageByImageId(imageId);
           if (image && image.payload) {
-
             newimages = { ...newimages, [imageId]: image.payload };
           }
         }

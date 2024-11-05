@@ -94,7 +94,7 @@ export const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const { insertUser } = useActions();
-  console.log("RegisterPage");
+
   const navigate = useNavigate();
   const handleRegister = async () => {
     try {

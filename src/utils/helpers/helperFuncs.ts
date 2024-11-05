@@ -25,7 +25,7 @@ export const generateNodesFromArray = (arr: string[], structure: any) => {
 export const getPointImageByPointId = async (pointId: string) => {
   try {
     const response = await fetch(
-      "http://localhost:4000/points/getPointImageByPointIds",
+      "http://46.117.80.103:4000/points/getPointImageByPointIds",
       {
         method: "POST",
         headers: {
@@ -70,7 +70,7 @@ export const getAvatars = async (friend, setAvatars) => {
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
     const response = await fetch(
-      "http://localhost:4000/points/getImageIdsByChatId",
+      "http://46.117.80.103:4000/points/getImageIdsByChatId",
       {
         method: "POST",
         headers: {

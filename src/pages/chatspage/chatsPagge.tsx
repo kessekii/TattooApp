@@ -189,9 +189,8 @@ export const ChatsPageComponent: React.FC = () => {
       // })
 
       const chat = chats[privateChatId];
-      //   console.log("not first", chat);
+      //
       if (chat.messages && chat.messages?.length > 0) {
-        console.log("not first");
         chat.messages.push({
           author: user.username,
           text: newComment,
@@ -213,8 +212,6 @@ export const ChatsPageComponent: React.FC = () => {
         !chats ||
         (chat && (!chat.messages || chat.messages.length === 0))
       ) {
-        console.log("first");
-
         chat.messages = [
           {
             author: user.username,

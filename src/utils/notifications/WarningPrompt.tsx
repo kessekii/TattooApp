@@ -68,7 +68,6 @@ export const DeletionWarningPrompt = (props: {
   obj: any;
 }) => {
   const handleOk = async (obj: any) => {
-    console.log("OBJ : ", obj);
     await props.onAgree(obj);
     props.setPopUpVisible(false);
   };

@@ -63,7 +63,7 @@ export const LivestreamPage = () => {
   const handleDeviceUpdate = async () => {
     try {
       const { videoDevices, audioDevices } = await getDevices();
-      console.log("videoDevices", videoDevices, audioDevices);
+
       setVideoDevices(videoDevices);
       setSelectedVideoDeviceId(videoDevices[0]?.deviceId);
 
@@ -88,19 +88,21 @@ export const LivestreamPage = () => {
     // Call the handleDeviceUpdate function to update the video and audio devices
     handleDeviceUpdate();
     // Set the value of isInitializeComplete to true
-    const payload = await fetch("http://localhost:4000/chats/addUserToChat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify({
-        userEmail: login.user.email,
-        chatId: JSON.parse(chatId),
-      }),
-    });
-    console.log("payload", payload);
+    const payload = await fetch(
+      "http://46.117.80.103:4000/chats/addUserToChat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          userEmail: login.user.email,
+          chatId: JSON.parse(chatId),
+        }),
+      }
+    );
 
     setChatId(JSON.parse(chatId));
     setIsInitializeComplete(true);

@@ -127,8 +127,6 @@ export const joinStage = async (
   stage.on(
     StageEvents.STAGE_PARTICIPANT_STREAMS_ADDED,
     (participant, streams) => {
-      console.log("Participant Media Added: ", participant, streams);
-
       setParticipants((prevParticipants) => {
         const participantExists = prevParticipants.some(
           (participantObj) => participantObj.participant.id === participant.id
@@ -145,8 +143,6 @@ export const joinStage = async (
 
   // Event listener for when a participant leaves
   stage.on(StageEvents.STAGE_PARTICIPANT_LEFT, (participant) => {
-    console.log("Participant Left: ", participant);
-
     // Update the list of participants by removing the participant who left
     setParticipants((prevParticipants) => {
       const filteredParticipants = prevParticipants.filter(

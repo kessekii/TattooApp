@@ -18,12 +18,8 @@ const reducer = (
 ): livestreamReducerInterface => {
   switch (action.type) {
     case ActionType.LIVESTREAMCREATE:
-      console.log("action.payload", action);
-
       return action.payload;
     case ActionType.LIVESTREAMS:
-      console.log("action.payload", action);
-
       return action.payload;
 
     default:

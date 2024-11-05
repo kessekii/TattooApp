@@ -547,7 +547,7 @@ export const MapPage = () => {
       return;
     }
 
-    // console.log("camera changed:", ev.detail.center, "zoom:", ev.detail.zoom);
+    //
     const distance = calcCrow(
       ev.detail.center.lat,
       ev.detail.center.lng,
@@ -561,7 +561,7 @@ export const MapPage = () => {
       const pointsInRadius = (
         await getPointsInRadius(ev.detail.center, cameraUpdateLock)
       ).payload;
-      // console.log("pointsInRadius", pointsInRadius);
+      //
       // let inumeratel = user;
       // inumeratel.points = pointsInRadius;
       if (pointsInRadius) {

@@ -127,7 +127,6 @@ const App: React.FC = () => {
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", {});
   const navigate = useNavigate();
   const handleResize = () => {
-    console.log("PLAKTIVERA ");
     setScreen(window.innerWidth, window.innerHeight);
   };
 

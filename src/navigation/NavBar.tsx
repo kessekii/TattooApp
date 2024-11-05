@@ -114,7 +114,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [hideNav, setHideNav] = useLocalStorage("hideNav", null);
   const fetchData = async (username: string, { type }: fetchDataType) => {
     setScreen(dim);
-    console.log("FETCHING DATA FOR : ", type, username);
+
     if (type) {
       setLoading(true);
       setIsMap(false);
@@ -138,14 +138,14 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
 
           for (let imageId of avatarIds) {
             const image = await getImageByImageId(imageId);
-            console.log("dfsdfsdfdsfdsf", image.payload, imageId);
+
             if (image && image.payload) {
               newimages = { ...newimages, [imageId]: image.payload };
             }
           }
           for (let imageId of imageIds.payload) {
             const image = await getImageByImageId(imageId);
-            console.log("dfsdfsdfdsfdsf", image.payload, imageId);
+
             if (image && image.payload) {
               newimages = { ...newimages, [imageId]: image.payload };
             }

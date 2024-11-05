@@ -47,9 +47,7 @@ class PlayerDemo {
       player.addEventListener(state, () => {});
     }
 
-    player.addEventListener(PlayerEventType.INITIALIZED, () => {
-      console.log("INITIALIZED");
-    });
+    player.addEventListener(PlayerEventType.INITIALIZED, () => {});
 
     player.addEventListener(PlayerEventType.ERROR, (error) => {
       const statusTooManyRequests = 429;
@@ -63,19 +61,13 @@ class PlayerDemo {
       }
     });
 
-    player.addEventListener(PlayerEventType.QUALITY_CHANGED, (quality) => {
-      console.log("QUALITY_CHANGED", quality);
-    });
+    player.addEventListener(PlayerEventType.QUALITY_CHANGED, (quality) => {});
 
     // This event fires when text cues are encountered, such as captions or subtitles
-    player.addEventListener(PlayerEventType.TEXT_CUE, (cue) => {
-      console.log("TEXT_CUE", cue.startTime, cue.text);
-    });
+    player.addEventListener(PlayerEventType.TEXT_CUE, (cue) => {});
 
     // This event fires when embedded Timed Metadata is encountered
-    player.addEventListener(PlayerEventType.TEXT_METADATA_CUE, (cue) => {
-      console.log("Timed metadata", cue.text);
-    });
+    player.addEventListener(PlayerEventType.TEXT_METADATA_CUE, (cue) => {});
   }
 }
 

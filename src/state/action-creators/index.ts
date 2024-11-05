@@ -124,7 +124,7 @@ export const getNewsAction = async (filter: string) => {
     };
 
     // const loggetting = await AxiosCustom.post(
-    //   "http://localhost:4000:8000",
+    //   "http://46.117.80.103:4000:8000",
     //   loginParams,
     //   {
     //     headers,
@@ -152,7 +152,6 @@ export const getNewsAction = async (filter: string) => {
     function transformEventsData(inputData: {
       [key: number]: PointData[];
     }): Record<string, any> {
-      console.log("transformEventsData", inputData);
       return Object.assign(
         {},
         ...Object.values(inputData)
@@ -179,7 +178,6 @@ export const getNewsAction = async (filter: string) => {
     const postsDataDict: Record<string, any> = postsPayload.payload.posts;
 
     // .map((autdat) => autdat).filter((out) => out.pointId !== undefined)
-    console.log("postsData ", postsDataDict);
 
     return { events: eventsDataDict, posts: postsDataDict };
   } catch (err) {
@@ -195,7 +193,7 @@ export const makeEventAction = async (payload: any) => {
     };
 
     // const loggetting = await AxiosCustom.post(
-    //   "http://localhost:4000:8000",
+    //   "http://46.117.80.103:4000:8000",
     //   loginParams,
     //   {
     //     headers,
@@ -226,7 +224,7 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
       };
       const user = JSON.stringify(loginParams);
       // const loggetting = await AxiosCustom.post(
-      //   "http://localhost:4000:8000",
+      //   "http://46.117.80.103:4000:8000",
       //   loginParams,
       //   {
       //     headers,

@@ -93,7 +93,7 @@ const PortfolioViewPage: React.FC = ({}) => {
 
       const filteredPost =
         userShown && posts ? posts[selectedPostId] : { chatId: "" };
-      console.log("Selected Post Id:", selectedPostId);
+
       const chat =
         chats && Object.keys(chats).length === 0
           ? {}
@@ -123,8 +123,6 @@ const PortfolioViewPage: React.FC = ({}) => {
         !chats ||
         (chat && (!chat.messages || chat.messages.length === 0))
       ) {
-        console.log("first");
-
         chat.messages = [
           {
             author: user.username,
@@ -459,9 +457,9 @@ const PortfolioViewPage: React.FC = ({}) => {
 
 export async function getAvatarByUserId(username: string) {
   try {
-    // console.log("id", chatId, username);
+    //
     const response = await fetch(
-      "http://localhost:4000/users/getAvatarByUserId",
+      "http://46.117.80.103:4000/users/getAvatarByUserId",
       {
         method: "POST",
         headers: {

@@ -33,8 +33,6 @@ const servers = {
 };
 
 const NewStreamPage = (): JSX.Element => {
-  console.log("NewStreamPage");
-
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [callId, setCallId] = useState("");
@@ -75,8 +73,6 @@ const NewStreamPage = (): JSX.Element => {
 
       pc.current.ontrack = (event) => {
         event.streams[0].getTracks().forEach((track) => {
-          console.log("ontrack", track);
-
           if (remoteStream) {
             remoteStream.addTrack(track);
             setRemoteStream(remoteStream);
@@ -111,7 +107,6 @@ const NewStreamPage = (): JSX.Element => {
     answer: RTCSessionDescriptionInit
   ) => {
     try {
-      console.log("DOC DATA IS :", docData);
       await updateDoc(doc(firestore, "rtc-connections/" + id), {
         answer: JSON.stringify(answer),
       });
@@ -135,12 +130,11 @@ const NewStreamPage = (): JSX.Element => {
 
       const getStreamId = async () => {
         try {
-          console.log("auth", login);
           if (!login) {
             return;
           }
           const payload = await fetch(
-            "http://localhost:4000/streams/createStream",
+            "http://46.117.80.103:4000/streams/createStream",
             {
               method: "POST",
               headers: {
@@ -154,9 +148,9 @@ const NewStreamPage = (): JSX.Element => {
               }),
             }
           );
-          console.log("payload", payload);
+
           const result = await payload.json();
-          console.log("result", result);
+
           return {
             streamId: result.payload.streamId,
             chatId: result.payload.chatId,
@@ -192,14 +186,13 @@ const NewStreamPage = (): JSX.Element => {
         ),
         { includeMetadataChanges: true },
         async (snapshot) => {
-          console.log("snapshot", snapshot);
           snapshot.docChanges().forEach((change: any) => {
             if (
               (change.type === "added" || change.type === "modified") &&
               pc.current.remoteDescription
             ) {
               const data = change.doc.data();
-              console.log("candidate", data);
+
               pc.current.addIceCandidate(new RTCIceCandidate(data));
             }
           });
@@ -232,7 +225,7 @@ const NewStreamPage = (): JSX.Element => {
 
       // setChatId(idObject)
       const data = JSON.parse(callData.data()!.offer);
-      // console.log('callData', data);
+      //
       const offerDescription = new RTCSessionDescription(
         data.offer as RTCSessionDescriptionInit
       );
@@ -244,19 +237,22 @@ const NewStreamPage = (): JSX.Element => {
 
       await pc.current.setLocalDescription(answerDescription);
 
-      const payload = await fetch("http://localhost:4000/chats/addUserToChat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({
-          userEmail: login.user.email,
-          chatId: JSON.parse(chatId),
-        }),
-      });
-      console.log("payload", payload);
+      const payload = await fetch(
+        "http://46.117.80.103:4000/chats/addUserToChat",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: JSON.stringify({
+            userEmail: login.user.email,
+            chatId: JSON.parse(chatId),
+          }),
+        }
+      );
 
       setChatId(JSON.parse(chatId));
 
@@ -269,7 +265,6 @@ const NewStreamPage = (): JSX.Element => {
               const data = change.doc.data();
 
               pc.current.addIceCandidate(new RTCIceCandidate(data));
-              console.log("candidate", data);
             }
           }
         }

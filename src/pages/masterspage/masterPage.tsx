@@ -734,15 +734,12 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     updatedFollowing[index] = !updatedFollowing[index];
     setFriendFollowing(updatedFollowing);
 
-    console.log("Friend Following:", friend, friendFollowing);
-
     const newFriend = {
       avatar: user.profilePicture,
       nickname: user.name,
       username: user.username,
     };
 
-    console.log("New Post:", friend, friend.friends, username, friend.username);
     // const updatedProfileData = { ...user };
 
     if (friend.friends[friend.username]) {
@@ -759,10 +756,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   };
 
   useEffect(() => {
-    return console.log("username : ", username);
+    return;
   }, [username]);
   useEffect(() => {
-    return console.log("loading : ", loading);
+    return;
   }, [loading]);
 
   const profileComponent = useMemo(
@@ -787,7 +784,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   );
 
   useEffect(() => {
-    return console.log("friend : loading : ", loading, friend);
+    return;
   }, [!loading]);
 
   const postsComponents = useMemo(
@@ -812,7 +809,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                 <PostImage
                   src={images[friendPosts[post].image]?.src || ""}
                   onClick={() => {
-                    console.log("TO PORTFOLIO");
                     return navigate("/" + friend.name + "/portfolio");
                   }}
                   alt={`Post ${post}`}
@@ -884,7 +880,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   const handleImageSelect = (image: string) => {
     setSelectedImage(image); // Save the selected image
-    // console.log("Selected Image:", image);
+    //
   };
 
   const setClientDate = (date: any) => {
@@ -934,7 +930,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       setUser(updatedProfileData);
     } else {
       // If the date doesn't exist, add it to the calendar
-      console.log("Date not found, adding new date", date);
 
       const updatedProfileData = { ...friend };
       updatedProfileData.calendar.push({ date: date.date, hours: [date.time] });
@@ -947,15 +942,12 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const setMasterDate = async (calendar: { dates; hours }) => {
     const index = -1;
 
-    console.log("Selected Date:", calendar.dates);
     const finalDates = calendar.dates.map((d) => ({
       date: d,
       hours: calendar.hours,
     }));
 
     // If the date exists, add the new time to the hours array
-
-    console.log("Date already found in calendar", finalDates);
 
     friend.calendar = finalDates;
     // setProfileData(friend);
@@ -964,7 +956,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     setUser({ ...friend });
     await setIsEditingProfile();
 
-    console.log("Updated Calendar:", friend);
     return friend.calendar;
   };
 
@@ -1166,7 +1157,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
           theme={themevars}
           following={isFollowing}
           onClick={async () => {
-            console.log("loggedInUser", loggedInUser);
             !loggedInUser ? await handleFollow() : handleAddPhotoClick();
           }}
         >
@@ -1267,7 +1257,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             <h2>Friends List</h2>
             <FriendsList theme={themevars}>
               {Object.keys(friend.friends).map((follower: any, index) => {
-                console.log("follower : " + index + " : ", follower);
                 return (
                   <FriendItem
                     theme={themevars}
