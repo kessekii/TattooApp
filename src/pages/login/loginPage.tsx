@@ -87,7 +87,10 @@ const RepositoriesList = () => {
         let newimages = {};
         for (let imageId of unique) {
           const image = await getImageByImageId(imageId);
-          newimages = { ...newimages, [imageId]: image.payload };
+          if (image && image.payload) {
+
+            newimages = { ...newimages, [imageId]: image.payload };
+          }
         }
         setImages(newimages);
         setImageIds(imageIds.payload);

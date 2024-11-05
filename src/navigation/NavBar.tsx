@@ -122,14 +122,8 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setNews(newsData);
           setLoading(false);
           break;
-          return;
-        case "/chats":
-          const chatsData = await getChatsByUserId(user.location);
-          setChats(chatsData.payload);
 
-          setLoading(false);
-          break;
-          return;
+
         case "/user":
           setHideNav(false);
 
@@ -150,14 +144,14 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setChats(userChats.payload);
           setLoading(false);
           break;
-          return;
+
         case "/chats":
           const userChatsupd = await getChatsByUserId(user.name);
 
           setChats(userChatsupd.payload);
           setLoading(false);
           break;
-          return;
+
         case "/map":
           // const pointsData = await getPointsInRadius(user.location, false);
           // for (let point of pointsData.payload) {
@@ -172,10 +166,10 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setIsMap(true);
           setLoading(false);
           break;
-          return;
+
         default:
           break;
-          return;
+
       }
     }
   };
