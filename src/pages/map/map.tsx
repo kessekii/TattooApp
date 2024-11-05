@@ -129,11 +129,11 @@ const PoiMarker = (props: {
       setIsVisible(false);
     }
   }, [props.focusedPoint]);
-  // console.log(JSON.stringify(props.point));
+  //;
   // if (!props.point.location) {
   //   return <></>;
   // }
-  // console.log(props.point);
+  //;
 
   const isAvailableEdit =
     Object.keys(user.points).includes(
@@ -146,8 +146,7 @@ const PoiMarker = (props: {
         ":" +
         props.point.location.lng.toFixed(2)
     ].find((point) => point === props.point.pointId);
-  console.log(isAvailableEdit, props.focusedPoint);
-  // console.log(props.point.data);
+  //;
   return (
     <>
       {isEdit && (
@@ -498,7 +497,6 @@ const tryAddNewPoint = async (
         location: { lat: lat, lng: lng },
       });
       const parts = response.results[0].formatted_address.split(",");
-      console.log(parts);
       if (parts.length === 3) {
         return parts[1].replace(" ", "") + "," + parts[2].replace(" ", "");
       } else if (parts.length === 2) {
@@ -556,7 +554,7 @@ export const MapPage = () => {
       cameraLocation.lat,
       cameraLocation.lng
     );
-    // console.log(distance);
+    //;
     if (distance > 0.7) {
       setCameraUpdateLock(true);
 

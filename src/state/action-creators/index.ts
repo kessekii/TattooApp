@@ -130,7 +130,7 @@ export const getNewsAction = async (filter: string) => {
     //     headers,
     //   }
     // );
-    // console.log(loggetting.request);
+    //;
 
     const { data } = await AxiosCustom.post(
       endpoints.NEWS,
@@ -201,7 +201,7 @@ export const makeEventAction = async (payload: any) => {
     //     headers,
     //   }
     // );
-    // console.log(loggetting.request);
+    //;
     const { data } = await AxiosCustom.post(endpoints.MAKEEVENT, payload, {
       headers,
     });
@@ -225,7 +225,6 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
         Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
       };
       const user = JSON.stringify(loginParams);
-      console.log(user);
       // const loggetting = await AxiosCustom.post(
       //   "http://localhost:4000:8000",
       //   loginParams,
@@ -233,7 +232,7 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
       //     headers,
       //   }
       // );
-      // console.log(loggetting.request);
+      //;
       const { data } = await AxiosCustom.post(endpoints.LOGIN, loginParams, {
         headers,
       });

@@ -130,7 +130,6 @@ const NewStreamPage = (): JSX.Element => {
           addDoc(offerCandidatesDocRef, event.candidate.toJSON());
       };
       const offerDescription = await pc.current.createOffer();
-      console.log(offerDescription);
       pc.current.setLocalDescription(offerDescription);
       handleAddOffer(callDocRef.id, offerDescription);
 
@@ -174,7 +173,6 @@ const NewStreamPage = (): JSX.Element => {
         chatId: JSON.stringify(idObject?.chatId),
       });
 
-      console.log(offerCandidatesDocRef.id);
       onSnapshot(callDocRef, (snapshot) => {
         const data = snapshot.data();
         if (!pc.current.currentRemoteDescription && data && data.answer) {

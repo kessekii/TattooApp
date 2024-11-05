@@ -268,7 +268,6 @@ const PortfolioEditorPage: React.FC = () => {
     setFriendChats(chatsData.payload);
     setImages(newImages);
 
-    console.log(window.location.href);
     navigate("/" + user.username);
     closeModal();
   };

@@ -157,7 +157,6 @@ export const ChatsPageComponent: React.FC = () => {
   const [privateChats, setPrivateChats] = useState<any>({});
   const handleLoadCHats = async () => {
     const data = (await getPrivateChatsByUserId(user.username)).payload;
-    console.log(data);
     setPrivateChats({ ...data });
     await timeout(5000);
     return data;
@@ -169,8 +168,6 @@ export const ChatsPageComponent: React.FC = () => {
     setHideNav(true);
   };
   const handleCommentSubmit = async (privateChatId: string) => {
-    console.log(privateChatId, "dfsdfdsf", newComment);
-
     if (privateChatId !== null && newComment.trim() !== "") {
       const user = JSON.parse(window.localStorage.getItem("user") || "{}");
       const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
@@ -237,8 +234,6 @@ export const ChatsPageComponent: React.FC = () => {
         const newPrivateChats = await getPrivateChatsByUserId(user.username);
         setPrivateChats(newPrivateChats.payload);
       }
-
-      console.log(selectedChatId);
 
       // Update user with the new comments
 

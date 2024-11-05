@@ -18,7 +18,6 @@ export const getChatByChatId = async (chatId: string, username: string) => {
     );
 
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -47,7 +46,6 @@ export const updateUserAndImage = async (
       }
     );
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -71,7 +69,6 @@ export const getPostsByUserId = async (username: string) => {
     );
 
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -184,7 +181,6 @@ export const getChatsByUserId = async (username: string) => {
     );
 
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -209,7 +205,6 @@ export const getPointByQuadIdAndPointId = async (
     );
 
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -239,7 +234,6 @@ export const createPointByUsername = async (
     );
 
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -262,7 +256,7 @@ export const getPointsInRadius = async (location: any, blocked: any) => {
 
     const result = await response.json();
 
-    // console.log(result);
+    //;
     return result;
   } catch (error) {
     console.log("error", error);
@@ -284,7 +278,6 @@ export const deletePointbyPointId = async (quadId: string, pointId: string) => {
     );
 
     const result = response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -303,7 +296,6 @@ export const getUserById = async (username: string) => {
     });
 
     const result = response.json();
-    console.log(result);
     return result;
   } catch (err) {
     console.log(err);
@@ -322,7 +314,6 @@ export const updatePointbyPointId = async (quadId: string, point: string) => {
     });
 
     const result = response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -341,7 +332,6 @@ export const updatePoint = async (point: any) => {
     });
 
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);

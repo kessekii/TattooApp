@@ -143,7 +143,6 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
               newimages = { ...newimages, [imageId]: image.payload };
             }
           }
-          console.log(imageIds);
           for (let imageId of imageIds.payload) {
             const image = await getImageByImageId(imageId);
             console.log("dfsdfsdfdsfdsf", image.payload, imageId);

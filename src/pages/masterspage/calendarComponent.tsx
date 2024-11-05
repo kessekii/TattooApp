@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { TextField, MenuItem, Box } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import { TextField, MenuItem, Box } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import styled from "styled-components";
 
 // Mock available hours (can be fetched from an API)
-
 
 const CalendarContainer = styled(Box)`
   display: flex;
@@ -19,94 +18,98 @@ const CalendarContainer = styled(Box)`
 `;
 
 const EditButton = styled.button`
-    background-color: #007bff;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
 `;
 
 const SaveButton = styled(EditButton)`
-    background-color: #28a745;
+  background-color: #28a745;
 `;
 
 interface CalendarComponentProps {
-
-    setClosePopup: () => void;
-    availableHours: any;// Define the type for the prop
-    setClientDate: any;
+  setClosePopup: () => void;
+  availableHours: any; // Define the type for the prop
+  setClientDate: any;
 }
 
-const CalendarComponent: React.FC<CalendarComponentProps> = ({ setClosePopup, availableHours, setClientDate }) => {
+const CalendarComponent: React.FC<CalendarComponentProps> = ({
+  setClosePopup,
+  availableHours,
+  setClientDate,
+}) => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-    console.log(availableHours);
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [availableTimes, setAvailableTimes] = useState<string[]>([]);
-    const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const handleDateChange = (date: Date | null) => {
+    setSelectedDate(date);
+    availableHours.forEach((element: any) => {
+      console.log(element);
+    });
+    if (date) {
+      const formattedDate = date.toISOString().split("T")[0];
+      // Get available times for the selected date
+      const times = availableHours.filter(
+        (el: any) => el.date === formattedDate
+      );
+      setAvailableTimes(times[0]["hours"]);
+      setSelectedTime(null); // Reset the time when a new date is selected
+    }
+  };
 
-    const handleDateChange = (date: Date | null) => {
-        setSelectedDate(date);
-        availableHours.forEach((element: any) => {
-            console.log(element);
-        });
-        if (date) {
-            const formattedDate = date.toISOString().split('T')[0];
-            console.log(formattedDate);
-            // Get available times for the selected date
-            const times = availableHours.filter((el: any) => el.date === formattedDate);
-            console.log(times);
-            setAvailableTimes(times[0]["hours"]);
-            setSelectedTime(null); // Reset the time when a new date is selected
-        }
-    };
+  const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.value);
+    setSelectedTime(event.target.value.toString());
+  };
+  const handleSaveDate = () => {
+    setClientDate({
+      time: selectedTime,
+      date: selectedDate.toISOString().split("T")[0],
+    });
+    setClosePopup();
+  };
 
-    const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(event.target.value);
-        setSelectedTime(event.target.value.toString());
-    };
-    const handleSaveDate = () => {
-        setClientDate({ time: selectedTime, date: selectedDate.toISOString().split('T')[0] });
-        setClosePopup();
-    };
+  return (
+    <CalendarContainer>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        {/* Date Picker */}
+        <DatePicker
+          label="Select a Date"
+          value={selectedDate}
+          onChange={handleDateChange}
+          renderInput={(params) => <TextField {...params} fullWidth />}
+        />
+      </LocalizationProvider>
 
-    return (
-        <CalendarContainer>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                {/* Date Picker */}
-                <DatePicker
-                    label="Select a Date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                    renderInput={(params) => <TextField {...params} fullWidth />}
-                />
-            </LocalizationProvider>
+      {/* Time Picker (Only shown if there are available times) */}
+      {availableTimes.length > 0 && (
+        <TextField
+          select
+          label="Select a Time"
+          value={selectedTime}
+          onChange={handleTimeChange}
+          fullWidth
+          margin="normal"
+        >
+          {availableTimes.map((time) => (
+            <MenuItem key={time} value={time}>
+              {time + ":00"}
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
 
-            {/* Time Picker (Only shown if there are available times) */}
-            {availableTimes.length > 0 && (
-                <TextField
-                    select
-                    label="Select a Time"
-                    value={selectedTime}
-                    onChange={handleTimeChange}
-                    fullWidth
-                    margin="normal"
-                >
-                    {availableTimes.map((time) => (
-                        <MenuItem key={time} value={time}>
-                            {time + ":00"}
-                        </MenuItem>
-                    ))}
-                </TextField>
-            )}
-
-            {/* Display the Save Button if a time is selected */}
-            {selectedTime && (
-                <SaveButton onClick={() => handleSaveDate()}>Reserve Date</SaveButton>
-            )}
-        </CalendarContainer>
-    );
+      {/* Display the Save Button if a time is selected */}
+      {selectedTime && (
+        <SaveButton onClick={() => handleSaveDate()}>Reserve Date</SaveButton>
+      )}
+    </CalendarContainer>
+  );
 };
 
 export default CalendarComponent;

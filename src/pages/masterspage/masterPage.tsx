@@ -689,7 +689,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       newImageObject,
       newBackdropImageObject
     );
-    console.log(result.payload);
     setImages({
       ...images,
       [result.payload.image.id]: result.payload.image,
@@ -722,7 +721,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   };
 
   const friendsFilter = (friend: any) => {
-    console.log(friend.username, username);
     return friend.username === username;
   };
 

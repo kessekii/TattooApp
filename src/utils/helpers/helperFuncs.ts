@@ -38,7 +38,6 @@ export const getPointImageByPointId = async (pointId: string) => {
     );
 
     const result = response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);
@@ -84,7 +83,6 @@ export const getAvatarIdsByChatId = async (chatId) => {
     );
 
     const result = response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);

@@ -171,14 +171,12 @@ const PortfolioViewPage: React.FC = ({}) => {
         avatarsObj = { ...avatarsObj, [avatar.owner]: avatar.src };
       }
 
-      // console.log(touchedPart);
+      //;
     }
 
     await setAvatars(avatarsObj);
   };
-  useEffect(() => {
-    console.log(avatars);
-  }, [avatars]);
+  useEffect(() => {}, [avatars]);
 
   return (
     <PortfolioPage
@@ -476,7 +474,6 @@ export async function getAvatarByUserId(username: string) {
     );
 
     const result = await response.json();
-    console.log(result);
     return result;
   } catch (error) {
     console.log("error", error);

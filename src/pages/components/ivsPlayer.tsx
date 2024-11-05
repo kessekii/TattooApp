@@ -38,7 +38,7 @@
 //         const { ErrorType, PlayerEventType, PlayerState } = IVSPackage;
 
 //         for (const state of Object.values(PlayerState)) {
-//             player.addEventListener(state, () => console.log(state));
+//             player.addEventListener(state, () =>;
 //         }
 
 //         player.addEventListener(PlayerEventType.INITIALIZED, () => console.log('INITIALIZED'));
