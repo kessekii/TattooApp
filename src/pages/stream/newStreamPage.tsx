@@ -141,7 +141,7 @@ const NewStreamPage = (): JSX.Element => {
             return;
           }
           const payload = await fetch(
-            "http://46.117.80.103:4000/streams/createStream",
+            "http://localhost:4000/streams/createStream",
             {
               method: "POST",
               headers: {
@@ -246,22 +246,18 @@ const NewStreamPage = (): JSX.Element => {
 
       await pc.current.setLocalDescription(answerDescription);
 
-      const payload = await fetch(
-        "http://46.117.80.103:4000/chats/addUserToChat",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-            "Access-Control-Allow-Origin": "*",
-          },
-          body: JSON.stringify({
-            userEmail: login.user.email,
-            chatId: JSON.parse(chatId),
-          }),
-        }
-      );
+      const payload = await fetch("http://localhost:4000/chats/addUserToChat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          userEmail: login.user.email,
+          chatId: JSON.parse(chatId),
+        }),
+      });
       console.log("payload", payload);
 
       setChatId(JSON.parse(chatId));

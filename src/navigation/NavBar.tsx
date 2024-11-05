@@ -92,6 +92,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [avatars, setAvatars] = useLocalStorage("avatars", null);
   const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
   const [chats, setChats] = useLocalStorage("chats", null);
+  const [newsPosts, setNewsPosts] = useLocalStorage("newsPosts", null);
   const [screen, setScreen] = useLocalStorage("screen", null);
   const { username, postId } = useParams();
   const dim = useWindowDimensions();
@@ -122,7 +123,6 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setNews(newsData);
           setLoading(false);
           break;
-
 
         case "/user":
           setHideNav(false);
@@ -169,7 +169,6 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
 
         default:
           break;
-
       }
     }
   };
