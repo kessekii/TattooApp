@@ -132,45 +132,27 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           return;
         case "/user":
           setHideNav(false);
-          console.log(username);
-          const frienddata = await getUserById(username);
-          console.log(frienddata.payload);
-          const imageIdsss = (await getImageIdsByUserId(username)).payload;
-          console.log("navbar, usre", imageIdsss);
-          let [avatarIds, avatarsImagesdata]: any = await getAvatars(
-            frienddata.payload
+
+          const userData = (await getUserById(username)).payload;
+
+          const imageIds = (await getImageIdsByUserId(username)).payload;
+
+          let [avatarIds, avatarsImagesdata]: any = await getAvatars(userData);
+          const nonAvatarImages = imageIds.filter(
+            (e) => !avatarIds.includes(e)
           );
           if (!avatarIds || avatarIds.length === 0) {
             avatarsImagesdata = {};
           }
+          setAvatars(avatarsImagesdata);
+          // let imuserAvatar = await getImageByImageId(user.profilePicture);
 
-          let imuserAvatar = await getImageByImageId(user.profilePicture);
-          if (!imuserAvatar || !imuserAvatar.payload) {
-            imuserAvatar = {};
-          } else {
-            setAvatars({
-              ...avatarsImagesdata,
-              [user.username]: imuserAvatar.payload,
-            });
-          }
           let newimages = {};
           let newAvatarimages = {};
 
-          console.log(imageIdsss, avatarIds, frienddata.payload);
           if (avatarIds && avatarIds.length > 0) {
-            for (let imageId of avatarIds) {
-              const image = await getImageByImageId(imageId);
-
-              if (image && image.payload) {
-                newAvatarimages = {
-                  ...newimages,
-                  [image.payload.owner]: image.payload,
-                };
-              }
-            }
-
             // setAvatars(newAvatarimages);
-            for (let imageId of imageIdsss) {
+            for (let imageId of nonAvatarImages) {
               const image = await getImageByImageId(imageId);
 
               if (image && image.payload) {
@@ -179,14 +161,13 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             }
           }
 
-          setImageIds(imageIdsss);
           const newsDataNew = await getNewsAction(friend.location);
           setNews(newsDataNew);
-          const userdata = await getUserById(username);
-          setFriend(userdata.payload);
-          const chatData = await getChatsByUserId(username);
+
+          setFriend(userData);
+          const chatData = await getChatsByUserId(userData.username);
           setFriendChats(chatData.payload);
-          const postsData = await getPostsByUserId(username);
+          const postsData = await getPostsByUserId(userData.username);
           setFriendPosts(postsData.payload);
 
           // await getAvatars(username, setAvatars);

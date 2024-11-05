@@ -14,7 +14,12 @@ import {
   PopupContent,
   PopupOverlay,
 } from "../masterspage/masterPage";
-import { getChatsByChatId, getPostByPostId, getPostImageByPostId, makeEventAction } from "../../state/action-creators";
+import {
+  getChatsByChatId,
+  getPostByPostId,
+  getPostImageByPostId,
+  makeEventAction,
+} from "../../state/action-creators";
 import { ProfilePage } from "../masterspage/masterPage";
 import { useNavigate } from "react-router-dom";
 import {
@@ -216,7 +221,7 @@ const NewsFeed = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [newsPosts, setNewsPosts] = useState<any>({})
+  const [newsPosts, setNewsPosts] = useState<any>({});
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const openModal = () => {
@@ -279,8 +284,6 @@ const NewsFeed = () => {
     return () => clearInterval(slideInterval);
   }, []);
 
-
-
   const SliderComponent: any = () => {
     if (news && news.events)
       return Object.values(news.events).map((slide: any) => {
@@ -293,96 +296,99 @@ const NewsFeed = () => {
       });
   };
   const getImageData = async (id: string) => {
+    const data = await getPostByPostId(id);
+    const imageData = await getPostImageByPostId(id);
 
-    const data = await getPostByPostId(id)
-    const imageData = await getPostImageByPostId(id)
-
-    const commentsData = await getChatsByChatId(data.chatId)
-    console.log(commentsData)
-    const allData = Object.assign({}, ({ ...data, comments: commentsData.payload.messages.length, image: imageData.src }))
-    console.log("allData", allData)
-    return ({ id: id, data: { ...allData } })
-
-  }
+    const commentsData = await getChatsByChatId(data.chatId);
+    console.log(commentsData);
+    const allData = Object.assign(
+      {},
+      {
+        ...data,
+        comments: commentsData.payload.messages.length,
+        image: imageData.src,
+      }
+    );
+    console.log("allData", allData);
+    return { id: id, data: { ...allData } };
+  };
 
   const handlePosts = async (news: any) => {
-
     try {
       if (news && news.posts) {
-        let arr = []
+        let arr = [];
         for (const pst of news.posts.comments) {
-          console.log('POSTUS ::: ', pst)
-          const postsFull = await getImageData((pst));
-          console.log('postsFull ::: ', postsFull)
-          arr.push(postsFull)
+          console.log("POSTUS ::: ", pst);
+          const postsFull = await getImageData(pst);
+          console.log("postsFull ::: ", postsFull);
+          arr.push(postsFull);
         }
-        console.log("arr :::   ", arr)
-        setNewsPosts(arr)
-        return arr
-
+        console.log("arr :::   ", arr);
+        setNewsPosts(arr);
+        return arr;
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-  }
+  };
 
   useEffect(() => {
-    handlePosts(news)
-
-
-  }, [news])
+    handlePosts(news);
+  }, []);
 
   useEffect(() => {
-    console.log(newsPosts)
+    console.log(newsPosts);
+  }, [newsPosts]);
 
+  const postsFeed = useMemo(
+    () =>
+      Object.values(newsPosts || {}).map((post: any) => (
+        <NewsCard
+          key={post.data.id}
+          onClick={async (event) =>
+            await handleFriendClick(post.data.user.name)
+          }
+        >
+          <div
+            style={{
+              position: "relative",
+              height: "90%",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <FeedImageContainer>
+              <NewsThumbnail
+                src={post.data.image}
+                alt={post.data.description}
+              />
+            </FeedImageContainer>
+          </div>
 
-  }, [newsPosts])
+          <div
+            style={{
+              position: "relative",
+              height: "10%",
+              backgroundColor: themevars.buttonBackground,
+            }}
+          >
+            <StatsContainer>
+              <Stat>
+                <FaComment /> {post.data.comments}
+              </Stat>
+              <Stat>
+                <FaHeart /> {post.data.likes}
+              </Stat>
 
-
-  const postsFeed = useMemo(() => Object.values(newsPosts || {}).map((post: any) =>
-    <NewsCard
-      key={post.data.id}
-      onClick={async (event) => await handleFriendClick(post.data.user.name)}
-    >
-      <div
-        style={{
-          position: "relative",
-          height: "90%",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <FeedImageContainer>
-          <NewsThumbnail src={post.data.image} alt={post.data.description} />
-        </FeedImageContainer>
-      </div>
-
-      <div
-        style={{
-          position: "relative",
-          height: "10%",
-          backgroundColor: themevars.buttonBackground,
-        }}
-      >
-        <StatsContainer>
-          <Stat>
-            <FaComment /> {post.data.comments}
-          </Stat>
-          <Stat>
-            <FaHeart /> {post.data.likes}
-          </Stat>
-
-          <Stat>
-            <FaShare /> {post.data.shares}
-          </Stat>
-        </StatsContainer>
-      </div>
-    </NewsCard>
-
-
-
-
-  ), [newsPosts]);
+              <Stat>
+                <FaShare /> {post.data.shares}
+              </Stat>
+            </StatsContainer>
+          </div>
+        </NewsCard>
+      )),
+    [newsPosts]
+  );
 
   return (
     <NewsFeedContainer theme={themevars}>
@@ -479,10 +485,7 @@ const NewsFeed = () => {
           alignItems: "center",
         }}
       >
-        <NewsPageImageGrid>
-
-          {news && newsPosts && postsFeed}
-        </NewsPageImageGrid>
+        <NewsPageImageGrid>{news && newsPosts && postsFeed}</NewsPageImageGrid>
       </div>
     </NewsFeedContainer>
   );

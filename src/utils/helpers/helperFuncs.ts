@@ -61,8 +61,8 @@ export const getPointImageByPointId = async (
   }
 };
 export const getAvatars = async (friend) => {
-  let avatarsImagesObject = {};
-  let avatarsIds = [];
+  let avatarsImagesObject: any = {};
+  let avatarsIds: any = [];
 
   const imageUser = await getAvatarByUserId(friend.username);
   if (!imageUser || !imageUser.payload) return [];
@@ -82,7 +82,7 @@ export const getAvatars = async (friend) => {
     };
     avatarsIds.push(image.payload.id);
   }
-  console.log(avatarsImagesObject);
+  // console.log(avatarsImagesObject);
   // setAvatars(avatarsImagesObject);
   return [avatarsIds, avatarsImagesObject];
 };

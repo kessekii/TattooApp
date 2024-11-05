@@ -14,108 +14,92 @@ import {
   TitleComponent,
 } from "./loginPageComponents";
 import AxiosCustom from "../../utils/Axios";
-
 import { ForgotPasswordPopup } from "./forgotPasswordComponent";
+import { useTheme } from "../../state/providers/themeProvider";
 import {
-  useTheme,
-  useWindowDimensions,
-} from "../../state/providers/themeProvider";
-import {
-  getPointByQuadIdAndPointId,
-  getChatByChatId,
   getPointsInRadius,
   getChatsByUserId,
   getPostsByUserId,
   getImageIdsByUserId,
   getImageByImageId,
 } from "../../hooks/useChat";
-import { getNewsAction, getProfileData } from "../../state/action-creators";
-import AngledBackgroundComponent from "../masterspage/backgroundComponent";
-import { get } from "video.js/dist/types/tech/middleware";
-import { getAvatars } from "./../../utils/helpers/helperFuncs";
+import { getNewsAction, loginAction } from "../../state/action-creators";
+import { getAvatars } from "../../utils/helpers/helperFuncs";
 
-const RepositoriesList = () => {
-  const { theme, themevars, toggleTheme } = useTheme(); // Access custom theme
+const LoginPage = () => {
+  const { themevars } = useTheme();
   const [loginF, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [port, setPort] = useState(2);
   const [isVisible, setIsVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { loginAction } = useActions();
+
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
   const [avatars, setAvatars] = useLocalStorage("avatars", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [news, setNews] = useLocalStorage("news", null);
-  const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
   const [images, setImages] = useLocalStorage("images", null);
-  const [screen, setScreen] = useLocalStorage("screen", null);
-
+  const [points, setPoints] = useLocalStorage("points", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+
   const auth = useAuth();
-  const [points, setPoints] = useLocalStorage("points", null);
   const navigate = useNavigate();
 
   const tryLogin = async () => {
+    if (!loginF || !password) return;
+
     try {
-      if (loginF && password) {
-        loginAction({ username: loginF, password: password }, setErrorMessage);
-        await auth.login(password, loginF);
-        // await auth.setUserFull(user);
-        const userData = await getProfileData(loginF);
-        //
-        // const temp = { ...userData.payload.event, events: [], chats: [], points: [] };
+      const loginData = await loginAction(
+        { username: loginF, password: password },
+        setErrorMessage
+      );
+      if (!loginData || !loginData.username) return;
 
-        const chatData = await getChatsByUserId(loginF);
-        const postsData = await getPostsByUserId(loginF);
+      await auth.login(loginF, password);
+      setUser(loginData);
 
-        const pointsObject = await getPointsInRadius(
-          {
-            lat: 32.02119878251853,
-            lng: 34.74333323660794,
-          },
+      const [chatData, postsData, pointsObject, imageIds] = await Promise.all([
+        getChatsByUserId(loginData.username),
+        getPostsByUserId(loginData.username),
+        getPointsInRadius(
+          { lat: 32.02119878251853, lng: 34.74333323660794 },
           false
-        );
-        const imageIds = await getImageIdsByUserId(loginF);
+        ),
+        getImageIdsByUserId(loginData.username),
+      ]);
 
-        const [avatarIds, avatarsImagesdata]: any[] = await getAvatars(
-          userData.payload
-        );
-        setAvatars(avatarsImagesdata || {});
-        if (avatarIds && avatarIds.length > 0) {
-          // const unique = imageIds.payload.filter(
-          //   (obj) => !avatarIds.some((id) => obj === id)
-          // );
-          let newimages = {};
-          for (let imageId of avatarIds) {
-            const image = await getImageByImageId(imageId);
-            if (image && image.payload) {
-              newimages = { ...newimages, [imageId]: image.payload };
-            }
-          }
-          setImages(newimages || {});
-          setImageIds(imageIds.payload || []);
-        }
+      const [avatarIds, avatarsImagesdata] = await getAvatars(loginData);
+      const nonAvatarImages = imageIds.payload.filter(
+        (e) => !avatarIds.includes(e)
+      );
 
-        setFriend(userData.payload);
-        setPosts(postsData.payload);
-        setChats(chatData.payload);
-        setFriendChats(chatData.payload);
-        setFriendPosts(postsData.payload);
-        setPoints(pointsObject.payload);
-        if (userData.payload.location) {
-          const newsData = await getNewsAction(userData.payload.location);
-          setNews(newsData);
-        }
+      const newImages = await Promise.all(
+        nonAvatarImages.map(async (imageId) => {
+          const image = await getImageByImageId(imageId);
+          return image && image.payload ? { [imageId]: image.payload } : {};
+        })
+      );
 
-        await auth.setUserFull(userData.payload);
+      setAvatars(avatarsImagesdata || {});
+      setImages(Object.assign({}, ...newImages));
+      setFriend(loginData);
+      setPosts(postsData.payload);
+      setChats(chatData.payload);
+      setFriendChats(chatData.payload);
+      setFriendPosts(postsData.payload);
+      setPoints(pointsObject.payload);
 
-        navigate("/" + loginF);
+      if (loginData.location) {
+        const newsData = await getNewsAction(loginData.location);
+        setNews(newsData);
       }
+
+      navigate(`/${loginData.username}`);
+      // await auth.setUserFull(loginData.payload);
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", error);
     }
   };
 
@@ -130,7 +114,7 @@ const RepositoriesList = () => {
       <TitleComponent>TATTOO APP</TitleComponent>
       <LoginWrapper>
         <Typography style={{ marginBottom: "20px" }}>
-          {"Login to Your Account"}
+          Login to Your Account
         </Typography>
         <LoginComponent
           variant="filled"
@@ -138,20 +122,11 @@ const RepositoriesList = () => {
           key="login-form"
           label="Username"
           placeholder="kiseki"
-          inputProps={{
-            style: {
-              color: themevars.text, // Access theme's text color
-            },
-          }}
+          inputProps={{ style: { color: themevars.text } }}
           InputLabelProps={{
-            style: {
-              color: themevars.text,
-              fontSize: "12px",
-            },
+            style: { color: themevars.text, fontSize: "12px" },
           }}
-          onChange={(e) => {
-            setLogin(e.target.value);
-          }}
+          onChange={(e) => setLogin(e.target.value)}
           value={loginF}
         />
         <LoginComponent
@@ -160,28 +135,17 @@ const RepositoriesList = () => {
           label="Password"
           type="password"
           key="password-form"
-          inputProps={{
-            style: {
-              color: themevars.text, // Access theme's text color
-            },
-          }}
+          inputProps={{ style: { color: themevars.text } }}
           InputLabelProps={{
-            style: {
-              color: themevars.text,
-              fontSize: "12px",
-            },
+            style: { color: themevars.text, fontSize: "12px" },
           }}
           onChange={(e) => setPassword(e.target.value)}
           value={password}
         />
-
         <RememberMeComponent
           control={
             <Checkbox
-              style={{
-                stroke: themevars.text,
-                color: themevars.text, // Access theme's text color
-              }}
+              style={{ stroke: themevars.text, color: themevars.text }}
             />
           }
           label={
@@ -199,9 +163,7 @@ const RepositoriesList = () => {
         <LoginButton
           variant="contained"
           size="large"
-          onClick={async () => {
-            await tryLogin();
-          }}
+          onClick={async () => await tryLogin()}
           style={{ marginBottom: "5px" }}
         >
           Login
@@ -214,21 +176,16 @@ const RepositoriesList = () => {
           Sign Up
         </LoginButton>
       </LoginWrapper>
-      {errorMessage && (
-        <div style={{ marginTop: "8%", color: "red" }}>
-          Error: {errorMessage}
-        </div>
-      )}
 
-      {isVisible ? (
+      {isVisible && (
         <ForgotPasswordPopup
           isVisible
           setIsVisible={setIsVisible}
           setErrorMessage={setErrorMessage}
         />
-      ) : null}
+      )}
     </LoginPageWrapper>
   );
 };
 
-export default RepositoriesList;
+export default LoginPage;

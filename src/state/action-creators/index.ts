@@ -269,42 +269,35 @@ export const makeEventAction = async (payload: any) => {
 };
 
 // --------- USERS OPERATION --------
-export const loginAction = (loginParams: any, setErrorMessage: any) => {
-  return async (dispatch: Dispatch<Action>) => {
-    try {
-      const headers = {
-        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-      };
-      const user = JSON.stringify(loginParams);
-      // const loggetting = await AxiosCustom.post(
-      //   "http://localhost:4000:8000",
-      //   loginParams,
-      //   {
-      //     headers,
-      //   }
-      // );
-      //;
-      const { data } = await AxiosCustom.post(endpoints.LOGIN, loginParams, {
-        headers,
-      });
-      loginParams.setUser(data.payload);
+export const loginAction = async (loginParams: any, setErrorMessage: any) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+    const user = JSON.stringify(loginParams);
+    // const loggetting = await AxiosCustom.post(
+    //   "http://localhost:4000:8000",
+    //   loginParams,
+    //   {
+    //     headers,
+    //   }
+    // );
+    //;
+    const { data } = await AxiosCustom.post(endpoints.LOGIN, loginParams, {
+      headers,
+    });
 
-      dispatch({
-        type: ActionType.LOGIN,
-        payload: data.payload,
-      });
-      if (!data.successful) {
-        setErrorMessage(data.payload);
-        return data.payload;
-      }
-      data.payload.user.name = data.payload.user.name;
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
+    if (!data.successful) {
+      setErrorMessage(data.payload);
+      return data.payload;
     }
-  };
+    return data.payload;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };
+
 export const openPostAndChatByUserAndPostId = async (
   user: any,
 

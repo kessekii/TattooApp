@@ -574,7 +574,7 @@ export const ChatsPageComponent: React.FC = () => {
           </StyledCommentList>
         );
       }),
-    [privateChats, isMessagesPopupOpened, newComment, user, selectedChatId]
+    [privateChats, isMessagesPopupOpened, newComment, selectedChatId]
   );
 
   return <Box style={{ paddingTop: "15vw" }}>{participants}</Box>;
