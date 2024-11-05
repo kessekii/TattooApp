@@ -255,12 +255,11 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
     }
   };
 };
-
-export const createChatByUsername = async (
+export const openPostAndChatByUserAndPostId = async (
   user: any,
 
   setErrorMessage: any,
-  postId?: string
+  newPost?: string
 ) => {
   try {
     const headers = {
@@ -269,7 +268,37 @@ export const createChatByUsername = async (
 
     const { data } = await AxiosCustom.post(
       "chats/openPostAndChatByUserAndPostId",
-      { user, postId },
+      { user, newPost },
+      {
+        headers,
+      }
+    );
+
+    if (!data.successful) {
+      setErrorMessage(data.payload);
+      return;
+    }
+
+    return data;
+  } catch (err) {
+    setErrorMessage(err);
+    console.error(err);
+  }
+};
+export const createChatByUsername = async (
+  user: any,
+
+  setErrorMessage: any,
+  post?: any
+) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+
+    const { data } = await AxiosCustom.post(
+      "chats/openPostAndChatByUserAndPostId",
+      { user, post },
       {
         headers,
       }
