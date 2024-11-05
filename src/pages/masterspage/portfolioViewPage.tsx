@@ -77,15 +77,12 @@ const PortfolioViewPage: React.FC = ({}) => {
     if (selectedPostId !== null && newComment.trim() !== "") {
       const user = JSON.parse(window.localStorage.getItem("user") || "{}");
       const friend = JSON.parse(window.localStorage.getItem("friend") || "{}");
-      let loggedInUser = user.name === friend.name;
-      let userShown = loggedInUser ? user : friend;
+
       const chats = JSON.parse(
-        window.localStorage.getItem(loggedInUser ? "chats" : "friendChats") ||
-          "{}"
+        window.localStorage.getItem("friendChats") || "{}"
       );
       const posts = JSON.parse(
-        window.localStorage.getItem(loggedInUser ? "posts" : "friendPosts") ||
-          "{}"
+        window.localStorage.getItem("friendPosts") || "{}"
       );
 
       const filteredPost =
@@ -113,11 +110,15 @@ const PortfolioViewPage: React.FC = ({}) => {
         const postsData = (await getPostsByUserId(friend.username)).payload;
         chats[filteredPost.chatId].messages = chat.messages;
         const newUserData = await getProfileData(friend.username);
-        loggedInUser
-          ? setUser({ ...newUserData.payload })
-          : setFriend({ ...newUserData.payload });
-        loggedInUser ? setChats(chats) : setFriendChats(chats);
-        loggedInUser ? setPosts(postsData) : setFriendPosts(postsData);
+
+        setFriend({ ...newUserData.payload });
+        setFriendChats(chats);
+        setFriendPosts(postsData);
+        if (newUserData.payload.username === user.username) {
+          setUser(newUserData.payload);
+          setChats(chats);
+          setPosts(postsData);
+        }
       } else if (
         !chats ||
         (chat && (!chat.messages || chat.messages.length === 0))
@@ -137,11 +138,15 @@ const PortfolioViewPage: React.FC = ({}) => {
         }
         chats[filteredPost.chatId].messages = chat.messages;
         const newUserData = await getProfileData(friend.username);
-        loggedInUser
-          ? setUser({ ...newUserData.payload })
-          : setFriend({ ...newUserData.payload });
-        loggedInUser ? setChats(chats) : setFriendChats(chats);
-        loggedInUser ? setPosts(postsData) : setFriendPosts(postsData);
+
+        setFriend({ ...newUserData.payload });
+        setFriendChats(chats);
+        setFriendPosts(postsData);
+        if (newUserData.payload.username === user.username) {
+          setUser(newUserData.payload);
+          setChats(chats);
+          setPosts(postsData);
+        }
       }
 
       console.log();
@@ -156,8 +161,7 @@ const PortfolioViewPage: React.FC = ({}) => {
 
   const hadleGetAvatars = async () => {
     const chats = JSON.parse(
-      window.localStorage.getItem(loggedInUser ? "chats" : "friendChats") ||
-        "{}"
+      window.localStorage.getItem("friendChats") || "{}"
     );
     const avatars = JSON.parse(window.localStorage.getItem("avatars") || "{}");
 
@@ -228,9 +232,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                       src={avatars[friend.username]?.src}
                       alt={`${friend.username} avatar`}
                     />
-                    <UserName
-                      onClick={() => navigate("../" + friend.username)}
-                    >
+                    <UserName onClick={() => navigate("../" + friend.username)}>
                       {friend.name}
                     </UserName>
                   </UserSection>
@@ -251,8 +253,8 @@ const PortfolioViewPage: React.FC = ({}) => {
                         alignItems: "center",
                       }}
                     >
-                      {friendChats[friendPosts[post].chatId]?.messages?.length ===
-                      0 ? (
+                      {friendChats[friendPosts[post].chatId]?.messages
+                        ?.length === 0 ? (
                         <>No comments yet</>
                       ) : (
                         <>
@@ -265,19 +267,18 @@ const PortfolioViewPage: React.FC = ({}) => {
                             <strong>
                               {friendChats[friendPosts[post].chatId].messages
                                 ?.length > 0
-                                ? friendChats[friendPosts[post].chatId].messages[
-                                    friendChats[friendPosts[post].chatId].messages
-                                      .length - 1
+                                ? friendChats[friendPosts[post].chatId]
+                                    .messages[
+                                    friendChats[friendPosts[post].chatId]
+                                      .messages.length - 1
                                   ].author + ": "
                                 : ""}
                             </strong>
                             <UserAvatar
                               src={
                                 avatars[
-                                  friendChats[friendPosts[post].chatId].messages[
-                                    friendChats[friendPosts[post].chatId].messages
-                                      .length - 1
-                                  ].author
+                                  friendChats[friendPosts[post].chatId]
+                                    .lastMessage.author
                                 ].src
                               }
                             />
@@ -307,8 +308,8 @@ const PortfolioViewPage: React.FC = ({}) => {
                     </LikeButton>
                     <Box onClick={() => handleCommentsClick(post)}>
                       View all{" "}
-                      {friendChats[friendPosts[post].chatId]?.messages?.length ||
-                        0}{" "}
+                      {friendChats[friendPosts[post].chatId]?.messages
+                        ?.length || 0}{" "}
                       comments
                     </Box>
                   </LikeSection>
@@ -460,7 +461,7 @@ export async function getAvatarByUserId(username: string) {
   try {
     //
     const response = await fetch(
-      "http://46.117.80.103:4000/users/getAvatarByUserId",
+      "http://localhost:4000/users/getAvatarByUserId",
       {
         method: "POST",
         headers: {

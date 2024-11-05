@@ -28,7 +28,7 @@ export const getPointImageByPointId = async (
 ) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/images/getPointImageByPointId",
+      "http://localhost:4000/images/getPointImageByPointId",
       {
         method: "POST",
         headers: {
@@ -75,7 +75,7 @@ export const getAvatars = async (friend) => {
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/points/getImageIdsByChatId",
+      "http://localhost:4000/images/getImageIdsByChatId",
       {
         method: "POST",
         headers: {

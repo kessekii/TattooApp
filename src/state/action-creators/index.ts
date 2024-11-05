@@ -129,12 +129,12 @@ export const getPostImageByPostId = async (postId: any) => {
         headers,
       }
     );
-    
+
     return data.payload;
   } catch (e) {
     console.log(e);
   }
-}; 
+};
 export const getPostByPostId = async (postId: any) => {
   try {
     const headers = {
@@ -147,7 +147,7 @@ export const getPostByPostId = async (postId: any) => {
         headers,
       }
     );
-    
+
     return data.payload;
   } catch (e) {
     console.log(e);
@@ -158,7 +158,7 @@ export const getTrendingPostsByCityAction = async (city: any) => {
     const headers = {
       Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
     };
-    console.log(city)
+    console.log(city);
     const { data } = await AxiosCustom.post(
       endpoints.GETTRENDINGPOSTS,
       { city },
@@ -179,7 +179,7 @@ export const getNewsAction = async (filter: string) => {
     };
 
     // const loggetting = await AxiosCustom.post(
-    //   "http://46.117.80.103:4000:8000",
+    //   "http://localhost:4000:8000",
     //   loginParams,
     //   {
     //     headers,
@@ -199,7 +199,6 @@ export const getNewsAction = async (filter: string) => {
       pointId: string;
       data: Record<string, any>; // adjust type as needed for data structure
     };
- 
 
     function transformEventsData(inputData: {
       [key: number]: PointData[];
@@ -223,7 +222,9 @@ export const getNewsAction = async (filter: string) => {
       );
     }
 
-    const postsPayload = await getTrendingPostsByCityAction({city: filter.split(",")[0]});
+    const postsPayload = await getTrendingPostsByCityAction({
+      city: filter.split(",")[0],
+    });
     const eventsDataDict: Record<string, any> = transformEventsData(
       data.payload.events
     );
@@ -245,7 +246,7 @@ export const makeEventAction = async (payload: any) => {
     };
 
     // const loggetting = await AxiosCustom.post(
-    //   "http://46.117.80.103:4000:8000",
+    //   "http://localhost:4000:8000",
     //   loginParams,
     //   {
     //     headers,
@@ -276,7 +277,7 @@ export const loginAction = (loginParams: any, setErrorMessage: any) => {
       };
       const user = JSON.stringify(loginParams);
       // const loggetting = await AxiosCustom.post(
-      //   "http://46.117.80.103:4000:8000",
+      //   "http://localhost:4000:8000",
       //   loginParams,
       //   {
       //     headers,
@@ -592,17 +593,15 @@ export const addNotificationAction = (message, type) => {
   };
 };
 
-
-
 export const getChatsByChatId = async (chatId: any) => {
   try {
     const headers = {
       Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
     };
-    console.log('jyfujfkufkuf', chatId )
+    console.log("jyfujfkufkuf", chatId);
     const { data } = await AxiosCustom.post(
       endpoints.GETCHATBYCHATID,
-      {chatId},
+      { chatId },
       {
         headers,
       }
@@ -613,7 +612,6 @@ export const getChatsByChatId = async (chatId: any) => {
     return false;
   }
 };
-
 
 export const getProfileData = async (username: any) => {
   try {

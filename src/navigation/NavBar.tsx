@@ -42,7 +42,10 @@ import {
 
 import MessageIcon from "@mui/icons-material/Message";
 
-import { getNewsAction, getTrendingPostsByCityAction } from "../../src/state/action-creators";
+import {
+  getNewsAction,
+  getTrendingPostsByCityAction,
+} from "../../src/state/action-creators";
 import { dataTransferItemsToFiles } from "stream-chat-react/dist/components/ReactFileUtilities";
 import { getAvatarByUserId } from "../../src/pages/masterspage/portfolioViewPage";
 import {
@@ -189,7 +192,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           // await getAvatars(username, setAvatars);
 
           if (username === user.username) {
+            console.log("user", user);
             const userMapImages = await getUserMapImagesByUserId(user.username);
+            console.log(userMapImages.payload);
             setMapImages(userMapImages.payload);
 
             setPosts(postsData.payload);
