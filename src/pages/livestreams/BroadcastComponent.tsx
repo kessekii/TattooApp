@@ -88,7 +88,7 @@ export const LivestreamPage = () => {
     // Call the handleDeviceUpdate function to update the video and audio devices
     handleDeviceUpdate();
     // Set the value of isInitializeComplete to true
-    const payload = await fetch("http://localhost:4000/chats/addUserToChat", {
+    const payload = await fetch("http://46.117.80.103:4000/chats/addUserToChat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
