@@ -7,8 +7,17 @@ import { useActions } from "../../hooks/useActions";
 import { v4 as uuidv4 } from "uuid";
 import { useTheme } from "../../state/providers/themeProvider";
 import { PopupContent, PopupOverlay } from "./masterPage";
-import { createChatByUsername } from "../../state/action-creators";
-import { getChatsByUserId, getPostsByUserId } from "../../../src/hooks/useChat";
+import {
+  createChatByUsername,
+  getProfileData,
+} from "../../state/action-creators";
+import {
+  getChatsByUserId,
+  getImageByImageId,
+  getImageIdsByUserId,
+  getPostsByUserId,
+} from "../../../src/hooks/useChat";
+import { s } from "vite/dist/node/types.d-aGj9QkWt";
 
 // Styled components
 const EditorContainer = styled.div`
@@ -155,6 +164,10 @@ const PortfolioEditorPage: React.FC = () => {
   const [user, setUser] = useLocalStorage("user", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [chats, setChats] = useLocalStorage("chats", null);
+  const [friend, setFriend] = useLocalStorage("friend", {});
+  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+  const [images, setImages] = useLocalStorage("images", null);
   const { updateUser } = useActions();
   const { themevars } = useTheme(); // Accessing the theme
   const [errorMessage, setErrorMessage] = useState("");
@@ -222,23 +235,38 @@ const PortfolioEditorPage: React.FC = () => {
         comments: [],
         chatId: "",
       };
-      const pos = (posts && Object.keys(posts).length > 0) ? Object.values(posts) : {};
       updatedProfileData.posts =
-        Object.keys(pos).length > 0
-          ? { ...pos, [newUuid]: newPost }
-          : { [newUuid]: newPost };
+        Object.keys(user.posts).length > 0
+          ? { ...user.posts, [newUuid]: newUuid }
+          : { [newUuid]: newUuid };
+
+      const newUser = await createChatByUsername(
+        updatedProfileData,
+        setErrorMessage,
+        newPost
+      );
     }
-
-    const newUser =
-      await createChatByUsername(updatedProfileData, setErrorMessage, newUuid)
-
+    const userData = await getProfileData(updatedProfileData.username);
     // updateUser(updatedProfileData, setErrorMessage);
     const postsData = await getPostsByUserId(updatedProfileData.username);
     const chatsData = await getChatsByUserId(updatedProfileData.username);
-    setUser(newUser.payload);
+    const imageData = await getImageIdsByUserId(updatedProfileData.username);
+    let newImages = {};
+    for (let imageId of imageData.payload) {
+      const image = await getImageByImageId(imageId);
+      newImages = { ...newImages, [imageId]: image.payload };
+    }
     setIsNewImage(false);
+
+    setUser(userData.payload);
+    setFriend(userData.payload);
+
     setPosts(postsData.payload);
+    setFriendPosts(postsData.payload);
+
     setChats(chatsData.payload);
+    setFriendChats(chatsData.payload);
+    setImages(newImages);
 
     console.log(window.location.href);
     navigate("/" + user.username);
@@ -290,7 +318,7 @@ const PortfolioEditorPage: React.FC = () => {
                           {...provided.dragHandleProps}
                         >
                           <Image
-                            src={post.image}
+                            src={images[post.image].src}
                             alt={`Image ${post.id}`}
                             onClick={() => openModal(index)}
                           />

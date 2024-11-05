@@ -214,7 +214,7 @@ const PortfolioViewPage: React.FC = ({}) => {
             >
               <PostWrapper key={post} style={{ objectFit: "contain" }}>
                 <PostImage
-                  src={images[postsShown[post].image].src}
+                  src={images[postsShown[post].image].image}
                   alt={`Post ${post}`}
                   style={{
                     width: "80vw",

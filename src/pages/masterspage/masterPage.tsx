@@ -605,7 +605,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const [newImage, setNewImage] = useState({ src: "", caption: "" });
   const [newBackdropImage, setNewBackdropImage] = useState({ src: "" });
   const [isSettingsPopup, setSettingsPopup] = useState(false);
-  const [screen, setScreen] = useLocalStorage('screen', null);
+  const [screen, setScreen] = useLocalStorage("screen", null);
   const [showAddReview, setShowAddReview] = useState(false); // To handle new review form
   const [newReview, setNewReview] = useState({ text: "", mark: 5 }); // New review state
 
@@ -812,7 +812,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             {friendPosts && friendPosts[post] && friendPosts[post].image && (
               <Post key={post}>
                 <PostImage
-                  src={images[friendPosts[post].image].src}
+                  src={images[friendPosts[post].image]?.image || ""}
                   onClick={() => {
                     console.log("TO PORTFOLIO");
                     return navigate("/" + friend.name + "/portfolio");
@@ -1036,14 +1036,17 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   return (
     <ProfilePage theme={themevars}>
-      <Backdrop screen={screen} backdropImage={friend.backdropImage} />
+      <Backdrop
+        screen={screen}
+        backdropImage={images[friend.backdrop]?.src || ""}
+      />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
           {isEditing ? (
             <ProfileGrid>
               <ProfilePicture
                 theme={themevars}
-                src={newImage.src ? newImage.src : friend.image}
+                src={newImage.src ? newImage.src : avatars[friend.username].src}
                 alt="Profile Picture"
               />
               <GridCell>

@@ -144,6 +144,28 @@ export const getImageIdsByUserId = async (username: string) => {
     console.log("error", error);
   }
 };
+export const getUserMapImagesByUserId = async (username: string) => {
+  try {
+    // console.log("id", chatId, username);
+    const response = await fetch(
+      "http://localhost:4000/images/getUserMapImagesByUserId",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    );
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
 
 export const getChatsByUserId = async (username: string) => {
   try {

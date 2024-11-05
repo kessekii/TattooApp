@@ -28,7 +28,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-import { MapPage } from "./pages/settings/map";
+import { MapPage } from "./pages/map/map";
 import RegisterPage from "./pages/register/registerPage";
 import NewsFeed from "./pages/news/newsPage";
 import { createGlobalStyle, keyframes, styled } from "styled-components";

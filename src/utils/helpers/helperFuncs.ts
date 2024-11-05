@@ -22,6 +22,28 @@ export const generateNodesFromArray = (arr: string[], structure: any) => {
     return [];
   }
 };
+export const getPointImageByPointId = async (pointId: string) => {
+  try {
+    const response = await fetch(
+      "http://localhost:4000/points/getPointImageByPointIds",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ pointId: pointId }),
+      }
+    );
+
+    const result = response.json();
+    console.log(result);
+    return result;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
 export const getAvatars = async (friend, setAvatars) => {
   let avatarsImagesObject = {};
   let avatarsIds = [];

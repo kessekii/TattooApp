@@ -36,6 +36,7 @@ import {
   getPointsInRadius,
   getPostsByUserId,
   getUserById,
+  getUserMapImagesByUserId,
 } from "../../src/hooks/useChat";
 
 import MessageIcon from "@mui/icons-material/Message";
@@ -43,7 +44,10 @@ import MessageIcon from "@mui/icons-material/Message";
 import { getNewsAction } from "../../src/state/action-creators";
 import { dataTransferItemsToFiles } from "stream-chat-react/dist/components/ReactFileUtilities";
 import { getAvatarByUserId } from "../../src/pages/masterspage/portfolioViewPage";
-import { getAvatars } from "./../utils/helpers/helperFuncs";
+import {
+  getAvatars,
+  getPointImageByPointId,
+} from "./../utils/helpers/helperFuncs";
 
 const Spinner = keyframes`
 
@@ -84,6 +88,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
+  const [mapImages, setMapImages] = useLocalStorage("mapImages", null);
   const [avatars, setAvatars] = useLocalStorage("avatars", null);
   const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
   const [chats, setChats] = useLocalStorage("chats", null);
@@ -118,6 +123,13 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setLoading(false);
           break;
           return;
+        case "/chats":
+          const chatsData = await getChatsByUserId(user.location);
+          setChats(chatsData.payload);
+
+          setLoading(false);
+          break;
+          return;
         case "/user":
           setHideNav(false);
 
@@ -131,7 +143,8 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           const imagesIds = await getImageIdsByUserId(username);
           setImageIds(imagesIds.payload);
           setLoading(false);
-
+          const userMapImages = await getUserMapImagesByUserId(user.username);
+          setMapImages(userMapImages.payload);
           const userChats = await getChatsByUserId(friend.name);
 
           setChats(userChats.payload);
@@ -139,6 +152,15 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           break;
           return;
         case "/map":
+          // const pointsData = await getPointsInRadius(user.location, false);
+          // for (let point of pointsData.payload) {
+          //   const image = await getPointImageByPointId(point.id);
+          //   setMapImages({ ...image.payload });
+
+          //   setPoints({ ...points, [point]: image });
+          // }
+          const useMapImages = await getUserMapImagesByUserId(username);
+          setMapImages({ ...useMapImages.payload });
           setHideNav(false);
           setIsMap(true);
           setLoading(false);
