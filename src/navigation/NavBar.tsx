@@ -133,38 +133,45 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           console.log(frienddata.payload);
           const imageIdsss = (await getImageIdsByUserId(username)).payload;
           console.log("navbar, usre", imageIdsss);
-          const [avatarIds, avatarsImagesdata]: any = await getAvatars(
+          let [avatarIds, avatarsImagesdata]: any = await getAvatars(
             frienddata.payload
           );
-          const imuserAvatar = await getImageByImageId(user.profilePicture);
-          // const unique = imageIds.payload.filter(
-          //   (obj) => !avatarIds.some((id) => obj === id)
-          // );
-          setAvatars({
-            ...avatarsImagesdata,
-            [user.username]: imuserAvatar.payload,
-          });
+          if (!avatarIds || avatarIds.length === 0) {
+            avatarsImagesdata = {};
+          }
+
+          let imuserAvatar = await getImageByImageId(user.profilePicture);
+          if (!imuserAvatar || !imuserAvatar.payload) {
+            imuserAvatar = {};
+          } else {
+            setAvatars({
+              ...avatarsImagesdata,
+              [user.username]: imuserAvatar.payload,
+            });
+          }
           let newimages = {};
           let newAvatarimages = {};
 
           console.log(imageIdsss, avatarIds, frienddata.payload);
-          for (let imageId of avatarIds) {
-            const image = await getImageByImageId(imageId);
+          if (avatarIds && avatarIds.length > 0) {
+            for (let imageId of avatarIds) {
+              const image = await getImageByImageId(imageId);
 
-            if (image && image.payload) {
-              newAvatarimages = {
-                ...newimages,
-                [image.payload.owner]: image.payload,
-              };
+              if (image && image.payload) {
+                newAvatarimages = {
+                  ...newimages,
+                  [image.payload.owner]: image.payload,
+                };
+              }
             }
-          }
 
-          // setAvatars(newAvatarimages);
-          for (let imageId of imageIdsss) {
-            const image = await getImageByImageId(imageId);
+            // setAvatars(newAvatarimages);
+            for (let imageId of imageIdsss) {
+              const image = await getImageByImageId(imageId);
 
-            if (image && image.payload) {
-              newimages = { ...newimages, [imageId]: image.payload };
+              if (image && image.payload) {
+                newimages = { ...newimages, [imageId]: image.payload };
+              }
             }
           }
 

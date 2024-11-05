@@ -45,13 +45,13 @@ const RepositoriesList = () => {
   const [user, setUser] = useLocalStorage("user", null);
   const [chats, setChats] = useLocalStorage("chats", null);
   const [friend, setFriend] = useLocalStorage("friend", null);
-
+  const [avatars, setAvatars] = useLocalStorage("avatars", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [news, setNews] = useLocalStorage("news", null);
   const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
   const [images, setImages] = useLocalStorage("images", null);
   const [screen, setScreen] = useLocalStorage("screen", null);
-  const [avatars, setAvatars] = useLocalStorage("avatars", null);
+
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const auth = useAuth();
@@ -83,8 +83,8 @@ const RepositoriesList = () => {
         const [avatarIds, avatarsImagesdata]: any[] = await getAvatars(
           userData.payload
         );
-        setAvatars(avatarsImagesdata);
-        if (avatarIds.length > 0) {
+        setAvatars(avatarsImagesdata || {});
+        if (avatarIds && avatarIds.length > 0) {
           // const unique = imageIds.payload.filter(
           //   (obj) => !avatarIds.some((id) => obj === id)
           // );
@@ -95,8 +95,8 @@ const RepositoriesList = () => {
               newimages = { ...newimages, [imageId]: image.payload };
             }
           }
-          setImages(newimages);
-          setImageIds(imageIds.payload);
+          setImages(newimages || {});
+          setImageIds(imageIds.payload || []);
         }
 
         setFriend(userData.payload);

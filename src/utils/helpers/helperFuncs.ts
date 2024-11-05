@@ -51,7 +51,7 @@ export const getAvatars = async (friend) => {
   let avatarsIds = [];
 
   const imageUser = await getAvatarByUserId(friend.username);
-  if (!imageUser) return [];
+  if (!imageUser || !imageUser.payload) return [];
 
   avatarsImagesObject = {
     ...avatarsImagesObject,
