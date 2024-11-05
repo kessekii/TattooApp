@@ -11,7 +11,13 @@ import { useToast } from "../../hooks/useToast";
 import { Form, Link, Outlet, useNavigate } from "react-router-dom";
 import { useActions } from "../../hooks/useActions";
 import { Button, Input, Typography } from "@mui/material";
-import { LoginButton, LoginComponent, LoginPageWrapper, LoginWrapper, TitleComponent } from "../login/loginPageComponents";
+import {
+  LoginButton,
+  LoginComponent,
+  LoginPageWrapper,
+  LoginWrapper,
+  TitleComponent,
+} from "../login/loginPageComponents";
 import { useTheme } from "../../state/providers/themeProvider";
 
 export interface Comment {
@@ -104,17 +110,18 @@ export const RegisterPage = () => {
   };
 
   return (
-
     <LoginPageWrapper>
       <TitleComponent>TATTOO APP</TitleComponent>
       <LoginWrapper>
-        <Typography style={{ marginBottom: '20px' }}>{"Register new account"}</Typography>
+        <Typography style={{ marginBottom: "20px" }}>
+          {"Register new account"}
+        </Typography>
         <LoginComponent
           variant="filled"
-          id="login"
-          key="login-form"
-          label="Username"
-          placeholder="kiseki"
+          id="email"
+          key="login-form-email"
+          label="Email"
+          placeholder="example@gmail.com"
           inputProps={{
             style: {
               color: themevars.text, // Access theme's text color
@@ -171,10 +178,16 @@ export const RegisterPage = () => {
           onChange={(e) => setUsername(e.target.value)}
           value={username}
         />
-        <LoginButton variant="contained"
-          size="large" style={{ marginTop: '50px' }} onClick={handleRegister}>{"Sign Up"}</LoginButton>
         <LoginButton
-          style={{ marginTop: '5px' }}
+          variant="contained"
+          size="large"
+          style={{ marginTop: "50px" }}
+          onClick={handleRegister}
+        >
+          {"Sign Up"}
+        </LoginButton>
+        <LoginButton
+          style={{ marginTop: "5px" }}
           variant="contained"
           size="large"
           onClick={() => navigate("/")}

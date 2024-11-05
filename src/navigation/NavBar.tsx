@@ -32,6 +32,7 @@ import { useActions } from "../hooks/useActions";
 import useLocalStorage from "../hooks/useLocalStorage";
 import {
   getChatsByUserId,
+  getImageByImageId,
   getImageIdsByUserId,
   getPointsInRadius,
   getPostsByUserId,
@@ -85,6 +86,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [user, setUser] = useLocalStorage("user", {});
   const [news, setNews] = useLocalStorage("news", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
+  const [images, setImages] = useLocalStorage("images", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [posts, setPosts] = useLocalStorage("posts", null);
@@ -112,7 +114,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [hideNav, setHideNav] = useLocalStorage("hideNav", null);
   const fetchData = async (username: string, { type }: fetchDataType) => {
     setScreen(dim);
-    console.log("FETCHING DATA FOR : ", type);
+    console.log("FETCHING DATA FOR : ", type, username);
     if (type) {
       setLoading(true);
       setIsMap(false);
@@ -123,35 +125,64 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setNews(newsData);
           setLoading(false);
           break;
-
+          return;
         case "/user":
           setHideNav(false);
+          const imageIds = await getImageIdsByUserId(username);
 
+          const avatarIds: any = await getAvatars(friend, setAvatars);
+          // const unique = imageIds.payload.filter(
+          //   (obj) => !avatarIds.some((id) => obj === id)
+          // );
+          let newimages = {};
+
+          for (let imageId of avatarIds) {
+            const image = await getImageByImageId(imageId);
+            console.log("dfsdfsdfdsfdsf", image.payload, imageId);
+            if (image && image.payload) {
+              newimages = { ...newimages, [imageId]: image.payload };
+            }
+          }
+          console.log(imageIds);
+          for (let imageId of imageIds.payload) {
+            const image = await getImageByImageId(imageId);
+            console.log("dfsdfsdfdsfdsf", image.payload, imageId);
+            if (image && image.payload) {
+              newimages = { ...newimages, [imageId]: image.payload };
+            }
+          }
+
+          setImageIds(imageIds.payload);
+          const newsDataNew = await getNewsAction(friend.location);
+          setNews(newsDataNew);
           const userdata = await getUserById(username);
           setFriend(userdata.payload);
           const chatData = await getChatsByUserId(username);
           setFriendChats(chatData.payload);
           const postsData = await getPostsByUserId(username);
           setFriendPosts(postsData.payload);
-          await getAvatars(friend, setAvatars);
-          const imagesIds = await getImageIdsByUserId(username);
-          setImageIds(imagesIds.payload);
-          setLoading(false);
-          const userMapImages = await getUserMapImagesByUserId(user.username);
-          setMapImages(userMapImages.payload);
-          const userChats = await getChatsByUserId(friend.name);
 
-          setChats(userChats.payload);
+          // await getAvatars(username, setAvatars);
+
+          if (username === user.username) {
+            const userMapImages = await getUserMapImagesByUserId(user.username);
+            setMapImages(userMapImages.payload);
+
+            setPosts(postsData.payload);
+
+            setChats(chatData.payload);
+          }
+          setImages(newimages);
           setLoading(false);
           break;
-
+          return;
         case "/chats":
           const userChatsupd = await getChatsByUserId(user.name);
 
           setChats(userChatsupd.payload);
           setLoading(false);
           break;
-
+          return;
         case "/map":
           // const pointsData = await getPointsInRadius(user.location, false);
           // for (let point of pointsData.payload) {
@@ -166,9 +197,10 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setIsMap(true);
           setLoading(false);
           break;
-
+          return;
         default:
           break;
+          return;
       }
     }
   };

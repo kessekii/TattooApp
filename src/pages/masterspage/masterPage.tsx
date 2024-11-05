@@ -812,7 +812,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             {friendPosts && friendPosts[post] && friendPosts[post].image && (
               <Post key={post}>
                 <PostImage
-                  src={images[friendPosts[post].image]?.image || ""}
+                  src={images[friendPosts[post].image]?.src || ""}
                   onClick={() => {
                     console.log("TO PORTFOLIO");
                     return navigate("/" + friend.name + "/portfolio");
@@ -1046,7 +1046,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             <ProfileGrid>
               <ProfilePicture
                 theme={themevars}
-                src={newImage.src ? newImage.src : avatars[friend.username].src}
+                src={avatars[friend.username].src}
                 alt="Profile Picture"
               />
               <GridCell>
@@ -1086,7 +1086,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={avatars[user.username].src}
+                  src={avatars[friend.username].src}
                   alt="Profile Picture"
                 />
               </div>

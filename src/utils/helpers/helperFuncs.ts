@@ -47,7 +47,9 @@ export const getPointImageByPointId = async (pointId: string) => {
 export const getAvatars = async (friend, setAvatars) => {
   let avatarsImagesObject = {};
   let avatarsIds = [];
+
   const imageUser = await getAvatarByUserId(friend.username);
+  if (!imageUser) return;
   avatarsImagesObject = {
     ...avatarsImagesObject,
     [friend.username]: imageUser.payload,
@@ -56,6 +58,7 @@ export const getAvatars = async (friend, setAvatars) => {
 
   for (let friendUsername of Object.keys(friend.friends || {})) {
     const image = await getAvatarByUserId(friendUsername);
+    if (!image) continue;
     avatarsImagesObject = {
       ...avatarsImagesObject,
       [friendUsername]: image.payload,

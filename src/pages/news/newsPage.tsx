@@ -364,10 +364,10 @@ const NewsFeed = () => {
 
       <NewsTitle>Featured work</NewsTitle>
       <NewsCard key="featured">
-        <NewsThumbnail
+        {/* <NewsThumbnail
           src="https://via.placeholder.com/600x400"
           alt="Featured"
-        />
+        /> */}
         <StatsContainer>
           <Stat>
             <FaEye /> 0
