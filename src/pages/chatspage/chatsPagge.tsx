@@ -13,6 +13,7 @@ import { Box, Paper, TextField } from "@mui/material";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { ArrowBackIos, Send } from "@mui/icons-material";
 import { FaSearch } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 
 // Styled Components
 
@@ -143,15 +144,21 @@ export const ChatsPageComponent: React.FC = () => {
       .split(":");
     return `${hours}:${minutes}`;
   };
+  const { chatId } = useParams();
   const [user, setUser] = useLocalStorage("user", null);
   const [images, setImages] = useLocalStorage("images", {});
   const [avatars, setAvatars] = useLocalStorage("avatars", {});
   const [friend, setFriend] = useLocalStorage("friend", null);
   const [loader, setloader] = useState(false);
   const [chats, setChats] = useLocalStorage("chats", null);
+  const navigate = useNavigate();
   const [newComment, setNewComment] = useState("");
-  const [isMessagesPopupOpened, setIsMessagesPopupOpened] = useState(false);
-  const [selectedChatId, setselectedChatId] = useState<any>({});
+  const [isMessagesPopupOpened, setIsMessagesPopupOpened] = useState(
+    chatId ? true : false
+  );
+  const [selectedChatId, setselectedChatId] = useState<any>(
+    chatId ? chatId : {}
+  );
   const [hideNav, setHideNav] = useLocalStorage("hideNav", false);
   const { toggleTheme, themevars } = useTheme();
   const [privateChats, setPrivateChats] = useState<any>({});
@@ -163,9 +170,16 @@ export const ChatsPageComponent: React.FC = () => {
     //for 1 sec delay
   };
   const handleOpenMessages = (privateChatId: string) => {
-    setselectedChatId(privateChatId);
-    setIsMessagesPopupOpened(!isMessagesPopupOpened);
-    setHideNav(true);
+    if (isMessagesPopupOpened) {
+      setIsMessagesPopupOpened(false);
+      setselectedChatId("");
+      navigate("/chats");
+    } else {
+      setselectedChatId(privateChatId);
+      setIsMessagesPopupOpened(true);
+      navigate("/chats/" + privateChatId);
+      setHideNav(true);
+    }
   };
   const handleCommentSubmit = async (privateChatId: string) => {
     if (privateChatId !== null && newComment.trim() !== "") {
@@ -472,7 +486,7 @@ export const ChatsPageComponent: React.FC = () => {
                   <StyledFriendAvatar
                     style={{ marginLeft: "15px" }}
                     theme={themevars}
-                    src={avatars[author].src}
+                    src={avatars[author]?.src}
                     alt={author}
                   />
                   <Box

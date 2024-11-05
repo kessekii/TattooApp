@@ -7,7 +7,11 @@ import DateHourSelector from "./masterCalendarComponent";
 import { preview } from "vite";
 import { c } from "vite/dist/node/types.d-aGj9QkWt";
 import { set } from "date-fns";
-import { loginAction, updateUserStriaght } from "../../state/action-creators";
+import {
+  loginAction,
+  openPrivateChatByUsername,
+  updateUserStriaght,
+} from "../../state/action-creators";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useActions } from "../../hooks/useActions";
 import useLocalStorage from "../../hooks/useLocalStorage";
@@ -18,6 +22,7 @@ import {
   getUserById,
   updateUserAndImage,
 } from "../../../src/hooks/useChat";
+import ChatIcon from "@mui/icons-material/Chat";
 import { useTheme } from "../../state/providers/themeProvider";
 import {
   CalendarMonth,
@@ -35,8 +40,9 @@ import {
 import { useEditing } from "../../hooks/useEditing";
 import AngledBackgroundComponent from "../masterspage/backgroundComponent";
 import Backdrop from "../masterspage/backgroundComponent";
-import { fetchData } from "@utils/helpers/navigationHelper";
+import { fetchData } from "../../utils/helpers/navigationHelper";
 import { getAvatarByUserId } from "./portfolioViewPage";
+import { Chat } from "stream-chat-react";
 
 // ProfilePage styling with dynamic background and text color
 export const ProfilePage = styled.div<{ theme }>`
@@ -691,11 +697,12 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     );
     setImages({
       ...images,
-      [result.payload.image.id]: result.payload.image,
-      [result.payload.backdrop.id]: result.payload.backdrop,
+      [result.payload.image.id]: result.payload.image.src,
+      [result.payload.backdrop.id]: result.payload.backdrop.src,
     });
 
     await setIsEditingProfile();
+    setAvatars({ ...avatars, [user.username]: result.payload.image });
     setUser(result.payload.user);
   };
 
@@ -982,8 +989,8 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     <FriendAvatar
       theme={themevars}
       key={fri + "avatar"}
-      src={avatars[fri].src}
-      alt={avatars[fri].owner}
+      src={avatars[fri]?.src}
+      alt={avatars[fri]?.owner}
       onClick={() => setShowFriends(true)}
     />
   ));
@@ -1022,7 +1029,11 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const handleClose = (value: boolean) => {
     setShowFriends(!showFriends);
   };
-
+  const chatIsOpenedWithUser =
+    Object.values(chats).filter(
+      (e: any) =>
+        e.type === "private" && e.participants.includes(friend.username)
+    ).length > 0;
   return (
     <ProfilePage theme={themevars}>
       <Backdrop
@@ -1035,7 +1046,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             <ProfileGrid>
               <ProfilePicture
                 theme={themevars}
-                src={avatars[friend.username].src}
+                src={avatars[friend.username]?.src}
                 alt="Profile Picture"
               />
               <GridCell>
@@ -1075,7 +1086,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={avatars[friend.username].src}
+                  src={avatars[friend.username]?.src}
                   alt="Profile Picture"
                 />
               </div>
@@ -1129,6 +1140,41 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <IcoButton theme={themevars} onClick={() => setShowReviews(true)}>
                 <Reviews style={{ color: themevars.icons.color }} />
               </IcoButton>
+              {!chatIsOpenedWithUser ? (
+                <IcoButton
+                  theme={themevars}
+                  onClick={async () => {
+                    const [chatId, userDataReturn] = (
+                      await openPrivateChatByUsername(
+                        user.username,
+                        friend.username
+                      )
+                    ).payload;
+                    setUser(userDataReturn);
+                  }}
+                >
+                  <ChatIcon style={{ color: themevars.icons.color }} />
+                </IcoButton>
+              ) : (
+                <IcoButton
+                  theme={themevars}
+                  onClick={async () => {
+                    // await fetchData(user.username, { type: "/chats" });
+                    const chatsData = await getChatsByUserId(user.username);
+                    const chatId = Object.keys(chatsData.payload).find(
+                      (chatId: any) =>
+                        chatsData.payload[chatId].type === "private" &&
+                        chatsData.payload[chatId].participants.includes(
+                          friend.username
+                        )
+                    );
+                    setChats(chatsData.payload);
+                    navigate("/chats/" + chatId);
+                  }}
+                >
+                  <ChatIcon style={{ color: themevars.icons.color }} />
+                </IcoButton>
+              )}
 
               <IcoButton theme={themevars} onClick={handleMapClick}>
                 <PinDrop style={{ color: themevars.icons.color }} />
@@ -1265,7 +1311,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                   >
                     <FriendPhoto
                       theme={themevars}
-                      src={avatars[follower].src}
+                      src={avatars[follower]?.src}
                       alt={friend.friends[follower].nickname}
                     />
                     <FriendNickname theme={themevars}>

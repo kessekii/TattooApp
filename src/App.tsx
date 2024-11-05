@@ -180,6 +180,14 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/chats/:chatId"
+            element={
+              <ProtectedRoute redirectPath="/chats" isAllowed={!!user}>
+                <ChatsPageComponent />
+              </ProtectedRoute>
+            }
+          />
           {/* Portfolio Editor for a specific user */}
           <Route
             path="/:username/portfolioeditor"

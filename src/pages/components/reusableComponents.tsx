@@ -989,7 +989,7 @@ export const UserNameWithAvatar = (props: {
     <div style={{ display: "flex", alignItems: "center", marginBlock: "25px" }}>
       {props.avatars && (
         <Avatar
-          src={props.avatars[props.value] || "na "}
+          src={props.avatars[props.value].src || "na "}
           // {...stringAvatar(props.value)}
           style={{
             height: props.bigPicture ? "130px" : "inherited",

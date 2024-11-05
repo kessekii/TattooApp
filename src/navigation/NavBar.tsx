@@ -128,22 +128,39 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           return;
         case "/user":
           setHideNav(false);
-          const imageIds = await getImageIdsByUserId(username);
-
-          const avatarIds: any = await getAvatars(friend, setAvatars);
+          console.log(username);
+          const frienddata = await getUserById(username);
+          console.log(frienddata.payload);
+          const imageIdsss = (await getImageIdsByUserId(username)).payload;
+          console.log("navbar, usre", imageIdsss);
+          const [avatarIds, avatarsImagesdata]: any = await getAvatars(
+            frienddata.payload
+          );
+          const imuserAvatar = await getImageByImageId(user.profilePicture);
           // const unique = imageIds.payload.filter(
           //   (obj) => !avatarIds.some((id) => obj === id)
           // );
+          setAvatars({
+            ...avatarsImagesdata,
+            [user.username]: imuserAvatar.payload,
+          });
           let newimages = {};
+          let newAvatarimages = {};
 
+          console.log(imageIdsss, avatarIds, frienddata.payload);
           for (let imageId of avatarIds) {
             const image = await getImageByImageId(imageId);
 
             if (image && image.payload) {
-              newimages = { ...newimages, [imageId]: image.payload };
+              newAvatarimages = {
+                ...newimages,
+                [image.payload.owner]: image.payload,
+              };
             }
           }
-          for (let imageId of imageIds.payload) {
+
+          // setAvatars(newAvatarimages);
+          for (let imageId of imageIdsss) {
             const image = await getImageByImageId(imageId);
 
             if (image && image.payload) {
@@ -151,7 +168,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             }
           }
 
-          setImageIds(imageIds.payload);
+          setImageIds(imageIdsss);
           const newsDataNew = await getNewsAction(friend.location);
           setNews(newsDataNew);
           const userdata = await getUserById(username);
@@ -251,8 +268,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
     setIsOpen((prevState) => !prevState);
   };
 
-  const handleNavigation = async (path: any, userData: any = user) => {
+  const handleNavigation = async (path: any, username: any = user) => {
     try {
+      console.log(username);
       await fetchData(username, { type: path });
 
       navigate(path);

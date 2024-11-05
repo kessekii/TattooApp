@@ -34,7 +34,7 @@ import {
   getProfileData,
   updateChatStraight,
 } from "../../state/action-creators";
-import { getPostsByUserId } from "../../hooks/useChat";
+import { getImageByImageId, getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 import { getAvatarIdsByChatId } from "./../../utils/helpers/helperFuncs";
 
@@ -160,13 +160,15 @@ const PortfolioViewPage: React.FC = ({}) => {
       window.localStorage.getItem(loggedInUser ? "chats" : "friendChats") ||
         "{}"
     );
+    const avatars = JSON.parse(window.localStorage.getItem("avatars") || "{}");
 
-    let avatarsObj = {};
+    let avatarsObj = { ...avatars };
 
     for (let chatid of Object.keys(chats)) {
-      const avatars = await getAvatarIdsByChatId(chatid);
-      for (let avatar of avatars) {
-        avatarsObj = { ...avatarsObj, [avatar.owner]: avatar.src };
+      const avatarsIds = await getAvatarIdsByChatId(chatid);
+      for (let avatarId of avatarsIds) {
+        const avatar = await getImageByImageId(avatarId);
+        avatarsObj = { ...avatarsObj, [avatar.owner]: avatar };
       }
 
       //;
@@ -224,7 +226,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                 <PostDetails>
                   <UserSection>
                     <UserAvatar
-                      src={avatars[userShown.username].src}
+                      src={avatars[userShown.username]?.src}
                       alt={`${userShown.username} avatar`}
                     />
                     <UserName
@@ -378,7 +380,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                                       {comment.author}
                                     </CommentAuthor>
                                     <UserAvatar
-                                      src={avatars[comment.author].src}
+                                      src={avatars[comment.author]?.src}
                                     ></UserAvatar>
 
                                     {/*  */}

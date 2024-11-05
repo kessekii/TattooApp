@@ -70,7 +70,7 @@ const RepositoriesList = () => {
 
         const chatData = await getChatsByUserId(loginF);
         const postsData = await getPostsByUserId(loginF);
-        const newsData = await getNewsAction(userData.payload.location);
+
         const pointsObject = await getPointsInRadius(
           {
             lat: 32.02119878251853,
@@ -80,27 +80,36 @@ const RepositoriesList = () => {
         );
         const imageIds = await getImageIdsByUserId(loginF);
 
-        const avatarIds: any[] = await getAvatars(userData.payload, setAvatars);
-        const unique = imageIds.payload.filter(
-          (obj) => !avatarIds.some((id) => obj === id)
+        const [avatarIds, avatarsImagesdata]: any[] = await getAvatars(
+          userData.payload
         );
-        let newimages = {};
-        for (let imageId of unique) {
-          const image = await getImageByImageId(imageId);
-          if (image && image.payload) {
-            newimages = { ...newimages, [imageId]: image.payload };
+        setAvatars(avatarsImagesdata);
+        if (avatarIds.length > 0) {
+          // const unique = imageIds.payload.filter(
+          //   (obj) => !avatarIds.some((id) => obj === id)
+          // );
+          let newimages = {};
+          for (let imageId of avatarIds) {
+            const image = await getImageByImageId(imageId);
+            if (image && image.payload) {
+              newimages = { ...newimages, [imageId]: image.payload };
+            }
           }
+          setImages(newimages);
+          setImageIds(imageIds.payload);
         }
-        setImages(newimages);
-        setImageIds(imageIds.payload);
+
         setFriend(userData.payload);
         setPosts(postsData.payload);
         setChats(chatData.payload);
         setFriendChats(chatData.payload);
         setFriendPosts(postsData.payload);
         setPoints(pointsObject.payload);
+        if (userData.payload.location) {
+          const newsData = await getNewsAction(userData.payload.location);
+          setNews(newsData);
+        }
 
-        setNews(newsData);
         await auth.setUserFull(userData.payload);
 
         navigate("/" + loginF);

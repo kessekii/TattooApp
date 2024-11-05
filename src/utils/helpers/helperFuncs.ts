@@ -46,12 +46,13 @@ export const getPointImageByPointId = async (
     console.log("error", error);
   }
 };
-export const getAvatars = async (friend, setAvatars) => {
+export const getAvatars = async (friend) => {
   let avatarsImagesObject = {};
   let avatarsIds = [];
 
   const imageUser = await getAvatarByUserId(friend.username);
-  if (!imageUser) return;
+  if (!imageUser) return [];
+
   avatarsImagesObject = {
     ...avatarsImagesObject,
     [friend.username]: imageUser.payload,
@@ -66,9 +67,10 @@ export const getAvatars = async (friend, setAvatars) => {
       [friendUsername]: image.payload,
     };
     avatarsIds.push(image.payload.id);
-    setAvatars(avatarsImagesObject);
   }
-  return avatarsIds;
+  console.log(avatarsImagesObject);
+  // setAvatars(avatarsImagesObject);
+  return [avatarsIds, avatarsImagesObject];
 };
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
