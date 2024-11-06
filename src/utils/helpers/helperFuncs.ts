@@ -103,8 +103,14 @@ export const getAvatarIdsByChatId = async (chatId) => {
       }
     );
 
-    const result = response.json();
-    return result;
+    const result = await response.json();
+    if (result && !result.payload){
+        return result;
+    } else if (result && result.payload) {
+      return result.payload;
+    }
+
+   
   } catch (error) {
     console.log("error", error);
   }

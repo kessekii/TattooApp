@@ -326,9 +326,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         <PopupContent theme={themevars.popup}>
           <h2>Settings</h2>
           <p>Choose a theme:</p>
-          <EditButton theme={themevars} onClick={handleGoEdit}>
-            Edit Profile
-          </EditButton>
+
           <EditButton onClick={toggleTheme}>
             {theme == "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
           </EditButton>
@@ -411,7 +409,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
               <Menu
                 isopen={isOpen}
                 theme={themevars.navbar}
-                // style={{ visibility: isOpen ? "visible" : "hidden" }}
+              // style={{ visibility: isOpen ? "visible" : "hidden" }}
               >
                 <MenuItem
                   isopened={isOpen}

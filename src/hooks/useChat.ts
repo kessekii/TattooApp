@@ -112,6 +112,7 @@ export const getImageByImageId = async (imageId: string) => {
       }
     );
     const result = await response.json();
+   
 
     return result;
   } catch (error) {

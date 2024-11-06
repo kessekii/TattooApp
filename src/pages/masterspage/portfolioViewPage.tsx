@@ -258,15 +258,17 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
       initdataGrid()
     }
-  }, [friendPosts]);
+  }, []);
 
   const initdataGrid = () => {
     let datagrid = {};
+
+
     Object.values(friendPosts).forEach((post: any) => {
-      datagrid[post.id] = post.likes.includes(user.username);
+      datagrid[post.id] = Array(post.likes).includes(user.username);
     });
 
-    console.log('datagrid : ', datagrid)
+    console.log('datagrid  TEST : ', datagrid)
     setDatagrid(datagrid);
   }
 
@@ -274,7 +276,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
   return (
     <PortfolioPage
       theme={themevars}
-      style={{ display: "contents", marginBottom: "20vh" }}
+      style={{ display: "contents" }}
       onLoad={async () => await hadleGetAvatars()}
     >
       <StyledEditButton
@@ -309,7 +311,6 @@ const PortfolioViewPage: React.FC = ({ }) => {
         style={{
           overflow: "scroll",
           marginTop: "6vh",
-          height: "83vh",
         }}
       // direction="row"
       >
@@ -454,7 +455,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         style={{
                           borderRadius: "0px",
                           maxHeight: "800px",
-                          height: "68vh",
+                          height: "63vh",
                         }}
                       >
                         {friendChats[friendPosts[post].chatId]?.messages &&
@@ -583,20 +584,22 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
 export async function getAvatarByUserId(username: string) {
   try {
-    const headers = {
-      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-    };
-
-    const { data } = await AxiosCustom.post(
+    //
+    const response = await fetch(
       "http://46.117.80.103:4000/users/getAvatarByUserId",
-      { username: username },
       {
-        headers,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({ username: username }),
       }
     );
 
-    const result = data.payload;
-    return result;
+    const result = await response.json();
+    return result.payload;
   } catch (error) {
     console.log("error", error);
   }
