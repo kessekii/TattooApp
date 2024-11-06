@@ -202,26 +202,29 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
       if (datagrid == true) {
         const newPostData = { ...postdata, [field]: postdata[field].filter((username) => username !== user.username) };
-        console.log('newPostData : 1 : ', newPostData)
+
 
         const updatedPost = await updatePost(post_id, newPostData);
 
 
         setDatagrid((prev) => ({ ...prev, [post_id]: false }))
-        setFriendPosts((prev) => ({ ...prev, [post_id]: updatedPost }));
+        setFriendPosts(({ ...friendPosts, [post_id]: updatedPost }));
+
       } else if (datagrid == false) {
         if (postdata[field].length === 0) {
           const newPostData = { ...postdata, [field]: [user.username] };
-          console.log('newPostData : 2 : ', newPostData)
+
           await updatePost(post_id, newPostData);
-          setDatagrid((prev) => ({ ...prev, [post_id]: true }))
-          setFriendPosts((prev) => ({ ...prev, [post_id]: newPostData }));
+          setDatagrid(({ ...datagrid, [post_id]: true }))
+
+          setFriendPosts(({ ...friendPosts, [post_id]: newPostData }));
+
         } else {
           const newPostData = { ...postdata, [field]: [...postdata[field], user.username] };
-          console.log('newPostData : 3 : ', newPostData)
+
           await updatePost(post_id, newPostData);
-          setDatagrid((prev) => ({ ...prev, [post_id]: true }))
-          setFriendPosts((prev) => ({ ...prev, [post_id]: newPostData }));
+          setDatagrid(({ ...datagrid, [post_id]: true }))
+          setFriendPosts(({ ...friendPosts, [post_id]: newPostData }));
         }
       }
 
@@ -258,18 +261,26 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
       initdataGrid()
     }
-  }, []);
+  }, [friendPosts]);
 
   const initdataGrid = () => {
     let datagrid = {};
 
 
     Object.values(friendPosts).forEach((post: any) => {
-      datagrid[post.id] = Array(post.likes).includes(user.username);
+
+      console.log('post : 270 : ', post.likes, post.likes.includes(user.name))
+      datagrid[post.id] = (post.likes as any).includes(user.username);
     });
 
-    console.log('datagrid  TEST : ', datagrid)
+
+
+    console.log('datagrid : 274 : ', datagrid)
     setDatagrid(datagrid);
+  }
+
+  const handleNavigate = (username: string) => {
+    setPosts
   }
 
 

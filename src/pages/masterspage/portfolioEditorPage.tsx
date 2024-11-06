@@ -19,6 +19,7 @@ import {
 } from "../../../src/hooks/useChat";
 import { s } from "vite/dist/node/types.d-aGj9QkWt";
 import Resizer from "react-image-file-resizer";
+import { ArrowBackIos } from "@mui/icons-material";
 // Styled components
 const EditorContainer = styled.div`
   display: flex;
@@ -31,7 +32,14 @@ const EditorContainer = styled.div`
   margin: 0 auto;
   color: ${({ theme }) => theme.text};
 `;
-
+const StyledEditButton = styled.button`
+  background: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.text};
+  border: none;
+  cursor: pointer;
+  width: 5vw;
+  height: 5vw;
+`;
 const ImageGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -315,10 +323,36 @@ const PortfolioEditorPage: React.FC = () => {
   return (
     <ThemeProvider theme={themevars}>
       <EditorContainer>
+        <StyledEditButton
+          theme={themevars}
+          style={{
+            width: "100%",
+            height: "6vh",
+            display: "flex",
+            alignItems: "stretch",
+            alignContent: "flex-start",
+            position: "fixed",
+
+            top: "0",
+            zIndex: "2000",
+            backdropFilter: "blur(10px)",
+            background: themevars.buttonBackground + "1A",
+
+            flexDirection: "column-reverse",
+            justifyContent: "center",
+            flexWrap: "wrap",
+
+          }}
+          onClick={() => navigate("/" + user.username)}
+        >
+          <div style={{ marginLeft: "15px" }}>
+            <ArrowBackIos style={{ alignSelf: "start" }} />
+          </div>
+        </StyledEditButton>
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="image-grid">
             {(provided) => (
-              <ImageGrid ref={provided.innerRef} {...provided.droppableProps}>
+              <ImageGrid style={{ marginTop: "6vh" }} ref={provided.innerRef} {...provided.droppableProps}>
                 {posts &&
                   Object.keys(posts).length > 0 &&
                   Object.values(posts).map((post: any, index) => (
