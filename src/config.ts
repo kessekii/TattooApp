@@ -190,5 +190,6 @@ export enum endpoints {
   GETPOSTBYPOSTID =  "posts/getPostByPostId",
   GETTRENDINGPOSTS = "news/getTrendingPostsByCity",
   GETPOSTIMAGEBYPOSTID = "images/getPostImageByPostId",
-  GETCHATBYCHATID =   "chats/getChatByChatId"
+  GETCHATBYCHATID =   "chats/getChatByChatId",
+  UPDATEPOST =   "posts/updatePost"
 }

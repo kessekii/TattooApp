@@ -130,7 +130,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setNews(newsData);
           setLoading(false);
           break;
-          return;
+
         case "/user":
           setHideNav(false);
 

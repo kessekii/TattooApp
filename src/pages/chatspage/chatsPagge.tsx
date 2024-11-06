@@ -392,8 +392,8 @@ export const ChatsPageComponent: React.FC = () => {
             )}
 
             {chatData.messages?.length > 0 &&
-            privateChatId === selectedChatId &&
-            isMessagesPopupOpened ? (
+              privateChatId === selectedChatId &&
+              isMessagesPopupOpened ? (
               <StyledCommentsPopup
                 style={{ overflow: "scroll" }}
                 theme={themevars}
@@ -551,37 +551,37 @@ export const ChatsPageComponent: React.FC = () => {
                   >
                     {new Date().getTime() -
                       privateChats[privateChatId].lastMessage.timestamp >
-                    259200000
+                      259200000
                       ? new Date(
-                          privateChats[privateChatId].lastMessage.timestamp
-                        )
-                          .toUTCString()
-                          .split(", ")[1]
-                          .split(" ", 2)
-                          .map((e) => e + " ")
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toUTCString()
+                        .split(", ")[1]
+                        .split(" ", 2)
+                        .map((e) => e + " ")
                       : new Date().getTime() -
-                          privateChats[privateChatId].lastMessage.timestamp >
-                          86400000 &&
-                        new Date(
-                          privateChats[privateChatId].lastMessage.timestamp
-                        )
-                          .toUTCString()
-                          .split(",")[0]
-                          .split("T")[0] +
-                          " " +
-                          new Date(
-                            privateChats[privateChatId].lastMessage.timestamp
-                          )
-                            .toISOString()
-                            .split("T")[1]
-                            .split(":")[0] +
-                          ":" +
-                          new Date(
-                            privateChats[privateChatId].lastMessage.timestamp
-                          )
-                            .toISOString()
-                            .split("T")[1]
-                            .split(":")[1]}
+                      privateChats[privateChatId].lastMessage.timestamp >
+                      86400000 &&
+                      new Date(
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toUTCString()
+                        .split(",")[0]
+                        .split("T")[0] +
+                      " " +
+                      new Date(
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toISOString()
+                        .split("T")[1]
+                        .split(":")[0] +
+                      ":" +
+                      new Date(
+                        privateChats[privateChatId].lastMessage.timestamp
+                      )
+                        .toISOString()
+                        .split("T")[1]
+                        .split(":")[1]}
                   </StyledCommentText>
                 </Paper>
               </StyledCommentItem>

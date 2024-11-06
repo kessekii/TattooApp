@@ -14,12 +14,7 @@ import {
   PopupContent,
   PopupOverlay,
 } from "../masterspage/masterPage";
-import {
-  getChatsByChatId,
-  getPostByPostId,
-  getPostImageByPostId,
-  makeEventAction,
-} from "../../state/action-creators";
+import { getChatsByChatId, getNewsAction, getPostByPostId, getPostImageByPostId, makeEventAction } from "../../state/action-creators";
 import { ProfilePage } from "../masterspage/masterPage";
 import { useNavigate } from "react-router-dom";
 import {
@@ -27,6 +22,7 @@ import {
   getPostsByUserId,
   getUserById,
 } from "../../hooks/useChat";
+import PullToRefresh from 'react-pull-to-refresh';
 // Styled components with theme access
 const NewsFeedContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -212,10 +208,14 @@ const NewsFeed = () => {
     shares: 0,
   };
 
+
+
+
+
   const navigate = useNavigate();
   const { themevars } = useTheme();
   const [news, setNews] = useLocalStorage("news", null);
-
+  const [user, setUser] = useLocalStorage("user", null);
   const [newEvent, setNewEvent] = useState(initialNews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -332,6 +332,22 @@ const NewsFeed = () => {
     }
   };
 
+  const handleRefresh = async (resolve) => {
+    try {
+      // Refetch the news data
+      const refreshedNews = await getNewsAction(user.location) // You need to implement this function
+      setNews(refreshedNews);
+
+      // Refetch posts
+      await handlePosts(refreshedNews);
+
+      resolve(); // Resolve the promise when refresh is complete
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      resolve(); // Resolve even if there's an error, to reset the pull-to-refresh state
+    }
+  }
+
   useEffect(() => {
     handlePosts(news);
   }, []);
@@ -392,27 +408,28 @@ const NewsFeed = () => {
 
   return (
     <NewsFeedContainer theme={themevars}>
-      {/* Header */}
-      <Header theme={themevars}>
-        <SearchBar>
-          <FaSearch />
-          <SearchInput placeholder="Search Sketches" />
-        </SearchBar>
-        <IconsContainer>
-          <FaSearch />
-          <FaHeart />
-        </IconsContainer>
-      </Header>
+      <PullToRefresh onRefresh={handleRefresh}>
+        {/* Header */}
+        <Header theme={themevars}>
+          <SearchBar>
+            <FaSearch />
+            <SearchInput placeholder="Search Sketches" />
+          </SearchBar>
+          <IconsContainer>
+            <FaSearch />
+            <FaHeart />
+          </IconsContainer>
+        </Header>
 
-      <SliderContainer ref={sliderRef}>
-        <SliderComponent />
-      </SliderContainer>
+        <SliderContainer ref={sliderRef}>
+          <SliderComponent />
+        </SliderContainer>
 
-      {/* <AddEventButton onClick={openModal}>Add Event</AddEventButton> */}
+        {/* <AddEventButton onClick={openModal}>Add Event</AddEventButton> */}
 
-      {isModalOpen && (
-        <>
-          {/* <PopupOverlay  >
+        {isModalOpen && (
+          <>
+            {/* <PopupOverlay  >
             <PopupContent theme={themevars.popup}>
               <EditButton onClick={closeModal}>X</EditButton>
               <h3>Add New Event</h3>
@@ -446,24 +463,26 @@ const NewsFeed = () => {
               </DatePickerContainer>
 
               {/* <EditButton onClick={handleSaveEvent}>Save Event</EditButton> */}
-          {/* </PopupContent>
+            {/* </PopupContent>
     </PopupOverlay> * /} */}
-        </>
-      )}
+          </>
+        )}
 
-      <Tabs theme={themevars}>
-        <Tab active={true}>Events</Tab>
-        <Tab active={false}>Featured</Tab>
-        <Tab active={false}>Friends</Tab>
-      </Tabs>
+        <Tabs theme={themevars}>
+          <Tab active={true}>Events</Tab>
+          <Tab active={false}>Featured</Tab>
+          <Tab active={false}>Friends</Tab>
+        </Tabs>
 
-      {/* <NewsTitle>Featured work</NewsTitle>
+
+
+        {/* <NewsTitle>Featured work</NewsTitle>
       <NewsCard key="featured">
         {/* <NewsThumbnail
           src="https://via.placeholder.com/600x400"
           alt="Featured"
         /> */}
-      {/* <StatsContainer>
+        {/* <StatsContainer>
           <Stat>
             <FaEye /> 0
           </Stat>
@@ -478,15 +497,19 @@ const NewsFeed = () => {
           </Stat>
         </StatsContainer>
       </NewsCard> */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <NewsPageImageGrid>{news && newsPosts && postsFeed}</NewsPageImageGrid>
-      </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <NewsPageImageGrid>
+
+            {news && newsPosts && postsFeed}
+          </NewsPageImageGrid>
+        </div>
+      </PullToRefresh>
     </NewsFeedContainer>
   );
 };

@@ -117,6 +117,24 @@ const handlePosts = async (filter: any) => {
   }
 };
 
+export const updatePost = async (postId: string, post: any) => {
+  try {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+    const { data } = await AxiosCustom.post(
+      endpoints.UPDATEPOST,
+      { postId: postId, post: post},
+      {
+        headers,
+      }
+    );
+    return data.payload;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const getPostImageByPostId = async (postId: any) => {
   try {
     const headers = {

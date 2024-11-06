@@ -1,4 +1,4 @@
-import { styled } from "styled-components";
+import { keyframes, styled } from "styled-components";
 
 export const PortfolioPage = styled.div`
   font-family: Arial, sans-serif;
@@ -189,4 +189,54 @@ export const CommentSubmitButton = styled.button`
   color: ${({ theme }) => theme.text};
   border-radius: 5px;
   cursor: pointer;
+`;
+
+const pop = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
+
+const breatheAnimation = keyframes`
+ 0% { height: 100px; width: 100px; }
+ 30% { height: 400px; width: 400px; opacity: 1 }
+ 40% { height: 405px; width: 405px; opacity: 0.3; }
+ 100% { height: 100px; width: 100px; opacity: 0.6; }
+
+interface LikeButtonProps {
+  liked: boolean;
+  onClick: () => void;
+
+}`
+
+// Styled component for the like button
+export const StyledLikeButton = styled.button <({ liked, theme }) > `
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: ${({ liked, theme }) => (liked ? '#ed4956' : '#262626')};
+    stroke: ${({ liked }) => (liked ? '#ed4956' : '#262626')};
+    transition: fill 0.2s, stroke 0.2s;
+    animation: ${({ liked }) => (liked ? `pop 0.3s ease-in-out` : 'none')};
+  }
+
+  &:hover svg {
+    stroke: ${({ liked }) => (liked ? '#ed4956' : '#8e8e8e')};
+  }
 `;

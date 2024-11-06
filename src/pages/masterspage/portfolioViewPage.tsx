@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import AxiosCustom from "../../utils/Axios";
@@ -18,7 +18,7 @@ import {
   CommentsContent,
   CommentsPopup,
   Description,
-  LikeButton,
+  StyledLikeButton,
   LikeIcon,
   LikeSection,
   PortfolioPage,
@@ -32,13 +32,16 @@ import {
 import { EditButton } from "./masterPage";
 import ChatComponent from "../components/chat";
 import {
+  getPostByPostId,
   getProfileData,
   updateChatStraight,
+  updatePost,
 } from "../../state/action-creators";
 import { getImageByImageId, getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 import { getAvatarIdsByChatId } from "./../../utils/helpers/helperFuncs";
 import { ArrowBackIos } from "@mui/icons-material";
+import { Dict } from "styled-components/dist/types";
 const StyledEditButton = styled.button`
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
@@ -47,7 +50,7 @@ const StyledEditButton = styled.button`
   width: 5vw;
   height: 5vw;
 `;
-const PortfolioViewPage: React.FC = ({}) => {
+const PortfolioViewPage: React.FC = ({ }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [chats, setChats] = useLocalStorage("chats", null);
@@ -62,6 +65,7 @@ const PortfolioViewPage: React.FC = ({}) => {
   const [showCommentsPopup, setShowCommentsPopup] = useState<string | null>(
     null
   );
+  const [datagrid, setDatagrid] = useState<any>()
   const [newComment, setNewComment] = useState(""); // To hold new comment input
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
   const { themevars } = useTheme();
@@ -188,7 +192,84 @@ const PortfolioViewPage: React.FC = ({}) => {
 
     await setAvatars(avatarsObj);
   };
-  useEffect(() => {}, [avatars]);
+
+
+  const handleUpdatePost = async (post_id: string, oldPostData: any, field: string, datagridObj: any) => {
+    try {
+
+      const datagrid = datagridObj[post_id]
+      const postdata = oldPostData[post_id]
+
+      if (datagrid == true) {
+        const newPostData = { ...postdata, [field]: postdata[field].filter((username) => username !== user.username) };
+        console.log('newPostData : 1 : ', newPostData)
+
+        const updatedPost = await updatePost(post_id, newPostData);
+
+
+        setDatagrid((prev) => ({ ...prev, [post_id]: false }))
+        setFriendPosts((prev) => ({ ...prev, [post_id]: updatedPost }));
+      } else if (datagrid == false) {
+        if (postdata[field].length === 0) {
+          const newPostData = { ...postdata, [field]: [user.username] };
+          console.log('newPostData : 2 : ', newPostData)
+          await updatePost(post_id, newPostData);
+          setDatagrid((prev) => ({ ...prev, [post_id]: true }))
+          setFriendPosts((prev) => ({ ...prev, [post_id]: newPostData }));
+        } else {
+          const newPostData = { ...postdata, [field]: [...postdata[field], user.username] };
+          console.log('newPostData : 3 : ', newPostData)
+          await updatePost(post_id, newPostData);
+          setDatagrid((prev) => ({ ...prev, [post_id]: true }))
+          setFriendPosts((prev) => ({ ...prev, [post_id]: newPostData }));
+        }
+      }
+
+
+    } catch (error) {
+      console.log("Error updating post", error);
+      setErrorMessage("Failed to update post");
+
+    }
+  };
+
+  const handleDeletePost = async (post_id) => {
+    try {
+      const updatedPosts = { ...posts };
+      delete updatedPosts[post_id];
+      await setPosts(updatedPosts);
+    } catch (error) {
+      console.log("Error deleting post", error);
+      setErrorMessage("Failed to delete post");
+      // Add error handling code here
+      // For example, you can display an error message to the user
+
+      // You can also consider showing a notification to the user
+      // or show a loading spinner or a progress bar to indicate the deletion process
+    }
+  };
+
+
+
+
+  useEffect(() => {
+    if (Object.keys(friendPosts).length > 0) {
+
+
+      initdataGrid()
+    }
+  }, [friendPosts]);
+
+  const initdataGrid = () => {
+    let datagrid = {};
+    Object.values(friendPosts).forEach((post: any) => {
+      datagrid[post.id] = post.likes.includes(user.username);
+    });
+
+    console.log('datagrid : ', datagrid)
+    setDatagrid(datagrid);
+  }
+
 
   return (
     <PortfolioPage
@@ -230,7 +311,7 @@ const PortfolioViewPage: React.FC = ({}) => {
           marginTop: "6vh",
           height: "83vh",
         }}
-        // direction="row"
+      // direction="row"
       >
         {friend &&
           friendPosts &&
@@ -305,10 +386,10 @@ const PortfolioViewPage: React.FC = ({}) => {
                               {friendChats[friendPosts[post].chatId].messages
                                 ?.length > 0
                                 ? friendChats[friendPosts[post].chatId]
-                                    .messages[
-                                    friendChats[friendPosts[post].chatId]
-                                      .messages.length - 1
-                                  ].author + ": "
+                                  .messages[
+                                  friendChats[friendPosts[post].chatId]
+                                    .messages.length - 1
+                                ].author + ": "
                                 : ""}
                             </strong>
                             <UserAvatar
@@ -340,9 +421,15 @@ const PortfolioViewPage: React.FC = ({}) => {
                     </CommentSection>
                   )}
                   <LikeSection>
-                    <LikeButton>
-                      <LikeIcon>❤️</LikeIcon> Like
-                    </LikeButton>
+                    {friendPosts && datagrid && <StyledLikeButton theme={themevars} liked={datagrid[post] ? true : false}
+                      onClick={() => handleUpdatePost(post, friendPosts, "likes", datagrid)}>
+                      <svg viewBox="0 0 24 24">
+                        <path d="M16.5 3C14.4 3 12.7 4.2 12 5.3 11.3 4.2 9.6 3 7.5 3 4.5 3 2 5.5 2 8.5c0 5 6 8.8 10 12.5 4-3.7 10-7.5 10-12.5C22 5.5 19.5 3 16.5 3z"></path>
+                      </svg>
+                    </StyledLikeButton>}
+
+
+
                     <Box onClick={() => handleCommentsClick(post)}>
                       View all{" "}
                       {friendChats[friendPosts[post].chatId]?.messages
@@ -371,7 +458,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                         }}
                       >
                         {friendChats[friendPosts[post].chatId]?.messages &&
-                        friendChats[friendPosts[post].chatId].messages.length >
+                          friendChats[friendPosts[post].chatId].messages.length >
                           0 ? (
                           friendChats[friendPosts[post].chatId].messages.map(
                             (comment, index) => (
@@ -432,18 +519,18 @@ const PortfolioViewPage: React.FC = ({}) => {
                                 >
                                   {comment.timestamp
                                     ? new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[0] +
-                                      ", " +
-                                      new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[1]
-                                        .split(":")[0] +
-                                      ":" +
-                                      new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[1]
-                                        .split(":")[1]
+                                      .toISOString()
+                                      .split("T")[0] +
+                                    ", " +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[0] +
+                                    ":" +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[1]
                                     : ""}
                                 </CommentText>
                               </CommentItem>
