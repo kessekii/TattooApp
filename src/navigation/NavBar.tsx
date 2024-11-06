@@ -338,6 +338,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         maxHeight: "100vh",
         top: 0,
         left: 0,
+        zIndex: 1000000,
       }}
     >
       <NavContainer

@@ -41,7 +41,7 @@ export const PointBox = styled.div`
   background: ${({ theme }) => theme.background};
   padding: 20px;
   border-radius: 10px;
-  z-index: 9999999999;
+  z-index: 100;
   max-height: 80vh;
   overflow-y: auto;
   position: relative;
@@ -315,7 +315,7 @@ const PoiMarker = (props: {
               ></PostImage>
             )}
             {isVisible && (
-              <PointBox style={{ zIndex: 99999999999 }}>
+              <PointBox style={{ zIndex: 1999 }}>
                 {!isEdit && (
                   <>
                     <Typography

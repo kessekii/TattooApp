@@ -60,7 +60,7 @@ const StyledCommentsPopup = styled.div`
   position: relative;
   border-radius: 10px;
 
-  z-index: 1200;
+  z-index: 1000;
 `;
 
 const StyledEditButton = styled.button`
@@ -208,7 +208,7 @@ export const ChatsPageComponent: React.FC = () => {
 
       const chat = chats[privateChatId];
       //
-      if (chats && chat &&chat.messages && chat.messages?.length > 0) {
+      if (chats && chat && chat.messages && chat.messages?.length > 0) {
         chat.messages.push({
           author: user.username,
           text: newComment,
@@ -412,9 +412,10 @@ export const ChatsPageComponent: React.FC = () => {
                     position: "fixed",
                     bottom: "0",
                     left: "0",
+
                     background: themevars.background,
-                    height: "min-content",
-                    display: "flex",
+                    height: "18vh",
+                    // display: "flex",
 
                     alignItems: "center",
                     justifyContent: "space-between",

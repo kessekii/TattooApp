@@ -57,8 +57,7 @@ const LoginPage = () => {
       );
       if (!loginData || !loginData.username) return;
 
-      await auth.login(loginF, password);
-      setUser(loginData);
+      // await auth.login(loginF, password);
 
       const [chatData, postsData, pointsObject, imageIds] = await Promise.all([
         getChatsByUserId(loginData.username),
@@ -85,6 +84,7 @@ const LoginPage = () => {
       setAvatars(avatarsImagesdata || {});
       setImages(Object.assign({}, ...newImages));
       setFriend(loginData);
+      setUser(loginData);
       setPosts(postsData.payload);
       setChats(chatData.payload);
       setFriendChats(chatData.payload);
