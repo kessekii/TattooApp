@@ -204,7 +204,7 @@ export const ChatsPageComponent: React.FC = () => {
 
       const chat = chats[privateChatId];
       //
-      if (chat.messages && chat.messages?.length > 0) {
+      if (chats && chat &&chat.messages && chat.messages?.length > 0) {
         chat.messages.push({
           author: user.username,
           text: newComment,

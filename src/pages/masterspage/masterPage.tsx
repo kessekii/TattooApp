@@ -570,7 +570,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const [openedUser, setOpenedUser] = useLocalStorage("openedUser", null);
   const [loading, setLoading] = useLocalStorage("loading", false);
   const { username, postId } = useParams();
-  let loggedInUser = user.name === friend.name;
+  let loggedInUser = user.username === friend.username;
   const { isEditing, setIsEditingProfile } = useEditing();
 
   const [editProfile, setEditProfile] = useState(
@@ -845,7 +845,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                 <PostImage
                   src={images[friendPosts[post].image]?.src || ""}
                   onClick={() => {
-                    return navigate("/" + friend.name + "/portfolio");
+                    return navigate("/" + friend.username + "/portfolio");
                   }}
                   alt={`Post ${post}`}
                   style={{
@@ -907,7 +907,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   };
 
   const handleAddPhotoClick = () => {
-    navigate("/" + user.name + "/portfolioeditor"); // Assuming /portfolio-editor is the route to the editor page
+    navigate("/" + user.username + "/portfolioeditor"); // Assuming /portfolio-editor is the route to the editor page
   };
 
   const handleCalendarClick = () => {
@@ -1064,7 +1064,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       user.friends[username] = {};
     }
     user.friends[username] = {
-      avatarId: friend.profilePicture,
+      avatar: friend.profilePicture,
       nickname: friend.name,
       username: friend.username,
     };
@@ -1077,7 +1077,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     }
 
     friend.friends[user.username] = {
-      avatarId: user.profilePicture,
+      avatar: user.profilePicture,
       nickname: user.name,
       username: user.username,
     };

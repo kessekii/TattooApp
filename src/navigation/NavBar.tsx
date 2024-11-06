@@ -187,9 +187,10 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           break;
           return;
         case "/chats":
-          const userChatsupd = await getChatsByUserId(user.name);
+          const userChatsupd = await getChatsByUserId(user.username);
 
           setChats(userChatsupd.payload);
+          setFriendChats(userChatsupd.payload);
           setLoading(false);
           break;
           return;
