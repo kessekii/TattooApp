@@ -14,6 +14,7 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import { ArrowBackIos, Send } from "@mui/icons-material";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
+import { sq } from "date-fns/locale";
 
 // Styled Components
 
@@ -149,6 +150,7 @@ export const ChatsPageComponent: React.FC = () => {
   const [images, setImages] = useLocalStorage("images", {});
   const [avatars, setAvatars] = useLocalStorage("avatars", {});
   const [friend, setFriend] = useLocalStorage("friend", null);
+  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
   const [loader, setloader] = useState(false);
   const [chats, setChats] = useLocalStorage("chats", null);
   const navigate = useNavigate();
@@ -184,7 +186,9 @@ export const ChatsPageComponent: React.FC = () => {
   const handleCommentSubmit = async (privateChatId: string) => {
     if (privateChatId !== null && newComment.trim() !== "") {
       const user = JSON.parse(window.localStorage.getItem("user") || "{}");
-      const chats = JSON.parse(window.localStorage.getItem("chats") || "{}");
+      const chats = JSON.parse(
+        window.localStorage.getItem("friendChats") || "{}"
+      );
 
       // Find the selected post
       // const updatedPosts = user.posts.map((post) => {
@@ -221,7 +225,9 @@ export const ChatsPageComponent: React.FC = () => {
         const newPrivateChats = await getPrivateChatsByUserId(user.username);
         setPrivateChats({ ...newPrivateChats.payload });
         setUser(user);
+        setFriend(user);
         setChats(chats);
+        setFriendChats(chats);
       } else if (
         !chats ||
         (chat && (!chat.messages || chat.messages.length === 0))
@@ -241,7 +247,9 @@ export const ChatsPageComponent: React.FC = () => {
         }
         chats[privateChatId].messages = newChatData;
         setUser(user);
+        setFriend(user);
         setChats(chats);
+        setFriendChats(chats);
         const newPrivateChats = await getPrivateChatsByUserId(user.username);
         setPrivateChats(newPrivateChats.payload);
       }
