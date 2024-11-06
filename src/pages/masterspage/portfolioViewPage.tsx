@@ -37,7 +37,15 @@ import {
 import { getImageByImageId, getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 import { getAvatarIdsByChatId } from "./../../utils/helpers/helperFuncs";
-
+import { ArrowBackIos } from "@mui/icons-material";
+const StyledEditButton = styled.button`
+  background: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.text};
+  border: none;
+  cursor: pointer;
+  width: 5vw;
+  height: 5vw;
+`;
 const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
@@ -187,11 +195,38 @@ const PortfolioViewPage: React.FC = ({}) => {
       style={{ display: "contents" }}
       onLoad={async () => await hadleGetAvatars()}
     >
+      <StyledEditButton
+        theme={themevars}
+        style={{
+          width: "100%",
+          height: "6vh",
+          display: "flex",
+          alignItems: "stretch",
+          alignContent: "flex-start",
+          position: "fixed",
+          marginBottom: "4vh",
+          top: "0",
+          zIndex: "2000",
+          backdropFilter: "blur(10px)",
+          background: themevars.buttonBackground + "1A",
+
+          flexDirection: "column-reverse",
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+        onClick={() => navigate("/" + friend.username)}
+      >
+        <div style={{ marginLeft: "15px" }}>
+          <ArrowBackIos style={{ alignSelf: "start" }} />
+        </div>
+      </StyledEditButton>
+
       <Grid
         container
         key={friend.username + "gridccc"}
         style={{
           overflow: "scroll",
+          marginTop: "6vh",
         }}
         // direction="row"
       >

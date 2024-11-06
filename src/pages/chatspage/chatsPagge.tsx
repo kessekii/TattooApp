@@ -46,9 +46,9 @@ const StyledCommentList = styled.div`
   font-family: "Arial", sans-serif;
 
   width: 100%;
-  borderradius: 25px;
-  height: fit-content;
-  borderradius: 25px;
+
+  height: 100%;
+  border-radius: 25px;
 
   height: fit-content;
 `;
@@ -185,7 +185,7 @@ export const ChatsPageComponent: React.FC = () => {
   };
   const handleCommentSubmit = async (privateChatId: string) => {
     if (privateChatId !== null && newComment.trim() !== "") {
-      const user = JSON.parse(window.localStorage.getItem("user") || "{}");
+      const user = JSON.parse(window.localStorage.getItem("friend") || "{}");
       const chats = JSON.parse(
         window.localStorage.getItem("friendChats") || "{}"
       );
@@ -205,7 +205,7 @@ export const ChatsPageComponent: React.FC = () => {
 
       //     }
       // })
-
+      console.log("chats", chats, privateChatId);
       const chat = chats[privateChatId];
       //
       if (chats && chat && chat.messages && chat.messages?.length > 0) {
@@ -359,7 +359,6 @@ export const ChatsPageComponent: React.FC = () => {
               background: themevars.background,
               border: "0",
               borderBottom: "2px",
-              height: "fit-content",
             }}
           >
             {isMessagesPopupOpened && (
@@ -395,12 +394,17 @@ export const ChatsPageComponent: React.FC = () => {
             {chatData.messages?.length > 0 &&
             privateChatId === selectedChatId &&
             isMessagesPopupOpened ? (
-              <StyledCommentsPopup style={{}} theme={themevars}>
+              <StyledCommentsPopup
+                style={{ overflow: "scroll" }}
+                theme={themevars}
+              >
                 <CommentsContent
                   style={{ background: "transparent" }}
                   theme={themevars}
                 >
-                  <StyledCommentList style={{ height: "100%" }}>
+                  <StyledCommentList
+                    style={{ height: "100%", paddingBottom: "12vh" }}
+                  >
                     {renderMessages(chatData.messages)}
                   </StyledCommentList>
                 </CommentsContent>

@@ -342,7 +342,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       }}
     >
       <NavContainer
-        style={{ visibility: hideNav ? "hidden" : "visible" }}
+        style={{ visibility: false ? "hidden" : "visible" }}
         hideNav={hideNav}
         isMap={isMap}
         theme={themevars.navbar}
