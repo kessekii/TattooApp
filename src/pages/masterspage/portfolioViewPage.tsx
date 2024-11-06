@@ -501,7 +501,7 @@ export async function getAvatarByUserId(username: string) {
     };
 
     const { data } = await AxiosCustom.post(
-      "http://localhost:4000/users/getAvatarByUserId",
+      "http://46.117.80.103:4000/users/getAvatarByUserId",
       { username: username },
       {
         headers,

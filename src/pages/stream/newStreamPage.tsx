@@ -134,7 +134,7 @@ const NewStreamPage = (): JSX.Element => {
             return;
           }
           const payload = await fetch(
-            "http://localhost:4000/streams/createStream",
+            "http://46.117.80.103:4000/streams/createStream",
             {
               method: "POST",
               headers: {
@@ -237,7 +237,7 @@ const NewStreamPage = (): JSX.Element => {
 
       await pc.current.setLocalDescription(answerDescription);
 
-      const payload = await fetch("http://localhost:4000/chats/addUserToChat", {
+      const payload = await fetch("http://46.117.80.103:4000/chats/addUserToChat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
