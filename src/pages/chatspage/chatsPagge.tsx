@@ -77,7 +77,7 @@ const StyledCommentItem = styled.div<{ isUser }>`
   flex-direction: ${(props) => (props.isUser ? "column-reverse" : "column")};
   width: 100%;
   padding: 0;
-  marginbottom: 25px;
+  marginbottom: 1vh;
   borderradius: 25px;
 `;
 
@@ -416,7 +416,7 @@ export const ChatsPageComponent: React.FC = () => {
                     position: "fixed",
                     bottom: "0",
                     left: "0",
-
+                    display: "block",
                     background: themevars.background,
                     height: "18vh",
                     // display: "flex",
@@ -425,22 +425,24 @@ export const ChatsPageComponent: React.FC = () => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <TextField
-                    style={{
-                      background: themevars.background,
-                      width: "100%",
-                      border: "unset",
-                    }}
-                    value={newComment}
-                    placeholder="Write a message..."
-                    rows={5}
-                    onChange={(e) => setNewComment(e.target.value)}
-                  />
-                  <StyledCommentSubmitButton
-                    onClick={() => handleCommentSubmit(selectedChatId)}
-                  >
-                    <Send style={{ color: themevars.text }} />
-                  </StyledCommentSubmitButton>
+                  <Box style={{ display: "flex", alignItems: "center" }}>
+                    <TextField
+                      style={{
+                        background: themevars.background,
+                        width: "100%",
+                        border: "unset",
+                      }}
+                      value={newComment}
+                      placeholder="Write a message..."
+                      rows={5}
+                      onChange={(e) => setNewComment(e.target.value)}
+                    />
+                    <StyledCommentSubmitButton
+                      onClick={() => handleCommentSubmit(selectedChatId)}
+                    >
+                      <Send style={{ color: themevars.text }} />
+                    </StyledCommentSubmitButton>
+                  </Box>
                 </Box>
               </StyledCommentsPopup>
             ) : chatData.messages?.length > 0 &&

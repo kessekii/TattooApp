@@ -98,10 +98,11 @@ const PoiMarker = (props: {
   addPoint: any;
   setPoints: any;
   cameraLocation: any;
-  tryEditingAPoint: any;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [user, setUser] = useLocalStorage("user", {});
+  const [friend, setFriend] = useLocalStorage("friend", {});
+  const [points, setPoints] = useLocalStorage("points", {});
 
   const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
   const [isEdit, setIsEdit] = useState(false);
@@ -124,7 +125,7 @@ const PoiMarker = (props: {
           async (uri) => {
             console.log(uri);
             if (typeof uri === "string") {
-              setNewImage({ src: uri, caption: "" });
+              setNewImage({ src: uri, caption: null });
             }
           },
           "base64",
@@ -136,6 +137,48 @@ const PoiMarker = (props: {
       };
       reader.readAsDataURL(event.target.files[0]);
     }
+  };
+  const tryEditingAPoint = async (point: any, cameraLocation: any) => {
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+    const point_lat = point.location.lat.toFixed(2).toString();
+    const point_lng = point.location.lng.toFixed(2).toString();
+    const coord = point_lat + ":" + point_lng;
+    point.imageSrc = newImage.src;
+
+    const [newUserData, newPointData] = (
+      await updatePointbyPointId(coord, point)
+    ).payload;
+    // console.log("EEEE", userData);
+
+    const pointsInRadius = (await getPointsInRadius(cameraLocation, false))
+      .payload;
+
+    setUser(newUserData);
+    setFriend(newUserData);
+    setPoints({ ...pointsInRadius, [newPointData.pointId]: newPointData });
+    const mapImagesByRadios = {};
+
+    for (let pointId of Object.keys(pointsInRadius)) {
+      let quadId =
+        pointsInRadius[pointId].location.lat.toFixed(2) +
+        ":" +
+        pointsInRadius[pointId].location.lng.toFixed(2);
+
+      const image = await getPointImageByPointId(pointId, quadId);
+      if (!image) continue;
+
+      mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.src;
+    }
+    const userMapImages: any = await getUserMapImagesByUserId(
+      newUserData.username
+    );
+    if (!userMapImages.payload) return;
+
+    setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
+
+    // setFocusedPoint(null);
   };
   const navigate = useNavigate();
   useEffect(() => {
@@ -211,25 +254,7 @@ const PoiMarker = (props: {
                 marginRight: "90px",
               }}
               onClick={async () => {
-                await props.tryEditingAPoint(
-                  {
-                    ...props.point,
-                    data: {
-                      ...props.point.data,
-                      name: name,
-                      desc: desc,
-                    },
-                  },
-
-                  props.setUser,
-
-                  props.auth,
-
-                  props.setPoints,
-                  props.cameraLocation,
-                  newImage.src,
-                  setMapImages
-                );
+                await tryEditingAPoint(props.point, props.cameraLocation);
                 setIsEdit(false);
               }}
             >
@@ -443,74 +468,7 @@ const tryRemovingAPoint = async (
   await auth.setUserFull(newUserData);
   // setFocusedPoint(null);
 };
-const tryEditingAPoint = async (
-  point: any,
 
-  setUser: any,
-
-  auth: any,
-
-  setPoints: any,
-  cameraLocation: any,
-  newImage: any,
-  setMapImages: any
-) => {
-  const headers = {
-    Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-  };
-  const point_lat = point.location.lat.toFixed(2).toString();
-  const point_lng = point.location.lng.toFixed(2).toString();
-  const coord = point_lat + ":" + point_lng;
-  point.imageSrc = newImage;
-
-  const newUserData = (await updatePointbyPointId(coord, point)).payload;
-  // console.log("EEEE", userData);
-
-  const pointsInRadius = (await getPointsInRadius(cameraLocation, false))
-    .payload;
-
-  //
-  // let inumeratel = user;
-  // inumeratel.points = pointsInRadius;
-  // if (pointsInRadius) {
-  //   setCameraUpdateLock(false);
-  // }
-  const mapImagesByRadios = {};
-  for (let pointId of Object.keys(pointsInRadius)) {
-    let quadId =
-      pointsInRadius[pointId].location.lat.toFixed(2) +
-      ":" +
-      pointsInRadius[pointId].location.lng.toFixed(2);
-    console.log(quadId);
-    const image = await getPointImageByPointId(pointId, quadId);
-    if (!image) continue;
-    const imageToBlob = async (imageSrc: string): Promise<Blob> => {
-      const response = await fetch(imageSrc);
-      const blob = await response.blob();
-      return blob;
-    };
-
-    let resizedImage: any = "";
-
-    const resizedImageBlob = await imageToBlob(newImage.src);
-    console.log(image.payload);
-
-    console.log(resizedImage);
-    mapImagesByRadios[pointsInRadius[pointId].data.icon] = resizedImage;
-  }
-  const userMapImages: any = await getUserMapImagesByUserId(
-    newUserData.username
-  );
-  if (!userMapImages.payload) return;
-  console.log(userMapImages.payload);
-  setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
-
-  setPoints(pointsInRadius);
-  setUser(newUserData);
-
-  await auth.setUserFull(newUserData);
-  // setFocusedPoint(null);
-};
 const calcCrow = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 6371; // km
   const dLat = toRad(lat2 - lat1);
@@ -572,6 +530,8 @@ const tryAddNewPoint = async (
     const pointsObject = await getPointsInRadius(cameraLocation, false);
 
     setUser(newUserData);
+    // setFriend(newUserData);
+
     setPoints(pointsObject.payload);
     await auth.setUserFull(newUserData);
   }
@@ -633,10 +593,9 @@ export const MapPage = () => {
         console.log(quadId);
         const image = await getPointImageByPointId(pointId, quadId);
         if (!image) continue;
-        console.log(image.payload);
+        console.log(image);
 
-        mapImagesByRadios[pointsInRadius[pointId].data.icon] =
-          image.payload.src;
+        mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.src;
       }
       const userMapImages: any = await getUserMapImagesByUserId(user.username);
       if (!userMapImages.payload) return;
@@ -756,7 +715,6 @@ export const MapPage = () => {
             addPoint={addPoint}
             setPoints={setPoints}
             cameraLocation={cameraLocation}
-            tryEditingAPoint={tryEditingAPoint}
           ></PoiMarker>
         );
       }) || [],

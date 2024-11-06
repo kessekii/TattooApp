@@ -16,6 +16,7 @@ import {
 import {
   AvatarContainer,
   Menu,
+  MenuButton,
   MenuItem,
   NavContainer,
   NavIcons,
@@ -342,7 +343,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       }}
     >
       <NavContainer
-        style={{ visibility: false ? "hidden" : "visible" }}
+        // style={{
+        //   visibility: false ? "hidden" : "visible",
+        // }}
         hideNav={hideNav}
         isMap={isMap}
         theme={themevars.navbar}
@@ -350,77 +353,95 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       >
         <Toolbar>
           <NavIcons theme={themevars} isShrunk={isShrunk}>
-            {isShrunk && (
-              <AvatarContainer>
-                <Avatar
-                  src={avatars[user.username]?.src} // Replace with actual avatar URL
-                  alt="User Avatar"
-                  onClick={() => setIsShrunk(false)}
-                />
-              </AvatarContainer>
-            )}
-            {!isShrunk && (
-              <>
-                <IconButton onClick={() => handleNavigation("/map")}>
-                  <Explore style={{ color: themevars.icons.color }} />
-                </IconButton>
-                <IconButton onClick={() => handleNavigation("/news")}>
-                  <Search style={{ color: themevars.icons.color }} />
-                </IconButton>
+            <MenuButton
+              isShrunk={!isShrunk}
+              index={0}
+              // style={{ position: "sticky" }}
+              onClick={() => handleNavigation("/map")}
+            >
+              <Explore style={{ color: themevars.icons.color }} />
+            </MenuButton>
+            <MenuButton
+              index={1}
+              // style={{ position: "sticky" }}
+              isShrunk={!isShrunk}
+              onClick={() => handleNavigation("/news")}
+            >
+              <Search style={{ color: themevars.icons.color }} />
+            </MenuButton>
 
-                <IconButton onClick={() => handleNavigation("/chats")}>
-                  <MessageIcon style={{ color: themevars.icons.color }} />
-                </IconButton>
-                <AvatarContainer>
-                  <Avatar
-                    src={avatars[user.username]?.src} // Replace with actual avatar URL
-                    alt="User Avatar"
-                    onClick={toggleMenu}
-                  />
-                  {isOpen && (
-                    <Menu isopen={isOpen} theme={themevars.navbar}>
-                      <MenuItem
-                        theme={themevars}
-                        onClick={
-                          async () => {
-                            navigate("/" + user.username);
-                          }
-                          // }
-                        }
-                      >
-                        <FaUser /> Profile
-                      </MenuItem>
-                      <MenuItem
-                        theme={themevars}
-                        onClick={async () => {
-                          //window.location.href = user.username;
-                          navigate("/" + user.username);
-                          await setIsEditingProfile();
-                        }}
-                      >
-                        <FaUserEdit /> Edit Profile
-                      </MenuItem>
-                      <MenuItem
-                        theme={themevars}
-                        onClick={() => setOpenSettings(true)}
-                      >
-                        <FaCog /> Settings
-                      </MenuItem>
-                      <MenuItem
-                        theme={themevars}
-                        onClick={
-                          !isShrunk
-                            ? () => handleNavigation("/")
-                            : () => setIsShrunk(false)
-                        }
-                      >
-                        <FaCog /> Logout
-                      </MenuItem>
-                    </Menu>
-                  )}
-                </AvatarContainer>
-              </>
-            )}
+            <MenuButton
+              index={2}
+              // style={{ position: "sticky" }}
+              isShrunk={!isShrunk}
+              onClick={() => handleNavigation("/chats")}
+            >
+              <MessageIcon style={{ color: themevars.icons.color }} />
+            </MenuButton>
+            <MenuButton
+              index={3}
+              // style={{ position: "sticky" }}
+              isShrunk={!isShrunk}
+            ></MenuButton>
+            <AvatarContainer isShrunk={!isShrunk}>
+              <Avatar
+                src={avatars[user.username]?.src} // Replace with actual avatar URL
+                alt="User Avatar"
+                onClick={toggleMenu}
+              />
+            </AvatarContainer>
+
+            <Menu
+              isopen={isOpen}
+              theme={themevars.navbar}
+              // style={{ visibility: isOpen ? "visible" : "hidden" }}
+            >
+              <MenuItem
+                isopened={isOpen}
+                theme={themevars}
+                index={4}
+                onClick={
+                  async () => {
+                    navigate("/" + user.username);
+                  }
+                  // }
+                }
+              >
+                <FaUser /> Profile
+              </MenuItem>
+              <MenuItem
+                isopened={isOpen}
+                theme={themevars}
+                index={3}
+                onClick={async () => {
+                  //window.location.href = user.username;
+                  navigate("/" + user.username);
+                  await setIsEditingProfile();
+                }}
+              >
+                <FaUserEdit /> Edit Profile
+              </MenuItem>
+              <MenuItem
+                isopened={isOpen}
+                index={2}
+                theme={themevars}
+                onClick={() => setOpenSettings(true)}
+              >
+                <FaCog /> Settings
+              </MenuItem>
+              <MenuItem
+                isopened={isOpen}
+                index={1}
+                theme={themevars}
+                onClick={
+                  !isShrunk
+                    ? () => handleNavigation("/")
+                    : () => setIsShrunk(false)
+                }
+              >
+                <FaCog /> Logout
+              </MenuItem>
+            </Menu>
           </NavIcons>
         </Toolbar>
       </NavContainer>

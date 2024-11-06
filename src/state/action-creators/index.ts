@@ -179,7 +179,7 @@ export const getNewsAction = async (filter: string) => {
     };
 
     // const loggetting = await AxiosCustom.post(
-    //   "http://46.117.80.103:4000:8000",
+    //   "http://localhost:4000:8000",
     //   loginParams,
     //   {
     //     headers,
@@ -246,7 +246,7 @@ export const makeEventAction = async (payload: any) => {
     };
 
     // const loggetting = await AxiosCustom.post(
-    //   "http://46.117.80.103:4000:8000",
+    //   "http://localhost:4000:8000",
     //   loginParams,
     //   {
     //     headers,
@@ -276,7 +276,7 @@ export const loginAction = async (loginParams: any, setErrorMessage: any) => {
     };
     const user = JSON.stringify(loginParams);
     // const loggetting = await AxiosCustom.post(
-    //   "http://46.117.80.103:4000:8000",
+    //   "http://localhost:4000:8000",
     //   loginParams,
     //   {
     //     headers,

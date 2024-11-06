@@ -41,20 +41,21 @@ export const getPointImageByPointId = async (
   quadId: string
 ) => {
   try {
-    const response = await fetch(
-      "http://46.117.80.103:4000/images/getPointImageByPointId",
+    const { data } = await AxiosCustom.post(
+      "http://localhost:4000/images/getPointImageByPointId",
       {
-        method: "POST",
+        pointId: pointId,
+        quadId: quadId,
+      },
+      {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ pointId: pointId, quadId: quadId }),
       }
     );
 
-    const result = response.json();
+    const result = data.payload;
     return result;
   } catch (error) {
     console.log("error", error);
@@ -65,22 +66,22 @@ export const getAvatars = async (friend) => {
   let avatarsIds: any = [];
 
   const imageUser = await getAvatarByUserId(friend.username);
-  if (!imageUser || !imageUser.payload) return [];
+  if (!imageUser) return [];
 
   avatarsImagesObject = {
     ...avatarsImagesObject,
-    [friend.username]: imageUser.payload,
+    [friend.username]: imageUser,
   };
-  avatarsIds.push(imageUser.payload.id);
+  avatarsIds.push(imageUser.id);
 
   for (let friendUsername of Object.keys(friend.friends || {})) {
     const image = await getAvatarByUserId(friendUsername);
     if (!image) continue;
     avatarsImagesObject = {
       ...avatarsImagesObject,
-      [friendUsername]: image.payload,
+      [friendUsername]: image,
     };
-    avatarsIds.push(image.payload.id);
+    avatarsIds.push(image.id);
   }
   // console.log(avatarsImagesObject);
   // setAvatars(avatarsImagesObject);
@@ -90,7 +91,7 @@ export const getAvatars = async (friend) => {
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/images/getImageIdsByChatId",
+      "http://localhost:4000/images/getImageIdsByChatId",
       {
         method: "POST",
         headers: {

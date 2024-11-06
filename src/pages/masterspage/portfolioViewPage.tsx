@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import AxiosCustom from "../../utils/Axios";
 
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { useActions } from "../../hooks/useActions";
@@ -192,7 +193,7 @@ const PortfolioViewPage: React.FC = ({}) => {
   return (
     <PortfolioPage
       theme={themevars}
-      style={{ display: "contents" }}
+      style={{ display: "contents", marginBottom: "20vh" }}
       onLoad={async () => await hadleGetAvatars()}
     >
       <StyledEditButton
@@ -227,6 +228,7 @@ const PortfolioViewPage: React.FC = ({}) => {
         style={{
           overflow: "scroll",
           marginTop: "6vh",
+          height: "83vh",
         }}
         // direction="row"
       >
@@ -365,7 +367,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                         style={{
                           borderRadius: "0px",
                           maxHeight: "800px",
-                          height: "63vh",
+                          height: "68vh",
                         }}
                       >
                         {friendChats[friendPosts[post].chatId]?.messages &&
@@ -494,21 +496,19 @@ const PortfolioViewPage: React.FC = ({}) => {
 
 export async function getAvatarByUserId(username: string) {
   try {
-    //
-    const response = await fetch(
-      "http://46.117.80.103:4000/users/getAvatarByUserId",
+    const headers = {
+      Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+    };
+
+    const { data } = await AxiosCustom.post(
+      "http://localhost:4000/users/getAvatarByUserId",
+      { username: username },
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ username: username }),
+        headers,
       }
     );
 
-    const result = await response.json();
+    const result = data.payload;
     return result;
   } catch (error) {
     console.log("error", error);
