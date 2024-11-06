@@ -24,7 +24,10 @@ import {
   getImageByImageId,
 } from "../../hooks/useChat";
 import { getNewsAction, loginAction } from "../../state/action-creators";
-import { getAvatars } from "../../utils/helpers/helperFuncs";
+import {
+  getAvatars,
+  getPointImageByPointId,
+} from "../../utils/helpers/helperFuncs";
 
 const LoginPage = () => {
   const { themevars } = useTheme();
@@ -41,9 +44,10 @@ const LoginPage = () => {
   const [news, setNews] = useLocalStorage("news", null);
   const [images, setImages] = useLocalStorage("images", null);
   const [points, setPoints] = useLocalStorage("points", null);
+  const [mapImages, setMapImages] = useLocalStorage("mapImages", null);
   const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
   const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
-
+  const [loading, setLoading] = useLocalStorage("loading", null);
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -51,6 +55,7 @@ const LoginPage = () => {
     if (!loginF || !password) return;
 
     try {
+      setLoading(true);
       const loginData = await loginAction(
         { username: loginF, password: password },
         setErrorMessage
@@ -70,17 +75,39 @@ const LoginPage = () => {
       ]);
 
       const [avatarIds, avatarsImagesdata] = await getAvatars(loginData);
-      const nonAvatarImages = imageIds.payload.filter(
-        (e) => !avatarIds.includes(e)
+      const nonAvatarImages = imageIds.payload?.filter(
+        (e) => !avatarIds?.includes(e)
       );
 
       const newImages = await Promise.all(
-        nonAvatarImages.map(async (imageId) => {
+        nonAvatarImages?.map(async (imageId) => {
           const image = await getImageByImageId(imageId);
           return image && image.payload ? { [imageId]: image.payload } : {};
         })
       );
-
+      const pointsInRaduis = await getPointsInRadius(
+        {
+          lat: 32.02119878251853,
+          lng: 34.74333323660794,
+        },
+        false
+      );
+      console.log(pointsInRaduis);
+      let newMapimages = {};
+      for (let pointId of Object.keys(pointsInRaduis.payload)) {
+        let quadId =
+          pointsInRaduis.payload[pointId].location.lat.toFixed(2) +
+          ":" +
+          pointsInRaduis.payload[pointId].location.lng.toFixed(2);
+        console.log(quadId);
+        const image = await getPointImageByPointId(pointId, quadId);
+        console.log(image.payload);
+        if (image.payload?.src) {
+          newMapimages[pointsInRaduis.payload[pointId].data.icon] =
+            image.payload.src;
+        }
+      }
+      setMapImages(newMapimages);
       setAvatars(avatarsImagesdata || {});
       setImages(Object.assign({}, ...newImages));
       setFriend(loginData);

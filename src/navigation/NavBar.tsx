@@ -53,7 +53,10 @@ import {
   getAvatars,
   getPointImageByPointId,
 } from "./../utils/helpers/helperFuncs";
-
+import { delay } from "@reduxjs/toolkit/dist/utils";
+function timeout(delay: number) {
+  return new Promise((res) => setTimeout(res, delay));
+}
 const Spinner = keyframes`
 
 100%{transform: rotate(1turn);
@@ -104,6 +107,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const dim = useWindowDimensions();
   const [isShrunk, setIsShrunk] = useState(false);
   const [isMap, setIsMap] = useState(false);
+  const [isMenuAnabled, setIsMenuEnabled] = useState(false);
   const [loading, setLoading] = useLocalStorage("loading", false);
   const [points, setPoints] = useLocalStorage("points", {});
   const auth = useAuth();
@@ -113,6 +117,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
     setLastInteractionTime(Date.now());
     if (isShrunk) {
       setIsShrunk(false); // Expand if the navbar is shrunk and there is user interaction
+      // setIsMenuEnabled(true);
     }
   };
   const [hideNav, setHideNav] = useLocalStorage("hideNav", null);
@@ -140,7 +145,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
 
           let [avatarIds, avatarsImagesdata]: any = await getAvatars(userData);
           const nonAvatarImages = imageIds.filter(
-            (e) => !avatarIds.includes(e)
+            (e) => !avatarIds?.includes(e)
           );
           if (!avatarIds || avatarIds.length === 0) {
             avatarsImagesdata = {};
@@ -176,8 +181,8 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           if (username === user.username) {
             console.log("user", user);
             const userMapImages = await getUserMapImagesByUserId(user.username);
-            console.log(userMapImages.payload);
-            setMapImages(userMapImages.payload);
+            console.log(userMapImages);
+            setMapImages({ ...mapImages, ...userMapImages.payload });
 
             setPosts(postsData.payload);
 
@@ -221,10 +226,11 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
               pointsInRaduis.payload[pointId].location.lng.toFixed(2);
             console.log(quadId);
             const image = await getPointImageByPointId(pointId, quadId);
-            console.log(image.payload);
-
-            newMapimages[pointsInRaduis.payload[pointId].data.icon] =
-              image.payload.src;
+            console.log(image);
+            if (image?.src) {
+              newMapimages[pointsInRaduis.payload[pointId].data.icon] =
+                image.src;
+            }
           }
           setMapImages({ ...useMapImages.payload, ...newMapimages });
           setHideNav(false);
@@ -260,8 +266,16 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [openSettings, setOpenSettings] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setIsOpen((prevState) => !prevState);
+  const toggleMenu = async () => {
+    if (!isOpen) {
+      setIsOpen(true);
+
+      setIsMenuEnabled(true);
+    } else {
+      setIsOpen(false);
+      await timeout(1000);
+      setIsMenuEnabled(false);
+    }
   };
 
   const handleNavigation = async (path: any, username: any = user) => {
@@ -283,12 +297,14 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   useEffect(() => {
     if (isShrunk) {
       setIsOpen(false);
+      setIsMenuEnabled(false);
       // Close the menu if the navbar is shrunk
     }
     // Set a timer to shrink navbar after 5 seconds of inactivity
     const shrinkTimer = setTimeout(() => {
       if (Date.now() - lastInteractionTime >= 5000) {
         setIsShrunk(true); // Shrink the navbar
+        setIsMenuEnabled(false);
       }
     }, 5000);
 
@@ -387,61 +403,65 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
               <Avatar
                 src={avatars[user.username]?.src} // Replace with actual avatar URL
                 alt="User Avatar"
-                onClick={toggleMenu}
+                onClick={async () => await toggleMenu()}
               />
             </AvatarContainer>
 
-            <Menu
-              isopen={isOpen}
-              theme={themevars.navbar}
-              // style={{ visibility: isOpen ? "visible" : "hidden" }}
-            >
-              <MenuItem
-                isopened={isOpen}
-                theme={themevars}
-                index={4}
-                onClick={
-                  async () => {
-                    navigate("/" + user.username);
+            {isMenuAnabled ? (
+              <Menu
+                isopen={isOpen}
+                theme={themevars.navbar}
+                // style={{ visibility: isOpen ? "visible" : "hidden" }}
+              >
+                <MenuItem
+                  isopened={isOpen}
+                  theme={themevars}
+                  index={4}
+                  onClick={
+                    async () => {
+                      navigate("/" + user.username);
+                    }
+                    // }
                   }
-                  // }
-                }
-              >
-                <FaUser /> Profile
-              </MenuItem>
-              <MenuItem
-                isopened={isOpen}
-                theme={themevars}
-                index={3}
-                onClick={async () => {
-                  //window.location.href = user.username;
-                  navigate("/" + user.username);
-                  await setIsEditingProfile();
-                }}
-              >
-                <FaUserEdit /> Edit Profile
-              </MenuItem>
-              <MenuItem
-                isopened={isOpen}
-                index={2}
-                theme={themevars}
-                onClick={() => setOpenSettings(true)}
-              >
-                <FaCog /> Settings
-              </MenuItem>
-              <MenuItem
-                isopened={isOpen}
-                index={1}
-                theme={themevars}
-                onClick={
-                  !isShrunk
-                    ? () => handleNavigation("/")
-                    : () => setIsShrunk(false)
-                }
-              >
-                <FaCog /> Logout
-              </MenuItem>
-            </Menu>
+                >
+                  <FaUser /> Profile
+                </MenuItem>
+                <MenuItem
+                  isopened={isOpen}
+                  theme={themevars}
+                  index={3}
+                  onClick={async () => {
+                    //window.location.href = user.username;
+                    navigate("/" + user.username);
+                    await setIsEditingProfile();
+                  }}
+                >
+                  <FaUserEdit /> Edit Profile
+                </MenuItem>
+                <MenuItem
+                  isopened={isOpen}
+                  index={2}
+                  theme={themevars}
+                  onClick={() => setOpenSettings(true)}
+                >
+                  <FaCog /> Settings
+                </MenuItem>
+                <MenuItem
+                  isopened={isOpen}
+                  index={1}
+                  theme={themevars}
+                  onClick={
+                    !isShrunk
+                      ? () => handleNavigation("/")
+                      : () => setIsShrunk(false)
+                  }
+                >
+                  <FaCog /> Logout
+                </MenuItem>
+              </Menu>
+            ) : (
+              <></>
+            )}
           </NavIcons>
         </Toolbar>
       </NavContainer>

@@ -193,6 +193,7 @@ export const Menu = styled.div<{ isopen: boolean }>`
 
   display: flex;
   flex-direction: column;
+
   animation: ${({ isopen }) => (isopen ? fadeIn : fadeOut)}
     ${({ isopen }) => (isopen ? 0.2 + "s ease-in" : 0.2 + "s ease-out")}
     forwards;

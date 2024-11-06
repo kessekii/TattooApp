@@ -669,29 +669,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   // Save changes
   const handleSaveClick = async (updateUser: any, setErrorMessage: any) => {
-    let resizedBackdrop: any = "";
-    let resizedImage: any = "";
-
-    // Resizer.imageFileResizer(
-    //   resizedBackdropBlob, // Is the file of the image which will resized.
-    //   200, // Is the maxWidth of the resized new image.
-    //   200, // Is the maxHeight of the resized new image.
-    //   "jpg", // Is the compressFormat of the resized new image.
-    //   100, // Is the quality of the resized new image.
-    //   0, // Is the degree of clockwise rotation to apply to uploaded image.
-    //   (img) => (resizedBackdrop = img) // Is the callBack function of the resized new image URI.
-    //   // Is the minHeight of the resized new image.
-    // );
-    // await Resizer.imageFileResizer(
-    //   resizedImageBlob, // Is the file of the image which will resized.
-    //   100, // Is the maxWidth of the resized new image.
-    //   100, // Is the maxHeight of the resized new image.
-    //   "jpg", // Is the compressFormat of the resized new image.
-    //   100, // Is the quality of the resized new image.
-    //   0, // Is the degree of clockwise rotation to apply to uploaded image.
-    //   (img) => (resizedImage = img) // Is the callBack function of the resized new image URI.
-    //   // Is the minHeight of the resized new image.
-    // );
     console.log(newBackdropImage, newImage);
     const newBackdropImageObject = {
       src:
@@ -703,7 +680,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       id: user.backdrop ? user.backdrop : "",
     };
 
-    console.log(resizedImage);
     const newImageObject = {
       src: newImage.src !== "" ? newImage.src : friend.profilePicture,
       owner: user.username,
@@ -728,11 +704,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       [result.payload.image.id]: result.payload.image.src,
       [result.payload.backdrop.id]: result.payload.backdrop.src,
     });
-
-    await setIsEditingProfile();
     setAvatars({ ...avatars, [user.username]: result.payload.image });
     setUser(result.payload.user);
     setFriend(result.payload.user);
+    await setIsEditingProfile();
   };
 
   // Cancel editing
@@ -1189,9 +1164,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                 <PinDrop style={{ color: themevars.icons.color }} />
               </IcoButton>
 
-              <IcoButton theme={themevars} onClick={handleLinksClick}>
+              {/* <IcoButton theme={themevars} onClick={handleLinksClick}>
                 <Link style={{ color: themevars.icons.color }} />
-              </IcoButton>
+              </IcoButton> */}
             </GridTwo>
           ) : (
             <GridTwo theme={themevars}>
@@ -1240,9 +1215,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <IcoButton theme={themevars} onClick={handleMapClick}>
                 <PinDrop style={{ color: themevars.icons.color }} />
               </IcoButton>
-              <IcoButton theme={themevars} onClick={handleLinksClick}>
+              {/* <IcoButton theme={themevars} onClick={handleLinksClick}>
                 <Link style={{ color: themevars.icons.color }} />
-              </IcoButton>
+              </IcoButton> */}
             </GridTwo>
           )}
         </ProfileInfo>
