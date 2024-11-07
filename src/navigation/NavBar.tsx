@@ -344,7 +344,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         position: "fixed",
         display: "flex",
 
-        justifyContent: !hideNav ? "center" : "end",
+        justifyContent: !hideNav ? "center" : "center",
         alignItems: "top",
         height: "100%",
         width: "100%",
@@ -357,9 +357,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       }}
     >
       <NavContainer
-        // style={{
-        //   visibility: false ? "hidden" : "visible",
-        // }}
+        style={{
+          visibility: false ? "hidden" : "visible",
+        }}
         hideNav={hideNav}
         isMap={isMap}
         theme={themevars.navbar}

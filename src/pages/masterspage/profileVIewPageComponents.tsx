@@ -20,7 +20,7 @@ export const PostWrapper = styled.div`
   max-width: 100%;
 
   background-color: ${({ theme }) => theme.background};
-  border-bottom: 1px solid #dbdbdb;
+
   display: grid;
   flex-direction: column;
   justify-content: center;
@@ -92,6 +92,7 @@ export const LikeSection = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  margin-bottom: 10px;
 `;
 
 export const LikeButton = styled.button`
@@ -230,7 +231,7 @@ export const StyledLikeButton = styled.button <({ liked, theme }) > `
   svg {
     width: 24px;
     height: 24px;
-    fill: ${({ liked, theme }) => (liked ? '#ed4956' : '#262626')};
+    fill: ${({ liked, theme }) => (liked ? '#ed4956' : theme.buttonBackground)};
     stroke: ${({ liked }) => (liked ? '#ed4956' : '#262626')};
     transition: fill 0.2s, stroke 0.2s;
     animation: ${({ liked }) => (liked ? `pop 0.3s ease-in-out` : 'none')};

@@ -29,7 +29,7 @@ import {
   UserName,
 
 } from "./profileVIewPageComponents";
-import { EditButton, ProfileDescription, Typefield } from "./masterPage";
+import { EditButton, IcoButton, ProfileDescription, Typefield } from "./masterPage";
 import ChatComponent from "../components/chat";
 import {
   getPostByPostId,
@@ -40,8 +40,10 @@ import {
 import { getImageByImageId, getPostsByUserId } from "../../hooks/useChat";
 import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 import { getAvatarIdsByChatId } from "./../../utils/helpers/helperFuncs";
-import { ArrowBackIos } from "@mui/icons-material";
+import { ArrowBackIos, Chat } from "@mui/icons-material";
 import { Dict } from "styled-components/dist/types";
+import { ChatIcon } from "../../assets/icons/ChatIcon";
+import { BorderHorizontal } from "../chatspage/chatsPagge";
 
 const StyledEditButton = styled.button`
   background: ${({ theme }) => theme.background};
@@ -354,7 +356,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                 // objectFit: "contain",
               }}
             >
-              <PostWrapper key={post} style={{ objectFit: "contain" }}>
+              <PostWrapper key={post} style={{ objectFit: "contain", }}>
                 <PostImage
                   src={images[friendPosts[post].image]?.src || ""}
                   alt={`Post ${post}`}
@@ -364,20 +366,28 @@ const PortfolioViewPage: React.FC = ({ }) => {
                     height: "80vw",
                     maxHeight: "400px",
                     objectFit: "contain",
-                    margin: "3px",
+
                   }}
                 />
-                <PostDetails>
-                  <UserSection>
-                    <UserAvatar
-                      src={avatars[friend.username]?.src}
-                      alt={`${friend.username} avatar`}
-                    />
-                    <UserName onClick={() => navigate("../" + friend.username)}>
-                      {friend.name}
-                    </UserName>
-                  </UserSection>
-                  <Description>{friendPosts[post].description}</Description>
+                <>
+                  <PostDetails style={{ padding: "10px 7px" }} >
+                    <UserSection>
+                      <UserAvatar
+                        src={avatars[friend.username]?.src}
+                        alt={`${friend.username} avatar`}
+                        style={{}}
+                      />
+                      <ProfileDescription style={{ marginLeft: '25px' }}>
+                        <UserName onClick={() => navigate("../" + friend.username)}>
+                          {friend.name}
+                        </UserName>
+                        <Typefield style={{ overflow: "hidden", maxWidth: "60vw", lineBreak: "strict", color: themevars.text }}>
+                          {friendPosts[post].description}
+                        </Typefield>
+                      </ProfileDescription>
+                    </UserSection>
+                  </PostDetails>
+                  {/* <Description>{friendPosts[post].description}</Description> */}
                   {/* <Caption>
                     <strong>{posts[post].user && posts[post].user.name}</strong>{" "}
                     {posts[post].description}
@@ -399,7 +409,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         <>No comments yet</>
                       ) : (
                         <>
-                          <Box
+                          {/* <Box
                             style={{
                               flexDirection: "column",
                               display: "flex",
@@ -434,7 +444,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                               ].text
                             }
                           </Typography>
-                          :{" "}
+                          :{" "} */}
                         </>
                       )}
                     </CommentSection>
@@ -451,16 +461,26 @@ const PortfolioViewPage: React.FC = ({ }) => {
                       </svg>
                     </StyledLikeButton>}
 
+                    <IcoButton
+                      style={{ marginInline: 'unset', paddingInline: '40px', marginTop: 'unset', display: 'flex', color: themevars.icons.color, justifySelf: "right", alignItems: "center", justifyContent: "right", }}
+                      theme={themevars}
+                      onClick={() => handleCommentsClick(post)}
+                    >
+                      <Typography style={{ marginLeft: '10px', color: themevars.icons.color }}>
+                        View all{" "}
+                        {friendChats[friendPosts[post].chatId]?.messages
+                          ?.length || 0}{" "}
+                        comments
+
+                      </Typography>
+
+                      <Chat style={{ marginLeft: '8px', color: themevars.icons.color }} />
+                    </IcoButton>
 
 
-                    <Box onClick={() => handleCommentsClick(post)}>
-                      View all{" "}
-                      {friendChats[friendPosts[post].chatId]?.messages
-                        ?.length || 0}{" "}
-                      comments
-                    </Box>
                   </LikeSection>
-                </PostDetails>
+
+                </>
 
                 {showCommentsPopup === post && (
                   <CommentsPopup style={{ background: themevars.background }}>

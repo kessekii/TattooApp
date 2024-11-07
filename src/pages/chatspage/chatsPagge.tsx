@@ -11,7 +11,7 @@ import { CommentsContent } from "../masterspage/profileVIewPageComponents";
 import { updateChatStraight } from "../../../src/state/action-creators";
 import { Box, Paper, TextField } from "@mui/material";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import { ArrowBackIos, Send } from "@mui/icons-material";
+import { ArrowBackIos, BorderBottomOutlined, Send } from "@mui/icons-material";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { sq } from "date-fns/locale";
@@ -56,10 +56,13 @@ const StyledCommentList = styled.div`
 export const StyledCommentsPopup = styled.div`
   background: ${(props) => props.theme.background};
   color: ${(props) => props.theme.popup.text};
-
+  
   position: relative;
   border-radius: 10px;
-
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-inline: 15px;
   z-index: 1000;
 `;
 
@@ -78,6 +81,7 @@ const StyledCommentItem = styled.div<{ isUser }>`
   width: 100%;
   padding: 0;
   marginbottom: 1vh;
+  
   borderradius: 25px;
 `;
 
@@ -85,6 +89,7 @@ const StyledCommentText = styled.div`
   font-size: 15px;
 
   margin-inline: 10px;
+ 
   color: ${(props) => props.theme.text};
 `;
 const StyledCommentTimeText = styled.div<{ isUser }>`
@@ -123,6 +128,15 @@ const StyledCommentAuthor = styled.div`
   color: ${(props) => props.theme.text};
 `;
 
+export const BorderHorizontal = styled.div`
+width:calc(100% - 30px);
+height:1px;
+opacity: 0.2;
+background:${({ theme }) => theme.text};
+float: end;
+position: absolute;
+
+`
 // Component
 export const ChatsPageComponent: React.FC = () => {
   function timeout(delay: number) {
@@ -338,6 +352,7 @@ export const ChatsPageComponent: React.FC = () => {
           >
             {formatDate(message.timestamp)}
           </StyledCommentTimeText>
+
         </StyledCommentItem>
       );
     });
@@ -358,13 +373,25 @@ export const ChatsPageComponent: React.FC = () => {
             style={{
               background: themevars.background,
               border: "0",
+              boxShadow: "unset",
               marginTop: "6vh",
               marginBottom: "14vh",
               borderBottom: "2px",
+
             }}
           >
-            {isMessagesPopupOpened && (
-              <>
+
+
+
+            {chatData.messages?.length > 0 &&
+              privateChatId === selectedChatId &&
+              isMessagesPopupOpened ? (
+              <StyledCommentsPopup
+                style={{ overflow: "scroll", scrollBehavior: "smooth", boxShadow: "unset", }}
+                theme={themevars}
+              >
+
+
                 <StyledEditButton
                   theme={themevars}
                   style={{
@@ -390,31 +417,18 @@ export const ChatsPageComponent: React.FC = () => {
                     <ArrowBackIos style={{ alignSelf: "start" }} />
                   </div>
                 </StyledEditButton>
-              </>
-            )}
 
-            {chatData.messages?.length > 0 &&
-              privateChatId === selectedChatId &&
-              isMessagesPopupOpened ? (
-              <StyledCommentsPopup
-                style={{ overflow: "scroll", scrollBehavior: "smooth" }}
-                theme={themevars}
-              >
-                <CommentsContent
-                  style={{ background: "transparent" }}
-                  theme={themevars}
-                >
-                  <StyledCommentList
-                    style={{ height: "100%", paddingBlock: "6vh", }}
-                  >
-                    {renderMessages(chatData.messages)}
-                  </StyledCommentList>
-                </CommentsContent>
+
+
+
+                {renderMessages(chatData.messages)}
+
+
                 <Box
                   style={{
                     width: "100%",
                     maxWidth: "100vw",
-                    boxShadow: "unset",
+
                     position: "fixed",
                     bottom: "0",
                     left: "0",
@@ -422,12 +436,12 @@ export const ChatsPageComponent: React.FC = () => {
                     background: themevars.background,
                     height: "14vh",
                     // display: "flex",
-
+                    boxShadow: "unset",
                     alignItems: "center",
                     justifyContent: "space-between",
                   }}
                 >
-                  <Box style={{ display: "flex", alignItems: "center" }}>
+                  <Box style={{ display: "flex", alignItems: "center", boxShadow: "unset", }}>
                     <TextField
                       style={{
                         background: themevars.background,
@@ -445,6 +459,7 @@ export const ChatsPageComponent: React.FC = () => {
                       <Send style={{ color: themevars.text }} />
                     </StyledCommentSubmitButton>
                   </Box>
+                  <BorderHorizontal style={{ marginLeft: '15px' }} theme={themevars} />
                 </Box>
               </StyledCommentsPopup>
             ) : chatData.messages?.length > 0 &&
@@ -494,6 +509,7 @@ export const ChatsPageComponent: React.FC = () => {
                   style={{
                     background: "transparent",
                     // marginTop: "6vh",
+                    boxShadow: "unset",
                     marginBottom: "5px",
                     display: "flex",
                     padding: "10px",
@@ -549,6 +565,9 @@ export const ChatsPageComponent: React.FC = () => {
                       float: "right",
                       fontSize: 15,
                       color: themevars.text,
+                      marginRight: "15px",
+                      textAlign: "right",
+                      opacity: 0.5,
                     }}
                   >
                     {new Date().getTime() -
@@ -586,6 +605,7 @@ export const ChatsPageComponent: React.FC = () => {
                         .split(":")[1]}
                   </StyledCommentText>
                 </Paper>
+                <BorderHorizontal theme={themevars} />
               </StyledCommentItem>
             )
             }
