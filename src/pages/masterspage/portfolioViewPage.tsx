@@ -296,7 +296,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
   return (
     <PortfolioPage
       theme={themevars}
-      style={{ display: "contents" }}
+      style={{ display: "contents", background: themevars.background }}
       onLoad={async () => await hadleGetAvatars()}
     >
 
@@ -332,6 +332,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
         style={{
           overflow: "scroll",
           marginTop: "6vh",
+          marginBottom: "9vh",
         }}
       // direction="row"
       >
@@ -462,7 +463,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                 </PostDetails>
 
                 {showCommentsPopup === post && (
-                  <CommentsPopup>
+                  <CommentsPopup style={{ background: themevars.background }}>
                     <CommentsContent theme={themevars}>
 
 
@@ -471,8 +472,10 @@ const PortfolioViewPage: React.FC = ({ }) => {
                           borderRadius: "0px",
                           alignItems: "center",
                           display: "grid",
-                          height: "76vh",
+                          height: 'auto',
                           marginTop: "6vh",
+                          paddingBottom: "19vh",
+                          background: themevars.background,
                         }}
                       >
                         <PostImage
@@ -595,7 +598,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         maxWidth: "870px",
                         background: themevars.buttonBackground,
                         height: "8vh",
-
+                        marginBottom: "9vh",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
@@ -617,13 +620,14 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         Submit Comment
                       </CommentSubmitButton>
                     </Paper>
+
                   </CommentsPopup>
                 )}
               </PostWrapper>
             </Grid>
           ))}
       </Grid>
-    </PortfolioPage>
+    </PortfolioPage >
   );
 };
 

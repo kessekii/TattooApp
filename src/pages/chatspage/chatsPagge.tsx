@@ -47,13 +47,13 @@ const StyledCommentList = styled.div`
 
   width: 100%;
 
-  height: 100%;
+  height: 90vh;
   border-radius: 25px;
 
   height: fit-content;
 `;
 
-const StyledCommentsPopup = styled.div`
+export const StyledCommentsPopup = styled.div`
   background: ${(props) => props.theme.background};
   color: ${(props) => props.theme.popup.text};
 
@@ -358,6 +358,8 @@ export const ChatsPageComponent: React.FC = () => {
             style={{
               background: themevars.background,
               border: "0",
+              marginTop: "6vh",
+              marginBottom: "14vh",
               borderBottom: "2px",
             }}
           >
@@ -395,7 +397,7 @@ export const ChatsPageComponent: React.FC = () => {
               privateChatId === selectedChatId &&
               isMessagesPopupOpened ? (
               <StyledCommentsPopup
-                style={{ overflow: "scroll" }}
+                style={{ overflow: "scroll", scrollBehavior: "smooth" }}
                 theme={themevars}
               >
                 <CommentsContent
@@ -403,7 +405,7 @@ export const ChatsPageComponent: React.FC = () => {
                   theme={themevars}
                 >
                   <StyledCommentList
-                    style={{ height: "100%", paddingBottom: "12vh" }}
+                    style={{ height: "100%", paddingBlock: "6vh", }}
                   >
                     {renderMessages(chatData.messages)}
                   </StyledCommentList>
@@ -418,7 +420,7 @@ export const ChatsPageComponent: React.FC = () => {
                     left: "0",
                     display: "block",
                     background: themevars.background,
-                    height: "18vh",
+                    height: "14vh",
                     // display: "flex",
 
                     alignItems: "center",
@@ -585,12 +587,13 @@ export const ChatsPageComponent: React.FC = () => {
                   </StyledCommentText>
                 </Paper>
               </StyledCommentItem>
-            )}
-          </StyledCommentList>
+            )
+            }
+          </StyledCommentList >
         );
       }),
     [privateChats, isMessagesPopupOpened, newComment, selectedChatId]
   );
 
-  return <Box style={{ paddingTop: "15vw" }}>{participants}</Box>;
+  return <Box style={{}}>{participants}</Box>;
 };

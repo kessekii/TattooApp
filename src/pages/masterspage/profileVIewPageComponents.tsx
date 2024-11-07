@@ -114,8 +114,8 @@ export const CommentsPopup = styled.div`
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  height: 100vh;
+  background: ${({ theme }) => theme.background};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -126,7 +126,7 @@ export const CommentsContent = styled.div`
   padding: 8px;
   border-radius: 0px;
   width: calc(100% - 18px);
-  max-height: 86vh;
+  max-height: 100vh;
 
   overflow-y: auto;
   position: relative;
