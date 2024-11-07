@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import AxiosCustom from "../../utils/Axios";
+import { baseURL } from "../../utils/Axios";
 
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { useActions } from "../../hooks/useActions";
@@ -27,9 +27,9 @@ import {
   PostWrapper,
   UserAvatar,
   UserName,
-  UserSection,
+
 } from "./profileVIewPageComponents";
-import { EditButton } from "./masterPage";
+import { EditButton, ProfileDescription, Typefield } from "./masterPage";
 import ChatComponent from "../components/chat";
 import {
   getPostByPostId,
@@ -42,6 +42,7 @@ import { Box, Grid, Paper, TextField, Typography } from "@mui/material";
 import { getAvatarIdsByChatId } from "./../../utils/helpers/helperFuncs";
 import { ArrowBackIos } from "@mui/icons-material";
 import { Dict } from "styled-components/dist/types";
+
 const StyledEditButton = styled.button`
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.text};
@@ -50,6 +51,14 @@ const StyledEditButton = styled.button`
   width: 5vw;
   height: 5vw;
 `;
+
+export const UserSection = styled.div`
+  display: flex;
+  align-items: center;
+
+  color: ${({ theme }) => theme.text};
+`;
+
 const PortfolioViewPage: React.FC = ({ }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
@@ -290,6 +299,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
       style={{ display: "contents" }}
       onLoad={async () => await hadleGetAvatars()}
     >
+
       <StyledEditButton
         theme={themevars}
         style={{
@@ -309,7 +319,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
           justifyContent: "center",
           flexWrap: "wrap",
         }}
-        onClick={() => navigate("/" + friend.username)}
+        onClick={() => { !showCommentsPopup ? navigate("/" + friend.username) : handleCloseCommentsPopup() }}
       >
         <div style={{ marginLeft: "15px" }}>
           <ArrowBackIos style={{ alignSelf: "start" }} />
@@ -453,22 +463,47 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
                 {showCommentsPopup === post && (
                   <CommentsPopup>
-                    <CommentsContent theme={themevars.popup}>
-                      <EditButton
-                        theme={themevars.popup}
-                        onClick={handleCloseCommentsPopup}
-                      >
-                        X
-                      </EditButton>
-                      <h2 style={{ color: themevars.text }}>Comments</h2>
+                    <CommentsContent theme={themevars}>
+
 
                       <CommentList
                         style={{
                           borderRadius: "0px",
-                          maxHeight: "800px",
-                          height: "63vh",
+                          alignItems: "center",
+                          display: "grid",
+                          height: "76vh",
+                          marginTop: "6vh",
                         }}
                       >
+                        <PostImage
+                          src={images[friendPosts[post].image]?.src || ""}
+                          alt={`Post ${post}`}
+                          style={{
+                            width: "80vw",
+                            maxWidth: "400px",
+                            height: "80vw",
+                            maxHeight: "400px",
+                            objectFit: "contain",
+                            margin: "auto",
+                          }}
+                        />
+                        <PostDetails >
+                          <UserSection>
+                            <UserAvatar
+                              src={avatars[friend.username]?.src}
+                              alt={`${friend.username} avatar`}
+                              style={{ marginLeft: "25px" }}
+                            />
+                            <ProfileDescription style={{ marginLeft: '25px' }}>
+                              <UserName onClick={() => navigate("../" + friend.username)}>
+                                {friend.name}
+                              </UserName>
+                              <Typefield style={{ overflow: "hidden", maxWidth: "60vw", lineBreak: "strict", color: themevars.text }}>
+                                {friendPosts[post].description}
+                              </Typefield>
+                            </ProfileDescription>
+                          </UserSection>
+                        </PostDetails>
                         {friendChats[friendPosts[post].chatId]?.messages &&
                           friendChats[friendPosts[post].chatId].messages.length >
                           0 ? (
@@ -482,11 +517,9 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                   alignItems: "center",
                                   display: "flex",
                                   paddingInline: "30px",
-                                  width: "80vw",
-                                  backgroundColor:
-                                    index % 2 === 0
-                                      ? "rgb(242,242,242)"
-                                      : "#eeeeee",
+
+                                  backgroundColor: themevars.navbar.background,
+                                  borderRadius: "25px",
                                 }}
                               >
                                 <Box
@@ -499,6 +532,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                     justifyContent: "flex-start",
                                     alignItems: "center",
                                     display: "flex",
+                                    paddingBottom: "unset",
                                   }}
                                 >
                                   <Box
@@ -507,20 +541,20 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                       display: "flex",
                                     }}
                                   >
-                                    <CommentAuthor
-                                      style={{
-                                        float: "left",
-                                        marginRight: "20px",
-                                      }}
-                                    >
-                                      {comment.author}
-                                    </CommentAuthor>
                                     <UserAvatar
                                       src={avatars[comment.author]?.src}
                                     ></UserAvatar>
 
                                     {/*  */}
                                   </Box>
+                                  <CommentAuthor
+                                    style={{
+                                      float: "left",
+                                      marginRight: "20px",
+                                    }}
+                                  >
+                                    {comment.author}
+                                  </CommentAuthor>
 
                                   <CommentText style={{ float: "left" }}>
                                     {comment.text}
@@ -597,7 +631,7 @@ export async function getAvatarByUserId(username: string) {
   try {
     //
     const response = await fetch(
-      "http://46.117.80.103:4000/users/getAvatarByUserId",
+      baseURL + "users/getAvatarByUserId",
       {
         method: "POST",
         headers: {

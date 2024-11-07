@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getAvatarByUserId } from "../../../src/pages/masterspage/portfolioViewPage";
-import AxiosCustom from "../../utils/Axios";
+import AxiosCustom , { baseURL} from "../../utils/Axios";
 
 export const imageToBlob = async (imageSrc: string): Promise<Blob> => {
   const response = await fetch(imageSrc);
@@ -42,7 +42,7 @@ export const getPointImageByPointId = async (
 ) => {
   try {
     const { data } = await AxiosCustom.post(
-      "http://46.117.80.103:4000/images/getPointImageByPointId",
+      baseURL+ "images/getPointImageByPointId",
       {
         pointId: pointId,
         quadId: quadId,
@@ -91,7 +91,7 @@ export const getAvatars = async (friend) => {
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
     const response = await fetch(
-      "http://46.117.80.103:4000/images/getImageIdsByChatId",
+      baseURL+ "images/getImageIdsByChatId",
       {
         method: "POST",
         headers: {
