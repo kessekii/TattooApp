@@ -1,8 +1,8 @@
 import axios from "axios";
 import { devUrl } from "../config";
 
-// export const baseURL =  "http://46.117.80.103:4000/"
-export const baseURL = "http://[::1]:4000/"
+export const baseURL =  "http://46.117.80.103:4000/"
+// export const baseURL = "http://[::1]:4000/"
 const Instance = axios.create({
   //   baseURL: devUrl,
   baseURL: baseURL,
