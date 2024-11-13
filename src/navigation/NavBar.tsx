@@ -33,8 +33,9 @@ import { useActions } from "../hooks/useActions";
 import useLocalStorage from "../hooks/useLocalStorage";
 import {
   getChatsByUserId,
+
   getImageByImageId,
-  getImageIdsByUserId,
+
   getPointsInRadius,
   getPostsByUserId,
   getUserById,
@@ -44,22 +45,24 @@ import {
 import MessageIcon from "@mui/icons-material/Message";
 
 import {
-  getNewsAction,
+
+  getProfileData,
   getTrendingPostsByCityAction,
 } from "../../src/state/action-creators";
 import { dataTransferItemsToFiles } from "stream-chat-react/dist/components/ReactFileUtilities";
 import { getAvatarByUserId } from "../../src/pages/masterspage/portfolioViewPage";
 import {
-  getAvatars,
+
   getPointImageByPointId,
 } from "./../utils/helpers/helperFuncs";
 import { delay } from "@reduxjs/toolkit/dist/utils";
+import useSlice from "./../hooks/useSlice";
 function timeout(delay: number) {
   return new Promise((res) => setTimeout(res, delay));
 }
+// Define the loading spinner animation
 const Spinner = keyframes`
-
-100%{transform: rotate(1turn);
+100%{transform: rotate(1turn);}
 `;
 
 const LoadingOverlay = styled.div`
@@ -85,32 +88,35 @@ const Loader = styled.div`
   animation: ${Spinner} 1s linear infinite;
 `;
 
-interface fetchDataType {
+interface FetchDataType {
   type: "/news" | "/map" | "/user" | "/chats";
 }
 
+
+
 const NavBar = (props: { screen: any; onResize: () => void }) => {
-  const [user, setUser] = useLocalStorage("user", {});
-  const [news, setNews] = useLocalStorage("news", null);
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [images, setImages] = useLocalStorage("images", null);
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
-  const [posts, setPosts] = useLocalStorage("posts", null);
-  const [mapImages, setMapImages] = useLocalStorage("mapImages", null);
-  const [avatars, setAvatars] = useLocalStorage("avatars", null);
-  const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
-  const [chats, setChats] = useLocalStorage("chats", null);
-  const [newsPosts, setNewsPosts] = useLocalStorage("newsPosts", null);
-  const [screen, setScreen] = useLocalStorage("screen", null);
-  const { username, postId } = useParams();
+  const { data: user, setUser } = useSlice("user"); // Replace useLocalStorage with useSlice
+  const { data: friend, setFriend, getFriendData } = useSlice("friend");
+  const { events: events, posts: newsPosts, getNewsDataAction } = useSlice("news");
+  const { data: posts, setPosts, getPostsByUserIdAction } = useSlice("posts");
+  const { avatars: avatars, ids: ids, images: images, getImagesByImageIdsAction, getImageIdsByUsernameAction, getMapImagesByUserIdAction, getAvatarsAction
+  } = useSlice("images");
+  const { data: friendPosts, getFriendPostsAction, setFriendPosts } = useSlice("friendPosts");
+
+
+  // const { imageIds, setImageIds } = useSlice("imageIds");
+  const { privateChats: privateChats, publicChats, setPrivateChats, getPrivateChatsAction, getPublicChatsAction } = useSlice("chats");
+  // const { points, setPoints } = useSlice("points");
+
+  const { username } = useParams();
   const dim = useWindowDimensions();
   const [isShrunk, setIsShrunk] = useState(false);
   const [isMap, setIsMap] = useState(false);
   const [isMenuAnabled, setIsMenuEnabled] = useState(false);
   const [loading, setLoading] = useLocalStorage("loading", false);
-  const [points, setPoints] = useLocalStorage("points", {});
+  const [screen, setScreen] = useLocalStorage("screen", {});
   const auth = useAuth();
+  const { themevars } = useTheme()
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const { isEditing, setIsEditingProfile } = useEditing();
   const handleUserInteraction = () => {
@@ -120,148 +126,141 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       // setIsMenuEnabled(true);
     }
   };
+
+
   const [hideNav, setHideNav] = useLocalStorage("hideNav", null);
-  const fetchData = async (username: string, { type }: fetchDataType) => {
+  const fetchData = async (username: string, { type }: FetchDataType) => {
+    try {
+
+      if (type) {
+        setLoading(true);
+        setIsMap(false);
+        switch (type) {
+          case "/news":
+            await getNewsDataAction(user.location);
+
+            setHideNav(false);
+
+            setLoading(false);
+            break;
+
+          case "/user":
+            setHideNav(false)
+
+            const userData = await getFriendData(username)
+
+
+
+            const imageIds = await getImageIdsByUsernameAction(username);
+
+
+
+
+            await getImagesByImageIdsAction(imageIds["payload"]);
+
+            const userposts = await getFriendPostsAction(username)
+            console.log('userposts : 155 : ', userposts)
+            setPosts(userposts["payload"].payload)
+            setFriendPosts(userposts["payload"].payload)
+
+            await getAvatarsAction(userData["payload"]);
+
+            // setAvatars(avatarsImagesdata);
+
+
+
+
+
+            // await setFriendPostsAction(userData.payload.username);
+
+            //await getPrivateChatsAction(userData.payload.username);
+            await getPublicChatsAction(userData['payload'].username);
+            // setFriendChats(chatData.payload);
+
+
+
+            // await getMapImagesByUserIdAction({ username: userData.payload.username, nav: true });
+
+
+
+            // if (username === userData.payload.username) {
+            //   await getPostsByUserIdAction(userData.payload.username)
+            // }
+            //   
+            //   const payload = { username: userData.payload.username, nav: true }
+            //   //
+            //   // setMapImages({ ...mapImages, ...userMapImages.payload });
+
+
+
+            //   getPrivateChatsAction(chatData.payload);
+            // }
+            const newsDatadd = await getNewsDataAction(userData['payload'].location);
+
+
+            setLoading(false);
+            break;
+          case "/chats":
+            const chatsData = await getPrivateChatsAction(user.username);
+            // setChats(chatsData.payload);
+            // setFriendChats(chatsData.payload);
+
+            setLoading(false);
+            break;
+          case "/map":
+            // const pointsData = await getPointsInRadius(user.location, false);
+            // for (let point of pointsData.payload) {
+            //   const image = await getPointImageByPointId(point.id);
+            //   setMapImages({ ...image.payload });
+
+            //   setPoints({ ...points, [point]: image });
+            // }
+
+            if (user && user.username) {
+
+              const useMapImages = (await getMapImagesByUserIdAction({ username: user.username, nav: false }));
+
+              const pointsInRaduis = await getPointsInRadius(
+                {
+                  lat: 32.02119878251853,
+                  lng: 34.74333323660794,
+                },
+                false
+              );
+
+              let newMapimages = {};
+              for (let pointId of Object.keys(pointsInRaduis.payload)) {
+                let quadId =
+                  pointsInRaduis.payload[pointId].location.lat.toFixed(2) +
+                  ":" +
+                  pointsInRaduis.payload[pointId].location.lng.toFixed(2);
+
+                const image = await getPointImageByPointId(pointId, quadId);
+
+                if (image?.src) {
+                  newMapimages[pointsInRaduis.payload[pointId].data.icon] =
+                    image.src;
+                }
+              }
+              //setMapImages({ ...useMapImages.payload, ...newMapimages });
+              setHideNav(false);
+              setIsMap(true);
+              setLoading(false);
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
     setScreen(dim);
 
-    if (type) {
-      setLoading(true);
-      setIsMap(false);
-      switch (type) {
-        case "/news":
-          const newsData = await getNewsAction(user.location);
-
-          setHideNav(false);
-          setNews(newsData);
-          setLoading(false);
-          break;
-
-        case "/user":
-          setHideNav(false);
-
-          const userData = (await getUserById(username)).payload;
-
-          const imageIds = (await getImageIdsByUserId(username)).payload;
-
-          let [avatarIds, avatarsImagesdata]: any = await getAvatars(userData);
-          const nonAvatarImages = imageIds.filter(
-            (e) => !avatarIds?.includes(e)
-          );
-          if (!avatarIds || avatarIds.length === 0) {
-            avatarsImagesdata = {};
-          }
-          setAvatars(avatarsImagesdata);
-          // let imuserAvatar = await getImageByImageId(user.profilePicture);
-
-          let newimages = {};
-          let newAvatarimages = {};
-
-          if (avatarIds && avatarIds.length > 0) {
-            // setAvatars(newAvatarimages);
-            for (let imageId of nonAvatarImages) {
-              const image = await getImageByImageId(imageId);
-
-              if (image && image.payload) {
-                newimages = { ...newimages, [imageId]: image.payload };
-              }
-            }
-          }
-
-          const newsDataNew = await getNewsAction(friend.location);
-          setNews(newsDataNew);
-
-          setFriend(userData);
-          const chatData = await getChatsByUserId(userData.username);
-          setFriendChats(chatData.payload);
-          const postsData = await getPostsByUserId(userData.username);
-          setFriendPosts(postsData.payload);
-
-          // await getAvatars(username, setAvatars);
-
-          if (username === user.username) {
-            console.log("user", user);
-            const userMapImages = await getUserMapImagesByUserId(user.username);
-            console.log(userMapImages);
-            setMapImages({ ...mapImages, ...userMapImages.payload });
-
-            setPosts(postsData.payload);
-
-            setChats(chatData.payload);
-          }
-          setImages(newimages);
-          setLoading(false);
-          break;
-          return;
-        case "/chats":
-          const userChatsupd = await getChatsByUserId(user.username);
-
-          setChats(userChatsupd.payload);
-          setFriendChats(userChatsupd.payload);
-          setLoading(false);
-          break;
-          return;
-        case "/map":
-          // const pointsData = await getPointsInRadius(user.location, false);
-          // for (let point of pointsData.payload) {
-          //   const image = await getPointImageByPointId(point.id);
-          //   setMapImages({ ...image.payload });
-
-          //   setPoints({ ...points, [point]: image });
-          // }
-          const useMapImages = await getUserMapImagesByUserId(user.username);
-
-          const pointsInRaduis = await getPointsInRadius(
-            {
-              lat: 32.02119878251853,
-              lng: 34.74333323660794,
-            },
-            false
-          );
-          console.log(pointsInRaduis);
-          let newMapimages = {};
-          for (let pointId of Object.keys(pointsInRaduis.payload)) {
-            let quadId =
-              pointsInRaduis.payload[pointId].location.lat.toFixed(2) +
-              ":" +
-              pointsInRaduis.payload[pointId].location.lng.toFixed(2);
-            console.log(quadId);
-            const image = await getPointImageByPointId(pointId, quadId);
-            console.log(image);
-            if (image?.src) {
-              newMapimages[pointsInRaduis.payload[pointId].data.icon] =
-                image.src;
-            }
-          }
-          setMapImages({ ...useMapImages.payload, ...newMapimages });
-          setHideNav(false);
-          setIsMap(true);
-          setLoading(false);
-          break;
-          return;
-        default:
-          break;
-          return;
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (username) {
-      fetchData(username, { type: "/user" });
-    }
-  }, [username]);
-
-  const handleFriendClick = async (profileLink: string) => {
-    const firned = (await getUserById(profileLink)).payload;
-    setFriend(firned);
-    setFriendPosts((await getPostsByUserId(profileLink)).payload);
-    setFriendChats((await getChatsByUserId(profileLink)).payload);
-    //window.location.href = profileLink;
-    navigate("/" + profileLink);
   };
 
   const navigate = useNavigate();
-  const { themevars } = useTheme();
+
 
   const [openSettings, setOpenSettings] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -280,12 +279,12 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
 
   const handleNavigation = async (path: any, username: any = user) => {
     try {
-      console.log(username);
+
       await fetchData(username, { type: path });
 
       navigate(path);
     } catch (e) {
-      console.log(encodeURIComponent);
+
     }
   };
 
@@ -318,6 +317,12 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       window.removeEventListener("click", handleUserInteraction);
     };
   }, [isShrunk]);
+
+  useEffect(() => {
+    if (username) {
+      fetchData(username, { type: "/user" });
+    }
+  }, [username]);
 
   const SettingsPopupComponent = ({ onClose }) => {
     const { theme, themevars, toggleTheme } = useTheme();
@@ -398,8 +403,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
               isShrunk={!isShrunk}
             ></MenuButton>
             <AvatarContainer isShrunk={!isShrunk}>
+
               <Avatar
-                src={avatars[user.username]?.src} // Replace with actual avatar URL
+                src={avatars && user && user.username && avatars[user.username] ? avatars[user.username].src : ''} // Replace with actual avatar URL
                 alt="User Avatar"
                 onClick={async () => await toggleMenu()}
               />
@@ -417,7 +423,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
                   index={4}
                   onClick={
                     async () => {
-                      navigate("/" + user.username);
+                      handleNavigation("/" + user.username);
                     }
                     // }
                   }

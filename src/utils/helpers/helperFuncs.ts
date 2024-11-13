@@ -58,7 +58,7 @@ export const getPointImageByPointId = async (
     const result = data.payload;
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getAvatars = async (friend) => {
@@ -83,7 +83,7 @@ export const getAvatars = async (friend) => {
     };
     avatarsIds.push(image.id);
   }
-  // console.log(avatarsImagesObject);
+  // 
   // setAvatars(avatarsImagesObject);
   return [avatarsIds, avatarsImagesObject];
 };
@@ -112,7 +112,7 @@ export const getAvatarIdsByChatId = async (chatId) => {
 
    
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const filterContactsByType = (arr: any, type: string) => {

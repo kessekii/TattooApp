@@ -11,7 +11,7 @@ const CameraStream: React.FC<CameraStreamProps> = ({ onStreamReady }) => {
         // Request access to the webcam
         async function enableStream() {
             try {
-                console.log('enablingStream')
+
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;

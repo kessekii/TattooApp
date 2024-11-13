@@ -44,6 +44,7 @@ import { ArrowBackIos, Chat } from "@mui/icons-material";
 import { Dict } from "styled-components/dist/types";
 import { ChatIcon } from "../../assets/icons/ChatIcon";
 import { BorderHorizontal } from "../chatspage/chatsPagge";
+import useSlice from "../../hooks/useSlice";
 
 const StyledEditButton = styled.button`
   background: ${({ theme }) => theme.background};
@@ -62,15 +63,17 @@ export const UserSection = styled.div`
 `;
 
 const PortfolioViewPage: React.FC = ({ }) => {
-  const [user, setUser] = useLocalStorage("user", null);
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [chats, setChats] = useLocalStorage("chats", null);
-  const [avatars, setAvatars] = useLocalStorage("avatars", null);
-  const [images, setImages] = useLocalStorage("images", null);
-  const [posts, setPosts] = useLocalStorage("posts", null);
+  const { data: friend, setFriend, getFriendData } = useSlice('friend')
+  const { data: user } = useSlice('user')
 
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+  const { privateChats, publicChats: publicChats, getPublicChatsAction } = useSlice('chats');
+  const { data: posts, setPosts } = useSlice('posts')
+  const { images: images, avatars: avatars, setAvatars } = useSlice("images")
+
+
+
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
+
   const { updateUser, updateChat } = useActions();
   const [errorMessage, setErrorMessage] = useState("");
   const [showCommentsPopup, setShowCommentsPopup] = useState<string | null>(
@@ -80,7 +83,6 @@ const PortfolioViewPage: React.FC = ({ }) => {
   const [newComment, setNewComment] = useState(""); // To hold new comment input
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
   const { themevars } = useTheme();
-  let loggedInUser = user.name === friend.name;
   const navigate = useNavigate();
 
   const handleCommentsClick = (postId: string) => {
@@ -93,29 +95,18 @@ const PortfolioViewPage: React.FC = ({ }) => {
     setNewComment(""); // Clear comment input when popup closes
   };
 
-  const handleNewCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewComment(e.target.value);
-  };
 
-  const handleCommentSubmit = async (chatss: any, users: any) => {
+  const handleCommentSubmit = async () => {
     if (selectedPostId !== null && newComment.trim() !== "") {
-      const user = JSON.parse(window.localStorage.getItem("user") || "{}");
-      const friend = JSON.parse(window.localStorage.getItem("friend") || "{}");
 
-      const chats = JSON.parse(
-        window.localStorage.getItem("friendChats") || "{}"
-      );
-      const posts = JSON.parse(
-        window.localStorage.getItem("friendPosts") || "{}"
-      );
 
       const filteredPost =
-        friend && posts ? posts[selectedPostId] : { chatId: "" };
+        friend && friendPosts ? friendPosts[selectedPostId] : { chatId: "" };
 
       const chat =
-        chats && Object.keys(chats).length === 0
+        publicChats && Object.keys(publicChats).length === 0
           ? {}
-          : chats[filteredPost.chatId];
+          : publicChats[filteredPost.chatId];
 
       if (chat?.messages && chat.messages?.length > 0) {
         chat.messages.push({
@@ -128,23 +119,23 @@ const PortfolioViewPage: React.FC = ({ }) => {
         }
         await updateChatStraight(chat, filteredPost.chatId);
 
-        if (!chats[filteredPost.chatId]) {
-          chats[filteredPost.chatId] = {};
+        if (!publicChats[filteredPost.chatId]) {
+          publicChats[filteredPost.chatId] = {};
         }
-        const postsData = (await getPostsByUserId(friend.username)).payload;
-        chats[filteredPost.chatId].messages = chat.messages;
+        const postsData = (await getPostsByUserId(friend.username));
+        publicChats[filteredPost.chatId].messages = chat.messages;
         const newUserData = await getProfileData(friend.username);
 
         setFriend({ ...newUserData.payload });
-        setFriendChats(chats);
-        setFriendPosts(postsData);
+        getPublicChatsAction(publicChats);
+        setFriendPosts(postsData.payload);
         if (newUserData.payload.username === user.username) {
-          setUser(newUserData.payload);
-          setChats(chats);
-          setPosts(postsData);
+          setFriend(newUserData.payload);
+          getPublicChatsAction(publicChats);
+          setFriendPosts(postsData.payload);
         }
       } else if (
-        !chats ||
+        !publicChats ||
         (chat && (!chat.messages || chat.messages.length === 0))
       ) {
         chat.messages = [
@@ -156,24 +147,24 @@ const PortfolioViewPage: React.FC = ({ }) => {
         ];
 
         await updateChatStraight(chat, filteredPost.chatId);
-        const postsData = (await getPostsByUserId(friend.username)).payload;
-        if (!chats[filteredPost.chatId]) {
-          chats[filteredPost.chatId] = {};
+        const postsData = await getPostsByUserId(friend.username);
+        if (!publicChats[filteredPost.chatId]) {
+          publicChats[filteredPost.chatId] = {};
         }
-        chats[filteredPost.chatId].messages = chat.messages;
+        publicChats[filteredPost.chatId].messages = chat.messages;
         const newUserData = await getProfileData(friend.username);
 
         setFriend({ ...newUserData.payload });
-        setFriendChats(chats);
-        setFriendPosts(postsData);
+        await getPublicChatsAction(publicChats);
+        setFriendPosts(postsData.payload);
         if (newUserData.payload.username === user.username) {
-          setUser(newUserData.payload);
-          setChats(chats);
-          setPosts(postsData);
+          setFriend(newUserData.payload);
+          await getPublicChatsAction(publicChats);
+          setFriendPosts(postsData.payload);
         }
       }
 
-      console.log();
+
 
       // Update user with the new comments
 
@@ -184,14 +175,11 @@ const PortfolioViewPage: React.FC = ({ }) => {
   };
 
   const hadleGetAvatars = async () => {
-    const chats = JSON.parse(
-      window.localStorage.getItem("friendChats") || "{}"
-    );
-    const avatars = JSON.parse(window.localStorage.getItem("avatars") || "{}");
+
 
     let avatarsObj = { ...avatars };
 
-    for (let chatid of Object.keys(chats)) {
+    for (let chatid of Object.keys(publicChats)) {
       const avatarsIds = await getAvatarIdsByChatId(chatid);
       for (let avatarId of avatarsIds) {
         const avatar = await getImageByImageId(avatarId);
@@ -241,27 +229,12 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
 
     } catch (error) {
-      console.log("Error updating post", error);
+
       setErrorMessage("Failed to update post");
 
     }
   };
 
-  const handleDeletePost = async (post_id) => {
-    try {
-      const updatedPosts = { ...posts };
-      delete updatedPosts[post_id];
-      await setPosts(updatedPosts);
-    } catch (error) {
-      console.log("Error deleting post", error);
-      setErrorMessage("Failed to delete post");
-      // Add error handling code here
-      // For example, you can display an error message to the user
-
-      // You can also consider showing a notification to the user
-      // or show a loading spinner or a progress bar to indicate the deletion process
-    }
-  };
 
 
 
@@ -280,19 +253,16 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
     Object.values(friendPosts).forEach((post: any) => {
 
-      console.log('post : 270 : ', post.likes, post.likes.includes(user.name))
+
       datagrid[post.id] = (post.likes as any).includes(user.username);
     });
 
 
 
-    console.log('datagrid : 274 : ', datagrid)
+
     setDatagrid(datagrid);
   }
 
-  const handleNavigate = (username: string) => {
-    setPosts
-  }
 
 
   return (
@@ -340,7 +310,8 @@ const PortfolioViewPage: React.FC = ({ }) => {
       >
         {friend &&
           friendPosts &&
-          Object.keys(friend.posts || {}).map((post) => (
+          images &&
+          Object.keys(friendPosts || {}).map((post) => (
             <Grid
               item
               style={{
@@ -393,7 +364,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                     {posts[post].description}
                   </Caption> */}
 
-                  {friendChats && friendChats[friendPosts[post].chatId] ? (
+                  {publicChats && friendPosts[post].chatId && publicChats[friendPosts[post].chatId] && publicChats[friendPosts[post].chatId] ? (
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
@@ -404,7 +375,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         alignItems: "center",
                       }}
                     >
-                      {friendChats[friendPosts[post].chatId]?.messages
+                      {publicChats[friendPosts[post].chatId]?.messages
                         ?.length === 0 ? (
                         <>No comments yet</>
                       ) : (
@@ -468,7 +439,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                     >
                       <Typography style={{ marginLeft: '10px', color: themevars.icons.color }}>
                         View all{" "}
-                        {friendChats[friendPosts[post].chatId]?.messages
+                        {publicChats[friendPosts[post].chatId]?.messages
                           ?.length || 0}{" "}
                         comments
 
@@ -527,10 +498,10 @@ const PortfolioViewPage: React.FC = ({ }) => {
                             </ProfileDescription>
                           </UserSection>
                         </PostDetails>
-                        {friendChats[friendPosts[post].chatId]?.messages &&
-                          friendChats[friendPosts[post].chatId].messages.length >
+                        {publicChats[friendPosts[post].chatId]?.messages &&
+                          publicChats[friendPosts[post].chatId].messages.length >
                           0 ? (
-                          friendChats[friendPosts[post].chatId].messages.map(
+                          publicChats[friendPosts[post].chatId].messages.map(
                             (comment, index) => (
                               <CommentItem
                                 key={index + comment.author}
@@ -635,7 +606,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                       ></TextField>
                       <CommentSubmitButton
                         style={{ margin: "auto" }}
-                        onClick={async () => await handleCommentSubmit("", "")}
+                        onClick={async () => await handleCommentSubmit()}
                       >
                         Submit Comment
                       </CommentSubmitButton>
@@ -670,7 +641,7 @@ export async function getAvatarByUserId(username: string) {
     const result = await response.json();
     return result.payload;
   } catch (error) {
-    console.log("error", error);
+
   }
 }
 

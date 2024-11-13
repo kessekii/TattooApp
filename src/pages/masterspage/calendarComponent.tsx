@@ -49,7 +49,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const handleDateChange = (date: Date | null) => {
     setSelectedDate(date);
     availableHours.forEach((element: any) => {
-      console.log(element);
+
     });
     if (date) {
       const formattedDate = date.toISOString().split("T")[0];
@@ -63,7 +63,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   };
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.value);
+
     setSelectedTime(event.target.value.toString());
   };
   const handleSaveDate = () => {

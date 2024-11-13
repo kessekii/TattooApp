@@ -36,6 +36,7 @@ import zIndex from "@mui/material/styles/zIndex";
 import { keyframes, styled } from "styled-components";
 import { useTheme } from "../../state/providers/themeProvider";
 import { getPointImageByPointId } from "../../utils/helpers/helperFuncs";
+import useSlice from "../../hooks/useSlice";
 
 export const PointBox = styled.div`
   background: ${({ theme }) => theme.background};
@@ -100,11 +101,17 @@ const PoiMarker = (props: {
   cameraLocation: any;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [user, setUser] = useLocalStorage("user", {});
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [points, setPoints] = useLocalStorage("points", {});
+  const { data: user, setUser } = useSlice("user"); // Replace useLocalStorage with useSlice
+  const { data: friend, setFriend, getFriendData } = useSlice("friend");
+  const { events: events, posts: feedPosts, setEvents, getNewsDataAction } = useSlice("news");
+  const { data: posts, setPosts, getPostsByUserIdAction } = useSlice("posts");
+  const { avatars: avatars, ids: ids, mapimages: mapimages, setMapImages, getMapImagesByUserIdAction, getImagesByImageIdsAction, getImageIdsByUsernameAction, getAvatarsAction
+  } = useSlice("images");
+  const { data: friendPosts, setFriendPosts, getFriendPostsAction } = useSlice("friendPosts");
 
-  const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
+
+  // const { imageIds, setImageIds } = useSlice("imageIds");
+  const { privateChats, publicChats, setPrivateChats, setPostChats, getPrivateChatsAction, getPublicChatsAction } = useSlice("chats");
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState<string>(props.point?.data?.name || "");
   const [desc, setDesc] = useState<string>(props.point?.data?.desc || "");
@@ -123,7 +130,7 @@ const PoiMarker = (props: {
           100,
           0,
           async (uri) => {
-            console.log(uri);
+
             if (typeof uri === "string") {
               setNewImage({ src: uri, caption: null });
             }
@@ -150,14 +157,14 @@ const PoiMarker = (props: {
     const [newUserData, newPointData] = (
       await updatePointbyPointId(coord, point)
     ).payload;
-    // console.log("EEEE", userData);
+    // 
 
     const pointsInRadius = (await getPointsInRadius(cameraLocation, false))
       .payload;
 
     setUser(newUserData);
     setFriend(newUserData);
-    setPoints({ ...pointsInRadius, [newPointData.pointId]: newPointData });
+    props.setPoints({ ...pointsInRadius, [newPointData.pointId]: newPointData });
     const mapImagesByRadios = {};
 
     for (let pointId of Object.keys(pointsInRadius)) {
@@ -197,13 +204,13 @@ const PoiMarker = (props: {
   const isAvailableEdit =
     Object.keys(user.points).includes(
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ) &&
     user.points[
       props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
+      ":" +
+      props.point.location.lng.toFixed(2)
     ].find((point) => point === props.point.pointId);
   //;
   return (
@@ -223,7 +230,7 @@ const PoiMarker = (props: {
         >
           <textarea
             onChange={(e) => {
-              console.log(e);
+
               setName(e.target.value);
             }}
             value={name}
@@ -282,9 +289,9 @@ const PoiMarker = (props: {
         position={
           props.point && props.point?.location
             ? {
-                lng: props.point?.location?.lng,
-                lat: props.point?.location?.lat,
-              }
+              lng: props.point?.location?.lng,
+              lat: props.point?.location?.lat,
+            }
             : undefined
         }
         // onMouseEnter={() => {
@@ -330,13 +337,13 @@ const PoiMarker = (props: {
               >
                 <PostImage
                   // style={{ zIndex: 0 }}
-                  src={mapImages[props.point?.data?.icon]}
+                  src={mapimages[props.point?.data?.icon]}
                 ></PostImage>
               </Paper>
             ) : (
               <PostImage
                 // style={{ zIndex: 0 }}
-                src={mapImages[props.point?.data?.icon]}
+                src={mapimages[props.point?.data?.icon]}
               ></PostImage>
             )}
             {isVisible && (
@@ -420,8 +427,8 @@ const PoiMarker = (props: {
         ) : (
           <Paper>
             {!isVisible &&
-            props.focusedPoint &&
-            props.focusedPoint !== props.pointId ? (
+              props.focusedPoint &&
+              props.focusedPoint !== props.pointId ? (
               <></>
             ) : (
               <PostImage
@@ -430,7 +437,7 @@ const PoiMarker = (props: {
                     props.setfocusedPoint(props.point?.pointId);
                 }}
                 style={{ zIndex: 0, width: "40px", height: "40px" }}
-                src={mapImages[props.point?.data?.icon]}
+                src={mapimages[props.point?.data?.icon]}
               ></PostImage>
             )}
           </Paper>
@@ -459,7 +466,7 @@ const tryRemovingAPoint = async (
   const coord = point_lat + ":" + point_lng;
   const newUserData = (await deletePointbyPointId(coord, point.pointId))
     .payload;
-  // console.log("EEEE", userData);
+  // 
 
   const pointsObject = await getPointsInRadius(cameraLocation, false);
 
@@ -540,12 +547,16 @@ const tryAddNewPoint = async (
 export const MapPage = () => {
   // const [points, setPoints] = useState<Poi[]>([]);
   const { addPoint } = useActions();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [user, setUser] = useLocalStorage("user", {});
   const [loading, setLoading] = useLocalStorage("loading", null);
-  const [points, setPoints] = useLocalStorage("points", {});
-  const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
+  const [errorMessage, setErrorMessage] = useState("");
+  const { data: user, setUser } = useSlice("user");
+  const { data: friend, setFriend } = useSlice("friend")
+  const { images: images, mapimages: mapimages, avatars: avatars, setMapImages, setImages } = useSlice("images");
 
+
+  const { privateChats, publicChats, setChats } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
+  const [points, setPoints] = useState<any>(null)
   const [cameraUpdateLock, setCameraUpdateLock] = useState(false);
   const [focusedPoint, setfocusedPoint] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -590,17 +601,17 @@ export const MapPage = () => {
           pointsInRadius[pointId].location.lat.toFixed(2) +
           ":" +
           pointsInRadius[pointId].location.lng.toFixed(2);
-        console.log(quadId);
+
         const image = await getPointImageByPointId(pointId, quadId);
         if (!image) continue;
-        console.log(image);
+
 
         mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.src;
       }
       const userMapImages: any = await getUserMapImagesByUserId(user.username);
       if (!userMapImages.payload) return;
 
-      console.log(userMapImages.payload);
+
       setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
       setUser(user);
       setPoints(pointsInRadius);
@@ -726,7 +737,7 @@ export const MapPage = () => {
       auth,
       setErrorMessage,
       points,
-      mapImages,
+      mapimages,
       setMapImages,
     ]
   );
@@ -735,7 +746,7 @@ export const MapPage = () => {
   return (
     <APIProvider
       apiKey="AIzaSyAGFYy06ioQhkJ1yOit5nequl-z05bNgm4"
-      onLoad={() => console.log("Maps API has loaded.")}
+      onLoad={() => { }}
     >
       <PaperFade
         style={{
@@ -786,6 +797,6 @@ export const MapPage = () => {
           {pointsStates}
         </Map>
       </PaperFade>
-    </APIProvider>
+    </APIProvider >
   );
 };

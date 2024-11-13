@@ -46,6 +46,7 @@ import { Chat } from "stream-chat-react";
 
 import Resizer from "react-image-file-resizer";
 import { blobToImage, imageToBlob } from "../../utils/helpers/helperFuncs";
+import useSlice from "../../hooks/useSlice";
 // ProfilePage styling with dynamic background and text color
 export const ProfilePage = styled.div<{ theme }>`
   font-family: Arial, sans-serif;
@@ -560,18 +561,20 @@ export const Typefield = styled(Typography) <{ theme; bold?}>`
 const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const { toggleTheme, themevars } = useTheme();
 
-  const [user, setUser] = useLocalStorage("user", {});
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [images, setImages] = useLocalStorage("images", {});
-  const [avatars, setAvatars] = useLocalStorage("avatars", {});
+  const { data: user, setUser } = useSlice("user");
+  const { data: friend, setFriend } = useSlice("friend")
+  const { images: images, avatars: avatars, setAvatars, setImages } = useSlice("images");
+
   const navigate = useNavigate();
-  const [chats, setChats] = useLocalStorage("chats", null);
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
-  const [openedUser, setOpenedUser] = useLocalStorage("openedUser", null);
+  const { privateChats: privateChats, publicChats: publicChats, setPrivateChats } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
+
+  const [openedUser, setOpenedUser] = useState("openedUser");
   const [loading, setLoading] = useLocalStorage("loading", false);
   const { username, postId } = useParams();
-  let loggedInUser = user.username === friend.username;
+
+  let loggedInUser = user.username === username;
+
   const { isEditing, setIsEditingProfile } = useEditing();
 
   const [editProfile, setEditProfile] = useState(
@@ -639,9 +642,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       friend.reviews && friend.reviews.length > 0
         ? [
           ...friend.reviews,
-          { photo: friend.image, nickname: friend.username, ...newReview },
+          { photo: friend.profilePicture, nickname: friend.username, ...newReview },
         ]
-        : [{ photo: friend.image, nickname: friend.username, ...newReview }];
+        : [{ photo: friend.profilePicture, nickname: friend.username, ...newReview }];
     // setProfileData({
     //   ...friend,
     //   reviews: updatedReviews,
@@ -670,12 +673,12 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   // Save changes
   const handleSaveClick = async (updateUser: any, setErrorMessage: any) => {
-    console.log(newBackdropImage, newImage);
+
     const newBackdropImageObject = {
       src:
         newBackdropImage.src !== ""
           ? newBackdropImage.src
-          : friend.backdropImage,
+          : friend.backdrop,
       owner: user.username,
       timestamp: new Date().getTime(),
       id: user.backdrop ? user.backdrop : "",
@@ -700,12 +703,12 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       newImageObject,
       newBackdropImageObject
     );
-    setImages({
-      ...images,
-      [result.payload.image.id]: result.payload.image.src,
-      [result.payload.backdrop.id]: result.payload.backdrop.src,
-    });
-    setAvatars({ ...avatars, [user.username]: result.payload.image });
+    // setImages({
+    //   ...images,
+    //   [result.payload.image.id]: result.payload.image.src,
+    //   [result.payload.backdrop.id]: result.payload.backdrop.src,
+    // });
+    // setAvatars({ ...avatars, [user.username]: result.payload.image });
     setUser(result.payload.user);
     setFriend(result.payload.user);
     await setIsEditingProfile();
@@ -767,12 +770,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     setFriend(friend);
   };
 
-  useEffect(() => {
-    return;
-  }, [username]);
-  useEffect(() => {
-    return;
-  }, [loading]);
+
 
   const profileComponent = useMemo(
     () =>
@@ -800,10 +798,15 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   }, [!loading]);
 
   const postsComponents = useMemo(
-    () =>
-      friend && friendPosts && Object.keys(friendPosts).length > 0 ? (
-        Object.keys(friend.posts).map((post, index) => (
-          <Grid
+    () => {
+      if (images && friend && friendPosts && Object.keys(friendPosts).length > 0) {
+
+
+        return Object.values(friendPosts).map((value: {
+          [id: string]: string
+        }, index, postsArray) => {
+
+          return <Grid
             item
             key={"post" + index}
             style={{
@@ -816,29 +819,32 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             }}
             xs={6}
           >
-            {friendPosts && friendPosts[post] && friendPosts[post].image && (
-              <Post key={post}>
-                <PostImage
-                  src={images[friendPosts[post].image]?.src || ""}
-                  onClick={() => {
-                    return navigate("/" + friend.username + "/portfolio");
-                  }}
-                  alt={`Post ${post}`}
-                  style={{
-                    width: "30vw",
-                    height: "30vw",
-                    objectFit: "contain",
-                  }}
-                />
-              </Post>
-            )}
+
+            <Post key={value.image + index.toString() + 'index'}>
+              <PostImage
+                src={images[value.image] ? images[value.image].src : ''}
+                onClick={() => {
+                  return navigate("/" + friend.username + "/portfolio");
+                }}
+                alt={`Post ${value.image}`}
+                style={{
+                  width: "30vw",
+                  height: "30vw",
+                  objectFit: "contain",
+                }}
+              />
+            </Post>
+
+
+
+
           </Grid>
-        ))
-      ) : (
-        <></>
-      ),
-    [friend]
-  );
+        })
+      }
+    }, [images]
+  )
+
+
   const handleMapClick = () => {
     window.location.href = "/map";
   };
@@ -855,7 +861,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     const firned = (await getUserById(profileLink)).payload;
     setFriend(firned);
     setFriendPosts((await getPostsByUserId(profileLink)).payload);
-    setFriendChats((await getChatsByUserId(profileLink)).payload);
+    setPrivateChats(firned.chats);
     window.location.href = profileLink;
   };
 
@@ -919,17 +925,14 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
         friend.calendar[index].hours = existingHours.filter(
           (hour) => hour !== date.time
         );
-        console.log(
-          `Time ${date.time} removed from the existing date`,
-          friend.calendar[index].hours
-        );
+
+
       } else {
         // Add the new hour if it doesn't exist
         friend.calendar[index].hours.push(date.time);
-        console.log(
-          `Time ${date.time} added to the existing date`,
-          friend.calendar[index].hours
-        );
+
+
+
       }
 
       // Update the state
@@ -983,7 +986,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
           100,
           0,
           async (uri) => {
-            console.log(uri);
+
             if (typeof uri === "string") {
               setNewImage({ src: uri, caption: "" });
             }
@@ -1008,7 +1011,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
           100,
           0,
           async (uri) => {
-            console.log(uri);
+
             if (typeof uri === "string") {
               setNewBackdropImage({ src: uri });
             }
@@ -1026,15 +1029,15 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     <FriendAvatar
       theme={themevars}
       key={fri + "avatar"}
-      src={avatars[fri]?.src}
-      alt={avatars[fri]?.owner}
+      src={avatars ? avatars[fri]?.src : ''}
+      alt={avatars ? avatars[fri]?.owner : ''}
       onClick={() => setShowFriends(true)}
     />
   ));
 
   const handleFollow = async () => {
     if (Object.keys(user.friends).length === 0 || !user.friends) {
-      user.friends = {};
+      user.friends = [];
     }
     if (user.friends) {
       user.friends[username] = {};
@@ -1046,7 +1049,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     };
 
     if (Object.keys(friend.friends).length === 0 || !friend.friends) {
-      friend.friends = {};
+      friend.friends = [];
     }
     if (friend.friends) {
       friend.friends[user.username] = {};
@@ -1067,7 +1070,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     setShowFriends(!showFriends);
   };
   const chatIsOpenedWithUser =
-    Object.values(chats).filter(
+    Object.values({ ...privateChats, ...publicChats }).filter(
       (e: any) =>
         e.type === "private" && e.participants.includes(friend.username)
     ).length > 0;
@@ -1075,7 +1078,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     <ProfilePage theme={themevars}>
       <Backdrop
         screen={screen}
-        backdropImage={images[friend.backdrop]?.src || ""}
+        backdropImage={images && friend.backdrop && images[friend.backdrop]?.src || ""}
       />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
@@ -1123,7 +1126,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={avatars[friend.username]?.src}
+                  src={avatars && avatars[friend.username] ? avatars[friend.username]?.src : ''}
                   alt="Profile Picture"
                 />
               </div>
@@ -1225,7 +1228,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                           friend.username
                         )
                     );
-                    setChats(chatsData.payload);
+                    setPrivateChats(chatsData.payload);
                     navigate("/chats/" + chatId);
                   }}
                 >

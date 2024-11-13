@@ -145,6 +145,7 @@ export enum endpoints {
   LIVESTREAMCREATE = "livestreams/createStream",
   REGISTER = "users/register",
   LOGIN = "users/login",
+  LOGOUT = "users/logout",
   ADVERTISER = "advertiser",
   CAMPAIGN = "campaign",
   PUBLISHER = "publisher",

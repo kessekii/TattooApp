@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { EditButton } from "./masterPage";
+import useSlice from "../../hooks/useSlice";
 
 // Styled components
 const PortfolioContainer = styled(Box)`
@@ -83,9 +84,13 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({
   userData,
   onImageSelect,
 }) => {
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [newsImages, setNewsImages] = useLocalStorage("newsImages", null);
-  const [posts, setPosts] = useLocalStorage("posts", null);
+  const { data: user, setUser } = useSlice("user");
+  const { data: friend, setFriend } = useSlice("friend")
+  const { images, avatars, setAvatars, setImages } = useSlice("images");
+
+
+  const { privateChats, publicChats, setPrivateChats } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts")
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<boolean>(false);
   const [index, setIndex] = useState<number>(0);
@@ -116,7 +121,7 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({
           {userData.posts &&
             Object.keys(userData.posts).map((post, i) => (
               <PostImage
-                src={newsImages[friendPosts[post].image].src}
+                src={images[friendPosts[post].image].src}
                 onClick={() => handleImageClick(friendPosts[post].image, i)}
                 alt={`Post ${i}`}
               />

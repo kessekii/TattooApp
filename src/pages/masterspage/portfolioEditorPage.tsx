@@ -20,6 +20,7 @@ import {
 import { s } from "vite/dist/node/types.d-aGj9QkWt";
 import Resizer from "react-image-file-resizer";
 import { ArrowBackIos } from "@mui/icons-material";
+import useSlice from "../../hooks/useSlice";
 // Styled components
 const EditorContainer = styled.div`
   display: flex;
@@ -169,13 +170,13 @@ interface PortfolioEditorPageProps {
 
 // Component
 const PortfolioEditorPage: React.FC = () => {
-  const [user, setUser] = useLocalStorage("user", null);
-  const [posts, setPosts] = useLocalStorage("posts", null);
-  const [chats, setChats] = useLocalStorage("chats", null);
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
-  const [images, setImages] = useLocalStorage("images", null);
+  const { data: user, setUser } = useSlice("user");
+  const { data: friend, setFriend, getFriendData } = useSlice("friend")
+  const { images, avatars, setAvatars, setImages } = useSlice("images");
+
+  const { data: posts, setPosts } = useSlice("posts");
+  const { privateChats, publicChats, setPrivateChats, setPostChats, createChatsAction } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
   const { updateUser } = useActions();
   const { themevars } = useTheme(); // Accessing the theme
   const [errorMessage, setErrorMessage] = useState("");
@@ -214,7 +215,7 @@ const PortfolioEditorPage: React.FC = () => {
           100,
           0,
           async (uri) => {
-            console.log(uri);
+
             if (typeof uri === "string") {
               setNewImage({ src: uri, caption: "" });
             }
@@ -265,13 +266,15 @@ const PortfolioEditorPage: React.FC = () => {
           ? { ...user.posts, [newUuid]: newUuid }
           : { [newUuid]: newUuid };
 
-      const newUser = await createChatByUsername(
+      const newUser = await createChatsAction(
         updatedProfileData,
         setErrorMessage,
         newPost
       );
+      navigate('/' + user.username)
     }
     const userData = await getProfileData(updatedProfileData.username);
+
     // updateUser(updatedProfileData, setErrorMessage);
     const postsData = await getPostsByUserId(updatedProfileData.username);
     const chatsData = await getChatsByUserId(updatedProfileData.username);
@@ -286,11 +289,11 @@ const PortfolioEditorPage: React.FC = () => {
     setUser(userData.payload);
     setFriend(userData.payload);
 
-    setPosts(postsData.payload);
+    //setPosts(postsData.payload);
     setFriendPosts(postsData.payload);
 
-    setChats(chatsData.payload);
-    setFriendChats(chatsData.payload);
+    setPrivateChats(chatsData.payload);
+    setPostChats(chatsData.payload);
     setImages(newImages);
 
     navigate("/" + user.username);
