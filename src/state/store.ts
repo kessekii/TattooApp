@@ -23,7 +23,10 @@ export const store: any = configureStore({
       },
     }),
 });
-
+export const defultLocation = {
+  lat: 32.02119878251853,
+  lng: 34.74333323660794,
+};
 // Create the persistor instance for our store
 export const persistor = persistStore(store);
 

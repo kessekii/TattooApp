@@ -46,6 +46,9 @@ import { Chat } from "stream-chat-react";
 
 import Resizer from "react-image-file-resizer";
 import { blobToImage, imageToBlob } from "../../utils/helpers/helperFuncs";
+import { useQuery } from "@apollo/client";
+import { USER_UPDATE_MUTATION } from "../../../src/graphQL/queries";
+
 // ProfilePage styling with dynamic background and text color
 export const ProfilePage = styled.div<{ theme }>`
   font-family: Arial, sans-serif;
@@ -136,20 +139,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton) <{ theme }>`
+export const SaveButton = styled(EditButton)<{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton) <{ theme }>`
+export const CancelButton = styled(EditButton)<{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(IcoButton) <{ following }>`
-  
+export const FollowButton = styled(IcoButton)<{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -532,7 +534,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton) <{ theme }>`
+export const IcButton = styled(IconButton)<{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -548,7 +550,7 @@ export const IcButton = styled(IconButton) <{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography) <{ theme; bold?}>`
+export const Typefield = styled(Typography)<{ theme; bold? }>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -556,7 +558,19 @@ export const Typefield = styled(Typography) <{ theme; bold?}>`
 // Sample friend data and login state
 
 // Simulating that the friend is logged in on this device
+interface UserEditInput {
+  username: string;
 
+  name: string | null;
+
+  location: string | null;
+
+  description: string | null;
+
+  profilePicture: { src; id };
+
+  backdrop: { src; id };
+}
 const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const { toggleTheme, themevars } = useTheme();
 
@@ -577,27 +591,27 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const [editProfile, setEditProfile] = useState(
     friend
       ? {
-        name: friend.name,
-        username: friend.username,
-        description: friend.description,
-        profilePicture: friend.profilePicture,
-        location: friend.location,
-      }
+          name: friend.name,
+          username: friend.username,
+          description: friend.description,
+          profilePicture: friend.profilePicture,
+          location: friend.location,
+        }
       : {
-        name: "",
-        username: "",
-        description: "",
-        profilePicture: "",
-        location: "",
-      }
+          name: "",
+          username: "",
+          description: "",
+          profilePicture: "",
+          location: "",
+        }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
-    friend && friend.friends && Object.keys(friend.friends).length > 0
+    friend && friend.friends && friend.friends.length > 0
       ? friend.friends[username]
       : false
   );
   const [friendFollowing, setFriendFollowing] = useState(
-    friend && friend.friends && Object.keys(friend.friends).length > 0
+    friend && friend.friends && friend.friends.length > 0
       ? friend.friends[username]
       : false
   );
@@ -611,13 +625,21 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [calendarUpdated, setCalendarUpdated] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [newImage, setNewImage] = useState({ src: "", caption: "" });
-  const [newBackdropImage, setNewBackdropImage] = useState({ src: "" });
+  const [newImage, setNewImage] = useState({ src: "", id: "" });
+  const [newBackdropImage, setNewBackdropImage] = useState({
+    src: "",
+    id: user.backdrop.id,
+  });
   const [isSettingsPopup, setSettingsPopup] = useState(false);
   const [screen, setScreen] = useLocalStorage("screen", null);
   const [showAddReview, setShowAddReview] = useState(false); // To handle new review form
   const [newReview, setNewReview] = useState({ text: "", mark: 5 }); // New review state
-
+  const UserUpdateGQLHook = useQuery(USER_UPDATE_MUTATION, {
+    variables: {
+      user: {},
+    },
+    initialFetchPolicy: "cache-only",
+  });
   const handleAddReviewClick = () => {
     setShowAddReview(true);
   };
@@ -638,9 +660,9 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     const updatedReviews =
       friend.reviews && friend.reviews.length > 0
         ? [
-          ...friend.reviews,
-          { photo: friend.image, nickname: friend.username, ...newReview },
-        ]
+            ...friend.reviews,
+            { photo: friend.image, nickname: friend.username, ...newReview },
+          ]
         : [{ photo: friend.image, nickname: friend.username, ...newReview }];
     // setProfileData({
     //   ...friend,
@@ -669,46 +691,55 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   };
 
   // Save changes
-  const handleSaveClick = async (updateUser: any, setErrorMessage: any) => {
-    console.log(newBackdropImage, newImage);
+  const handleSaveClick = async () => {
+    console.log(newBackdropImage, newImage, user);
     const newBackdropImageObject = {
       src:
         newBackdropImage.src !== ""
           ? newBackdropImage.src
-          : friend.backdropImage,
-      owner: user.username,
+          : friend.backdrop.src,
+      owner: friend.username,
       timestamp: new Date().getTime(),
-      id: user.backdrop ? user.backdrop : "",
+      id: user.backdrop.id,
     };
 
     const newImageObject = {
       src: newImage.src !== "" ? newImage.src : friend.profilePicture,
       owner: user.username,
       timestamp: new Date().getTime(),
-      id: user.profilePicture ? user.profilePicture : "",
-    };
-    const newProfileData = {
-      ...friend,
-      name: editProfile.name,
-      description: editProfile.description,
-      location: editProfile.location,
+      id: user.profilePicture.id,
     };
 
-    // await updateUser(newProfileData, setErrorMessage);
-    const result = await updateUserAndImage(
-      newProfileData,
-      newImageObject,
-      newBackdropImageObject
+    const userUpdateParams: UserEditInput = {
+      username: friend.username,
+      name: editProfile.name,
+      location: editProfile.location,
+      description: editProfile.description,
+      profilePicture: newImageObject,
+      backdrop: newBackdropImageObject,
+    };
+
+    const userUpdateData = (
+      await UserUpdateGQLHook.refetch({
+        user: userUpdateParams,
+      })
+    ).data.updateUserAndImage;
+
+    if (!images) {
+    }
+    const OtherImages = images.filter((img) => img.id !== userUpdateData.id);
+
+    OtherImages.push(userUpdateData.backdrop);
+    setImages([...OtherImages]);
+    const otherAvatarsEntry = avatars.filter(
+      (av) => av.id !== userUpdateData.profilePicture.id
     );
-    setImages({
-      ...images,
-      [result.payload.image.id]: result.payload.image.src,
-      [result.payload.backdrop.id]: result.payload.backdrop.src,
-    });
-    setAvatars({ ...avatars, [user.username]: result.payload.image });
-    setUser(result.payload.user);
-    setFriend(result.payload.user);
-    await setIsEditingProfile();
+    otherAvatarsEntry.push(userUpdateData);
+
+    setAvatars(otherAvatarsEntry);
+    setUser({ ...user, ...userUpdateData });
+    setFriend({ ...user, ...userUpdateData });
+    // await setIsEditingProfile();
   };
 
   // Cancel editing
@@ -730,41 +761,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       ...editProfile,
       [name]: value,
     });
-  };
-
-  const friendsFilter = (friend: any) => {
-    return friend.username === username;
-  };
-
-  // Toggle follow button for friends
-  const handleFriendFollowClick = (
-    index: number,
-    friend: any,
-    isFollowing: boolean
-  ) => {
-    const updatedFollowing = [...friendFollowing];
-    updatedFollowing[index] = !updatedFollowing[index];
-    setFriendFollowing(updatedFollowing);
-
-    const newFriend = {
-      avatar: user.profilePicture,
-      nickname: user.name,
-      username: user.username,
-    };
-
-    // const updatedProfileData = { ...user };
-
-    if (friend.friends[friend.username]) {
-      delete friend.friends[friend.username];
-    }
-
-    if (!isFollowing) {
-      friend.friends[username] = newFriend;
-    }
-
-    // setProfileData(updatedProfileData);
-    updateUser(friend, setErrorMessage);
-    setFriend(friend);
   };
 
   useEffect(() => {
@@ -801,8 +797,8 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   const postsComponents = useMemo(
     () =>
-      friend && friendPosts && Object.keys(friendPosts).length > 0 ? (
-        Object.keys(friend.posts).map((post, index) => (
+      friend && friendPosts && friendPosts.length > 0 ? (
+        friend.posts.map((post, index) => (
           <Grid
             item
             key={"post" + index}
@@ -816,10 +812,10 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             }}
             xs={6}
           >
-            {friendPosts && friendPosts[post] && friendPosts[post].image && (
+            {friendPosts && post && post.image && (
               <Post key={post}>
                 <PostImage
-                  src={images[friendPosts[post].image]?.src || ""}
+                  src={images.find((img) => img.id === post.image)?.src || ""}
                   onClick={() => {
                     return navigate("/" + friend.username + "/portfolio");
                   }}
@@ -985,7 +981,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
           async (uri) => {
             console.log(uri);
             if (typeof uri === "string") {
-              setNewImage({ src: uri, caption: "" });
+              setNewImage({ src: uri, id: user.profilePicture.id });
             }
           },
           "base64",
@@ -1010,7 +1006,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
           async (uri) => {
             console.log(uri);
             if (typeof uri === "string") {
-              setNewBackdropImage({ src: uri });
+              setNewBackdropImage({ src: uri, id: user.backdrop.id });
             }
           },
           "base64",
@@ -1022,18 +1018,18 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     }
   };
 
-  const avatarComponents = Object.keys(friend.friends).map((fri) => (
+  const avatarComponents = friend.friends.map((fri, index) => (
     <FriendAvatar
       theme={themevars}
-      key={fri + "avatar"}
-      src={avatars[fri]?.src}
-      alt={avatars[fri]?.owner}
+      key={fri + "avatar" + Math.random()}
+      src={avatars[index]?.src}
+      alt={avatars[index]?.owner}
       onClick={() => setShowFriends(true)}
     />
   ));
 
   const handleFollow = async () => {
-    if (Object.keys(user.friends).length === 0 || !user.friends) {
+    if (user.friends.length === 0 || !user.friends) {
       user.friends = {};
     }
     if (user.friends) {
@@ -1045,7 +1041,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       username: friend.username,
     };
 
-    if (Object.keys(friend.friends).length === 0 || !friend.friends) {
+    if (friend.friends.length === 0 || !friend.friends) {
       friend.friends = {};
     }
     if (friend.friends) {
@@ -1067,23 +1063,21 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     setShowFriends(!showFriends);
   };
   const chatIsOpenedWithUser =
-    Object.values(chats).filter(
+    chats?.filter(
       (e: any) =>
         e.type === "private" && e.participants.includes(friend.username)
-    ).length > 0;
+    )?.length > 0 || false;
+
   return (
     <ProfilePage theme={themevars}>
-      <Backdrop
-        screen={screen}
-        backdropImage={images[friend.backdrop]?.src || ""}
-      />
+      <Backdrop screen={screen} backdropImage={friend.backdrop.src || ""} />
       <ProfileHeader theme={themevars}>
         <ProfileInfo theme={themevars}>
           {isEditing ? (
             <ProfileGrid>
               <ProfilePicture
                 theme={themevars}
-                src={avatars[friend.username]?.src}
+                src={friend.profilePicture.src}
                 alt="Profile Picture"
               />
               <GridCell>
@@ -1123,7 +1117,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <div>
                 <ProfilePicture
                   theme={themevars}
-                  src={avatars[friend.username]?.src}
+                  src={friend.profilePicture.src}
                   alt="Profile Picture"
                 />
               </div>
@@ -1142,9 +1136,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             <GridTwo>
               <SaveButton
                 theme={themevars}
-                onClick={async () =>
-                  await handleSaveClick(updateUser, setErrorMessage)
-                }
+                onClick={async () => await handleSaveClick()}
               >
                 Save
               </SaveButton>
@@ -1211,14 +1203,13 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                 >
                   <ChatIcon style={{ color: themevars.icons.color }} />
                 </IcoButton>
-
               ) : (
                 <IcoButton
                   theme={themevars}
                   onClick={async () => {
                     // await fetchData(user.username, { type: "/chats" });
                     const chatsData = await getChatsByUserId(user.username);
-                    const chatId = Object.keys(chatsData.payload).find(
+                    const chatId = chatsData.find(
                       (chatId: any) =>
                         chatsData.payload[chatId].type === "private" &&
                         chatsData.payload[chatId].participants.includes(
@@ -1236,8 +1227,6 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
               <IcoButton theme={themevars} onClick={handleMapClick}>
                 <PinDrop style={{ color: themevars.icons.color }} />
               </IcoButton>
-
-
             </GridTwo>
           )}
         </ProfileInfo>
@@ -1253,25 +1242,26 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
             {avatarComponents}
           </FriendsAvatars>
         </FriendsAvatarsBackdrop>
-        {!loggedInUser && <FollowButton
-          style={{ justifyItems: "end", marginInline: 'unset' }}
-          theme={themevars}
-          following={isFollowing}
-          onClick={async () => {
-            !loggedInUser ? await handleFollow() : handleAddPhotoClick();
-          }}
-        >
-          {!loggedInUser && user && user.friends ? (
-            user.friends[friend.username] ? (
-              "Unfollow"
+        {!loggedInUser && (
+          <FollowButton
+            style={{ justifyItems: "end", marginInline: "unset" }}
+            theme={themevars}
+            following={isFollowing}
+            onClick={async () => {
+              !loggedInUser ? await handleFollow() : handleAddPhotoClick();
+            }}
+          >
+            {!loggedInUser && user && user.friends ? (
+              user.friends[friend.username] ? (
+                "Unfollow"
+              ) : (
+                "Follow"
+              )
             ) : (
-              "Follow"
-            )
-          ) : (
-            <Add style={{ color: themevars.icons.color }} />
-          )}
-        </FollowButton>}
-
+              <Add style={{ color: themevars.icons.color }} />
+            )}
+          </FollowButton>
+        )}
       </FriendsSection>
 
       <ProfilePosts style={{ display: "contents" }}>
@@ -1280,104 +1270,101 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
         </Grid>
       </ProfilePosts>
 
-      {
-        showReviews && (
-          <PopupOverlay>
-            <PopupContent theme={themevars.popup}>
-              {showReviews && (
-                <ReviewContent>
-                  <EditButton
+      {showReviews && (
+        <PopupOverlay>
+          <PopupContent theme={themevars.popup}>
+            {showReviews && (
+              <ReviewContent>
+                <EditButton
+                  theme={themevars}
+                  onClick={() => setShowReviews(false)}
+                >
+                  X
+                </EditButton>
+                <h2>Client Reviews</h2>
+                <ReviewList>
+                  {friend.reviews &&
+                    friend.reviews.length > 0 &&
+                    friend.reviews.map((review, index) => (
+                      <ReviewItem key={index}>
+                        <ReviewPhoto
+                          src={review.photo}
+                          alt={`Client ${index + 1}`}
+                        />
+                        <ReviewText>{review.text}</ReviewText>
+                        <ReviewMark>{review.mark}/5</ReviewMark>
+                      </ReviewItem>
+                    ))}
+                </ReviewList>
+                {!loggedInUser && (
+                  <CalendarButton
                     theme={themevars}
-                    onClick={() => setShowReviews(false)}
+                    onClick={handleAddReviewClick}
                   >
-                    X
-                  </EditButton>
-                  <h2>Client Reviews</h2>
-                  <ReviewList>
-                    {friend.reviews &&
-                      friend.reviews.length > 0 &&
-                      friend.reviews.map((review, index) => (
-                        <ReviewItem key={index}>
-                          <ReviewPhoto
-                            src={review.photo}
-                            alt={`Client ${index + 1}`}
-                          />
-                          <ReviewText>{review.text}</ReviewText>
-                          <ReviewMark>{review.mark}/5</ReviewMark>
-                        </ReviewItem>
-                      ))}
-                  </ReviewList>
-                  {!loggedInUser && (
-                    <CalendarButton
+                    + Add New Review
+                  </CalendarButton>
+                )}
+              </ReviewContent>
+            )}
+
+            {showAddReview && (
+              <NewReviewForm theme={themevars}>
+                <ReviewInput
+                  theme={themevars}
+                  name="text"
+                  placeholder="Enter your review"
+                  value={newReview.text}
+                  onChange={handleNewReviewChange}
+                />
+                <ReviewSelect
+                  theme={themevars}
+                  name="mark"
+                  value={newReview.mark}
+                  onChange={handleNewReviewChange}
+                >
+                  <option value="5">5 - Excellent</option>
+                  <option value="4">4 - Good</option>
+                  <option value="3">3 - Average</option>
+                  <option value="2">2 - Poor</option>
+                  <option value="1">1 - Terrible</option>
+                </ReviewSelect>
+                <ReviewSubmitButton
+                  theme={themevars}
+                  onClick={handleReviewSubmit}
+                >
+                  Submit Review
+                </ReviewSubmitButton>
+              </NewReviewForm>
+            )}
+          </PopupContent>
+        </PopupOverlay>
+      )}
+
+      {showFriends && (
+        <FriendsPopup>
+          <FriendsContent theme={themevars}>
+            <EditButton theme={themevars} onClick={() => handleClose(false)}>
+              X
+            </EditButton>
+            <h2>Friends List</h2>
+            <FriendsList theme={themevars}>
+              {friend.friends.map((follower: any, index) => {
+                return (
+                  <FriendItem
+                    theme={themevars}
+                    key={index}
+                    onClick={() => navigate("/" + follower)}
+                  >
+                    <FriendPhoto
                       theme={themevars}
-                      onClick={handleAddReviewClick}
-                    >
-                      + Add New Review
-                    </CalendarButton>
-                  )}
-                </ReviewContent>
-              )}
+                      src={avatars[index]?.src}
+                      alt={friend.friends[follower].nickname}
+                    />
+                    <FriendNickname theme={themevars}>
+                      {friend.friends[follower].nickname}
+                    </FriendNickname>
 
-              {showAddReview && (
-                <NewReviewForm theme={themevars}>
-                  <ReviewInput
-                    theme={themevars}
-                    name="text"
-                    placeholder="Enter your review"
-                    value={newReview.text}
-                    onChange={handleNewReviewChange}
-                  />
-                  <ReviewSelect
-                    theme={themevars}
-                    name="mark"
-                    value={newReview.mark}
-                    onChange={handleNewReviewChange}
-                  >
-                    <option value="5">5 - Excellent</option>
-                    <option value="4">4 - Good</option>
-                    <option value="3">3 - Average</option>
-                    <option value="2">2 - Poor</option>
-                    <option value="1">1 - Terrible</option>
-                  </ReviewSelect>
-                  <ReviewSubmitButton
-                    theme={themevars}
-                    onClick={handleReviewSubmit}
-                  >
-                    Submit Review
-                  </ReviewSubmitButton>
-                </NewReviewForm>
-              )}
-            </PopupContent>
-          </PopupOverlay>
-        )
-      }
-
-      {
-        showFriends && (
-          <FriendsPopup>
-            <FriendsContent theme={themevars}>
-              <EditButton theme={themevars} onClick={() => handleClose(false)}>
-                X
-              </EditButton>
-              <h2>Friends List</h2>
-              <FriendsList theme={themevars}>
-                {Object.keys(friend.friends).map((follower: any, index) => {
-                  return (
-                    <FriendItem
-                      theme={themevars}
-                      key={index}
-                      onClick={() => navigate("/" + follower)}
-                    >
-                      <FriendPhoto
-                        theme={themevars}
-                        src={avatars[follower]?.src}
-                        alt={friend.friends[follower].nickname}
-                      />
-                      <FriendNickname theme={themevars}>
-                        {friend.friends[follower].nickname}
-                      </FriendNickname>
-
-                      {/* <FollowButton
+                    {/* <FollowButton
                     theme={themevars}
                     following={friend.friends[friend]}
                     onClick={(e) => {
@@ -1391,110 +1378,103 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                   >
                     {isFollowing ? "Unfollow" : "Follow"}
                   </FollowButton> */}
-                    </FriendItem>
-                  );
-                })}
-              </FriendsList>
-            </FriendsContent>
-          </FriendsPopup>
-        )
-      }
+                  </FriendItem>
+                );
+              })}
+            </FriendsList>
+          </FriendsContent>
+        </FriendsPopup>
+      )}
 
-      {
-        showLinksPopup && (
-          <PopupOverlay>
-            <PopupContent theme={themevars.popup}>
-              <EditButton
-                theme={themevars}
-                onClick={() => handleCloseLinksPopup()}
-              >
-                X
-              </EditButton>
-              <h2>Social Media Links</h2>
-              <SocialMediaLinks theme={themevars.popup}>
-                {friend &&
-                  friend.socialLinks &&
-                  friend.socialLinks.map((link, index) => (
-                    <SocialMediaLink key={index} href={link.url} target="_blank">
-                      {link.platform}
-                    </SocialMediaLink>
-                  ))}
-              </SocialMediaLinks>
-            </PopupContent>
-          </PopupOverlay>
-        )
-      }
-      {
-        showCalendarPopup && (
-          <PopupOverlay>
-            <PopupContent theme={themevars.popup}>
-              <EditButton
-                theme={themevars}
-                onClick={() => setCalendarPopup(false)}
-              >
-                X
-              </EditButton>
-              {!loggedInUser ? (
-                <>
-                  <PortfolioImagePicker
-                    onImageSelect={handleImageSelect}
-                    userData={friend}
-                  />{" "}
-                  <CalendarComponent
-                    setClosePopup={handleCalendarClick}
-                    availableHours={friend.calendar}
-                    setClientDate={setClientDate}
-                  />{" "}
-                </>
-              ) : (
-                <DateHourSelector
-                  setScheduleUpdated={setCalendarUpdated}
-                  setMasterDate={setMasterDate}
-                />
-              )}
+      {showLinksPopup && (
+        <PopupOverlay>
+          <PopupContent theme={themevars.popup}>
+            <EditButton
+              theme={themevars}
+              onClick={() => handleCloseLinksPopup()}
+            >
+              X
+            </EditButton>
+            <h2>Social Media Links</h2>
+            <SocialMediaLinks theme={themevars.popup}>
+              {friend &&
+                friend.socialLinks &&
+                friend.socialLinks.map((link, index) => (
+                  <SocialMediaLink key={index} href={link.url} target="_blank">
+                    {link.platform}
+                  </SocialMediaLink>
+                ))}
+            </SocialMediaLinks>
+          </PopupContent>
+        </PopupOverlay>
+      )}
+      {showCalendarPopup && (
+        <PopupOverlay>
+          <PopupContent theme={themevars.popup}>
+            <EditButton
+              theme={themevars}
+              onClick={() => setCalendarPopup(false)}
+            >
+              X
+            </EditButton>
+            {!loggedInUser ? (
+              <>
+                <PortfolioImagePicker
+                  onImageSelect={handleImageSelect}
+                  userData={friend}
+                />{" "}
+                <CalendarComponent
+                  setClosePopup={handleCalendarClick}
+                  availableHours={friend.calendar}
+                  setClientDate={setClientDate}
+                />{" "}
+              </>
+            ) : (
+              <DateHourSelector
+                setScheduleUpdated={setCalendarUpdated}
+                setMasterDate={setMasterDate}
+              />
+            )}
 
-              <div>
-                <CancelButton onClick={() => setCalendarPopup(false)}>
-                  {calendarUpdated ? "Back" : "Cancel"}
-                </CancelButton>
-              </div>
-            </PopupContent>
-          </PopupOverlay>
-        )
-      }
+            <div>
+              <CancelButton onClick={() => setCalendarPopup(false)}>
+                {calendarUpdated ? "Back" : "Cancel"}
+              </CancelButton>
+            </div>
+          </PopupContent>
+        </PopupOverlay>
+      )}
 
-      {
-        showLocationPopup && (
-          <PopupOverlay>
-            <PopupContent theme={themevars.popup}>
-              <CloseButton
+      {showLocationPopup && (
+        <PopupOverlay>
+          <PopupContent theme={themevars.popup}>
+            <CloseButton
+              theme={themevars}
+              onClick={handleLocationCancelClick}
+            />
+            <h2>Edit Location</h2>
+            <EditInput
+              theme={themevars}
+              type="text"
+              name="location"
+              value={editProfile.location}
+              onChange={handleInputChange}
+            />
+            <div>
+              <SaveButton theme={themevars} onClick={handleLocationSaveClick}>
+                Save
+              </SaveButton>
+              <CancelButton
                 theme={themevars}
                 onClick={handleLocationCancelClick}
-              />
-              <h2>Edit Location</h2>
-              <EditInput
-                theme={themevars}
-                type="text"
-                name="location"
-                value={editProfile.location}
-                onChange={handleInputChange}
-              />
-              <div>
-                <SaveButton theme={themevars} onClick={handleLocationSaveClick}>
-                  Save
-                </SaveButton>
-                <CancelButton
-                  theme={themevars}
-                  onClick={handleLocationCancelClick}
-                >
-                  Cancel
-                </CancelButton>
-              </div>
-            </PopupContent>
-          </PopupOverlay>
-        )
-      }
-    </ProfilePage >
+              >
+                Cancel
+              </CancelButton>
+            </div>
+          </PopupContent>
+        </PopupOverlay>
+      )}
+    </ProfilePage>
   );
 };
 

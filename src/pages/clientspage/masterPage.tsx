@@ -212,22 +212,22 @@ const ProfilePageComponent: React.FC = () => {
     new Array(4).fill(false)
   );
 
-  const reviews = [
-    { photo: "client1.jpg", text: "Amazing photographer!", mark: 5 },
-    { photo: "client2.jpg", text: "Loved the pictures!", mark: 4 },
-    { photo: "client3.jpg", text: "Great experience.", mark: 5 },
-  ];
+  // const reviews = [
+  //   { photo: "client1.jpg", text: "Amazing photographer!", mark: 5 },
+  //   { photo: "client2.jpg", text: "Loved the pictures!", mark: 4 },
+  //   { photo: "client3.jpg", text: "Great experience.", mark: 5 },
+  // ];
 
-  const friends = [
-    { avatar: "friend1.jpg", nickname: "Alice", profileLink: "/friends/alice" },
-    { avatar: "friend2.jpg", nickname: "Bob", profileLink: "/friends/bob" },
-    {
-      avatar: "friend3.jpg",
-      nickname: "Charlie",
-      profileLink: "/friends/charlie",
-    },
-    { avatar: "friend4.jpg", nickname: "Dave", profileLink: "/friends/dave" },
-  ];
+  // const friends = [
+  //   { avatar: "friend1.jpg", nickname: "Alice", profileLink: "/friends/alice" },
+  //   { avatar: "friend2.jpg", nickname: "Bob", profileLink: "/friends/bob" },
+  //   {
+  //     avatar: "friend3.jpg",
+  //     nickname: "Charlie",
+  //     profileLink: "/friends/charlie",
+  //   },
+  //   { avatar: "friend4.jpg", nickname: "Dave", profileLink: "/friends/dave" },
+  // ];
 
   const handleFriendClick = (profileLink: string) => {
     window.location.href = profileLink;
@@ -271,7 +271,7 @@ const ProfilePageComponent: React.FC = () => {
           {friends.slice(0, 3).map((friend, index) => (
             <FriendAvatar
               key={index}
-              src={friend.avatar}
+              src={friend.profilePicture?.src}
               alt={friend.nickname}
               onClick={() => setShowFriends(true)}
             />
@@ -315,7 +315,7 @@ const ProfilePageComponent: React.FC = () => {
             <CloseButton onClick={() => setShowFriends(false)}>X</CloseButton>
             <h2>Friends List</h2>
             <FriendsList>
-              {friends.map((friend, index) => (
+              {/* {friends.map((friend, index) => (
                 <FriendItem
                   key={index}
                   onClick={() => handleFriendClick(friend.profileLink)}
@@ -331,7 +331,7 @@ const ProfilePageComponent: React.FC = () => {
                     {friendFollowing[index] ? "Unfollow" : "Follow"}
                   </FriendFollowButton>
                 </FriendItem>
-              ))}
+              ))} */}
             </FriendsList>
           </FriendsContent>
         </FriendsPopup>

@@ -114,10 +114,10 @@ const PortfolioImagePicker: React.FC<PortfolioImagePickerProps> = ({
       {!confirmed && (
         <ImageGrid container spacing={2}>
           {userData.posts &&
-            Object.keys(userData.posts).map((post, i) => (
+            userData.posts.map((post, i) => (
               <PostImage
-                src={newsImages[friendPosts[post].image].src}
-                onClick={() => handleImageClick(friendPosts[post].image, i)}
+                src={newsImages[friendPosts[i].image].src}
+                onClick={() => handleImageClick(friendPosts[i].image, i)}
                 alt={`Post ${i}`}
               />
             ))}

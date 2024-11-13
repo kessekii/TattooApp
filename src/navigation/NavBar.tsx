@@ -54,6 +54,16 @@ import {
   getPointImageByPointId,
 } from "./../utils/helpers/helperFuncs";
 import { delay } from "@reduxjs/toolkit/dist/utils";
+import { defultLocation } from "./../../src/state";
+
+import {
+  POINTS_QUERY,
+  USER_QUERY,
+  IMAGES_QUERY,
+  NEWS_QUERY,
+  POINT_IMAGE_BY_USER_QUERY,
+} from "../../src/graphQL/queries";
+import { useQuery } from "@apollo/client";
 function timeout(delay: number) {
   return new Promise((res) => setTimeout(res, delay));
 }
@@ -90,7 +100,6 @@ interface fetchDataType {
 }
 
 const NavBar = (props: { screen: any; onResize: () => void }) => {
-  const [user, setUser] = useLocalStorage("user", {});
   const [news, setNews] = useLocalStorage("news", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [images, setImages] = useLocalStorage("images", null);
@@ -99,9 +108,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const [posts, setPosts] = useLocalStorage("posts", null);
   const [mapImages, setMapImages] = useLocalStorage("mapImages", null);
   const [avatars, setAvatars] = useLocalStorage("avatars", null);
-  const [imageIds, setImageIds] = useLocalStorage("imageIds", null);
+  const [user, setUser] = useLocalStorage("user", {});
   const [chats, setChats] = useLocalStorage("chats", null);
-  const [newsPosts, setNewsPosts] = useLocalStorage("newsPosts", null);
+
   const [screen, setScreen] = useLocalStorage("screen", null);
   const { username, postId } = useParams();
   const dim = useWindowDimensions();
@@ -113,6 +122,26 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
   const auth = useAuth();
   const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
   const { isEditing, setIsEditingProfile } = useEditing();
+
+  const pointsGraphQLHook = useQuery(POINTS_QUERY, {
+    variables: {
+      coordOfCenter: defultLocation,
+      blocked: false,
+    },
+  });
+  const userGraphQLHook = useQuery(USER_QUERY, {
+    variables: { username: user.username },
+  });
+  const imageGraphQLHook = useQuery(IMAGES_QUERY, {
+    variables: { username: user.username },
+  });
+  const newsGraphQLHook = useQuery(NEWS_QUERY, {
+    variables: { city: "Bat Yam", country: "Israel" },
+  });
+  const pointsImagesGQLHook = useQuery(POINT_IMAGE_BY_USER_QUERY, {
+    variables: { username: user.username },
+  });
+
   const handleUserInteraction = () => {
     setLastInteractionTime(Date.now());
     if (isShrunk) {
@@ -125,11 +154,16 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
     setScreen(dim);
 
     if (type) {
-      setLoading(true);
+      // setLoading(true);
       setIsMap(false);
       switch (type) {
         case "/news":
-          const newsData = await getNewsAction(user.location);
+          const newsData = (
+            await newsGraphQLHook.refetch({
+              city: user.location.split(",")[0],
+              country: user.location.split(",")[1],
+            })
+          ).data.getNewsByGeo;
 
           setHideNav(false);
           setNews(newsData);
@@ -139,59 +173,50 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         case "/user":
           setHideNav(false);
 
-          const userData = (await getUserById(username)).payload;
+          const userGQL = (
+            await userGraphQLHook.refetch({ username: username })
+          ).data.getProfileData;
 
-          const imageIds = (await getImageIdsByUserId(username)).payload;
+          let pointsGQLu = (
+            await pointsGraphQLHook.refetch({
+              coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
+              blocked: false,
+            })
+          ).data.getPointsInRadius;
 
-          let [avatarIds, avatarsImagesdata]: any = await getAvatars(userData);
-          const nonAvatarImages = imageIds.filter(
-            (e) => !avatarIds?.includes(e)
-          );
-          if (!avatarIds || avatarIds.length === 0) {
-            avatarsImagesdata = {};
-          }
-          setAvatars(avatarsImagesdata);
-          // let imuserAvatar = await getImageByImageId(user.profilePicture);
+          const imageGQL = (
+            await imageGraphQLHook.refetch({ username: username })
+          ).data.getAllImagesByUserPage;
 
-          let newimages = {};
-          let newAvatarimages = {};
-
-          if (avatarIds && avatarIds.length > 0) {
-            // setAvatars(newAvatarimages);
-            for (let imageId of nonAvatarImages) {
-              const image = await getImageByImageId(imageId);
-
-              if (image && image.payload) {
-                newimages = { ...newimages, [imageId]: image.payload };
-              }
-            }
-          }
-
-          const newsDataNew = await getNewsAction(friend.location);
-          setNews(newsDataNew);
-
-          setFriend(userData);
-          const chatData = await getChatsByUserId(userData.username);
-          setFriendChats(chatData.payload);
-          const postsData = await getPostsByUserId(userData.username);
-          setFriendPosts(postsData.payload);
+          setPosts(userGQL.posts);
+          setFriend(userGQL);
+          setFriendPosts(userGQL.posts);
+          setFriendChats(userGQL.chats);
+          setImages(imageGQL.posts);
+          setMapImages(imageGQL.map);
+          setAvatars(imageGQL.avatars);
 
           // await getAvatars(username, setAvatars);
 
           if (username === user.username) {
-            console.log("user", user);
-            const userMapImages = await getUserMapImagesByUserId(user.username);
-            console.log(userMapImages);
-            setMapImages({ ...mapImages, ...userMapImages.payload });
-
-            setPosts(postsData.payload);
-
-            setChats(chatData.payload);
+            setUser(userGQL);
+            setPoints(pointsGQLu);
+            setChats(userGQL.chats);
           }
-          setImages(newimages);
           setLoading(false);
+
+          if (userGQL.location) {
+            const newsGQL = (
+              await newsGraphQLHook.refetch({
+                city: userGQL.location.split(",")[0],
+                country: userGQL.location.split(",")[1],
+              })
+            ).data.getNewsByGeo;
+            setNews(newsGQL);
+          }
+
           break;
-          return;
+
         case "/chats":
           const userChatsupd = await getChatsByUserId(user.username);
 
@@ -199,48 +224,27 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           setFriendChats(userChatsupd.payload);
           setLoading(false);
           break;
-          return;
+
         case "/map":
-          // const pointsData = await getPointsInRadius(user.location, false);
-          // for (let point of pointsData.payload) {
-          //   const image = await getPointImageByPointId(point.id);
-          //   setMapImages({ ...image.payload });
-
-          //   setPoints({ ...points, [point]: image });
-          // }
-          const useMapImages = await getUserMapImagesByUserId(user.username);
-
-          const pointsInRaduis = await getPointsInRadius(
-            {
-              lat: 32.02119878251853,
-              lng: 34.74333323660794,
-            },
-            false
-          );
-          console.log(pointsInRaduis);
-          let newMapimages = {};
-          for (let pointId of Object.keys(pointsInRaduis.payload)) {
-            let quadId =
-              pointsInRaduis.payload[pointId].location.lat.toFixed(2) +
-              ":" +
-              pointsInRaduis.payload[pointId].location.lng.toFixed(2);
-            console.log(quadId);
-            const image = await getPointImageByPointId(pointId, quadId);
-            console.log(image);
-            if (image?.src) {
-              newMapimages[pointsInRaduis.payload[pointId].data.icon] =
-                image.src;
-            }
-          }
-          setMapImages({ ...useMapImages.payload, ...newMapimages });
+          let pointsGQL = (
+            await pointsGraphQLHook.refetch({
+              coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
+            })
+          ).data.getPointsInRadius;
+          setPoints(pointsGQL);
+          // user.points = pointsGQL;
+          const userMapImages = (
+            await pointsImagesGQLHook.refetch(user.username)
+          ).data.getPointImageByUser;
+          setMapImages(userMapImages);
           setHideNav(false);
           setIsMap(true);
           setLoading(false);
           break;
-          return;
+
         default:
+          setLoading(false);
           break;
-          return;
       }
     }
   };
@@ -250,15 +254,6 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       fetchData(username, { type: "/user" });
     }
   }, [username]);
-
-  const handleFriendClick = async (profileLink: string) => {
-    const firned = (await getUserById(profileLink)).payload;
-    setFriend(firned);
-    setFriendPosts((await getPostsByUserId(profileLink)).payload);
-    setFriendChats((await getChatsByUserId(profileLink)).payload);
-    //window.location.href = profileLink;
-    navigate("/" + profileLink);
-  };
 
   const navigate = useNavigate();
   const { themevars } = useTheme();
@@ -287,11 +282,6 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
     } catch (e) {
       console.log(encodeURIComponent);
     }
-  };
-
-  const handleGoEdit = async () => {
-    await setIsEditingProfile();
-    navigate("/" + user.username);
   };
 
   useEffect(() => {
@@ -399,7 +389,11 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             ></MenuButton>
             <AvatarContainer isShrunk={!isShrunk}>
               <Avatar
-                src={avatars[user.username]?.src} // Replace with actual avatar URL
+                src={
+                  !avatars || !avatars.length
+                    ? ""
+                    : avatars.find((av) => av.owner === user.username).src
+                } // Replace with actual avatar URL
                 alt="User Avatar"
                 onClick={async () => await toggleMenu()}
               />
@@ -409,7 +403,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
               <Menu
                 isopen={isOpen}
                 theme={themevars.navbar}
-              // style={{ visibility: isOpen ? "visible" : "hidden" }}
+                // style={{ visibility: isOpen ? "visible" : "hidden" }}
               >
                 <MenuItem
                   isopened={isOpen}

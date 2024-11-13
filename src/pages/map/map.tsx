@@ -36,6 +36,13 @@ import zIndex from "@mui/material/styles/zIndex";
 import { keyframes, styled } from "styled-components";
 import { useTheme } from "../../state/providers/themeProvider";
 import { getPointImageByPointId } from "../../utils/helpers/helperFuncs";
+import { useQuery } from "@apollo/client";
+import {
+  CREATE_POINT,
+  POINT_IMAGE_BY_USER_QUERY,
+  POINTS_QUERY,
+  UPDATE_POINT,
+} from "../../graphQL/queries";
 
 export const PointBox = styled.div`
   background: ${({ theme }) => theme.background};
@@ -103,12 +110,29 @@ const PoiMarker = (props: {
   const [user, setUser] = useLocalStorage("user", {});
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [points, setPoints] = useLocalStorage("points", {});
+  const pointsInRadiusGQLHook = useQuery(POINTS_QUERY, {
+    variables: {
+      coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
+      blocked: false,
+    },
+  });
+  const pointImageByUserGQLHook = useQuery(POINT_IMAGE_BY_USER_QUERY, {
+    variables: {
+      username: user.username,
+    },
+  });
+  const updatePointGQLHook = useQuery(UPDATE_POINT, {
+    variables: {
+      point: props.point,
+      quadId: "1",
+    },
+  });
 
   const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState<string>(props.point?.data?.name || "");
   const [desc, setDesc] = useState<string>(props.point?.data?.desc || "");
-  const [newImage, setNewImage] = useState({ src: "", caption: "" });
+  const [newImage, setNewImage] = useState({ src: "", id: props.pointId });
   const [isNewImage, setIsNewImage] = useState(false);
   const { themevars } = useTheme();
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,7 +149,7 @@ const PoiMarker = (props: {
           async (uri) => {
             console.log(uri);
             if (typeof uri === "string") {
-              setNewImage({ src: uri, caption: null });
+              setNewImage({ src: uri, id: props.pointId });
             }
           },
           "base64",
@@ -145,40 +169,43 @@ const PoiMarker = (props: {
     const point_lat = point.location.lat.toFixed(2).toString();
     const point_lng = point.location.lng.toFixed(2).toString();
     const coord = point_lat + ":" + point_lng;
-    point.imageSrc = newImage.src;
+    // point.imageSrc = newImage.src;
 
-    const [newUserData, newPointData] = (
-      await updatePointbyPointId(coord, point)
-    ).payload;
+    const usePointData = (
+      await updatePointGQLHook.refetch({
+        point: {
+          pointId: point.pointId,
+          data: {
+            name: name,
+            desc: desc,
+            icon: point.data.icon,
+          },
+          location: {
+            lat: point.location.lat,
+            lng: point.location.lng,
+          },
+          owner: point.owner,
+        },
+        quadId: coord,
+      })
+    ).data.updatePoint;
+
+    console.log(usePointData);
     // console.log("EEEE", userData);
+    const pointData = (
+      await pointsInRadiusGQLHook.refetch({
+        coordOfCenter: cameraLocation,
+        blocked: false,
+      })
+    ).data.getPointsInRadius;
 
-    const pointsInRadius = (await getPointsInRadius(cameraLocation, false))
-      .payload;
+    const mapImagges = (
+      await pointImageByUserGQLHook.refetch({ username: user.username })
+    ).data.getMapImagesByUserPage;
 
-    setUser(newUserData);
-    setFriend(newUserData);
-    setPoints({ ...pointsInRadius, [newPointData.pointId]: newPointData });
-    const mapImagesByRadios = {};
-
-    for (let pointId of Object.keys(pointsInRadius)) {
-      let quadId =
-        pointsInRadius[pointId].location.lat.toFixed(2) +
-        ":" +
-        pointsInRadius[pointId].location.lng.toFixed(2);
-
-      const image = await getPointImageByPointId(pointId, quadId);
-      if (!image) continue;
-
-      mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.src;
-    }
-    const userMapImages: any = await getUserMapImagesByUserId(
-      newUserData.username
-    );
-    if (!userMapImages.payload) return;
-
-    setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
-
-    // setFocusedPoint(null);
+    setPoints(pointData);
+    setUser(usePointData);
+    setMapImages(mapImagges);
   };
   const navigate = useNavigate();
   useEffect(() => {
@@ -195,7 +222,7 @@ const PoiMarker = (props: {
   //;
 
   const isAvailableEdit =
-    Object.keys(user.points).includes(
+    user.points?.includes(
       props.point.location.lat.toFixed(2) +
         ":" +
         props.point.location.lng.toFixed(2)
@@ -330,13 +357,23 @@ const PoiMarker = (props: {
               >
                 <PostImage
                   // style={{ zIndex: 0 }}
-                  src={mapImages[props.point?.data?.icon]}
+                  src={
+                    mapImages
+                      ? mapImages.find((e) => e.id === props.point?.data?.icon)
+                          ?.src
+                      : ""
+                  }
                 ></PostImage>
               </Paper>
             ) : (
               <PostImage
                 // style={{ zIndex: 0 }}
-                src={mapImages[props.point?.data?.icon]}
+                src={
+                  mapImages
+                    ? mapImages.find((e) => e.id === props.point?.data?.icon)
+                        ?.src
+                    : ""
+                }
               ></PostImage>
             )}
             {isVisible && (
@@ -430,7 +467,12 @@ const PoiMarker = (props: {
                     props.setfocusedPoint(props.point?.pointId);
                 }}
                 style={{ zIndex: 0, width: "40px", height: "40px" }}
-                src={mapImages[props.point?.data?.icon]}
+                src={
+                  mapImages && mapImages.length > 0
+                    ? mapImages?.find((e) => e.id === props.point?.data?.icon)
+                        ?.src
+                    : ""
+                }
               ></PostImage>
             )}
           </Paper>
@@ -488,54 +530,6 @@ const calcCrow = (lat1: number, lon1: number, lat2: number, lon2: number) => {
 const toRad = (value: number) => {
   return (value * Math.PI) / 180;
 };
-const tryAddNewPoint = async (
-  ev: any,
-  user: any,
-  setUser: any,
-  setErrorMessage: any,
-  auth: any,
-  addPoint: any,
-  setPoints: any,
-  cameraLocation: any
-) => {
-  if (user) {
-    const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
-
-    const geoCode = await geocodeLatLng(new google.maps.Geocoder());
-
-    async function geocodeLatLng(geocoder: google.maps.Geocoder) {
-      let { lat, lng } = ev.detail.latLng;
-      lat = parseFloat(lat.toFixed(2));
-      lng = parseFloat(lng.toFixed(2));
-
-      const response = await geocoder.geocode({
-        location: { lat: lat, lng: lng },
-      });
-      const parts = response.results[0].formatted_address.split(",");
-      if (parts.length === 3) {
-        return parts[1].replace(" ", "") + "," + parts[2].replace(" ", "");
-      } else if (parts.length === 2) {
-        const sf = parts[0].split(" ").filter((e, i) => i !== 0);
-
-        return (
-          sf.toString().replace(",", " ") + "," + parts[1].replace(" ", "")
-        );
-      }
-    }
-
-    const newUserData = (
-      await createPointByUsername(userU.username, ev.detail.latLng!, geoCode)
-    ).payload;
-
-    const pointsObject = await getPointsInRadius(cameraLocation, false);
-
-    setUser(newUserData);
-    // setFriend(newUserData);
-
-    setPoints(pointsObject.payload);
-    await auth.setUserFull(newUserData);
-  }
-};
 
 export const MapPage = () => {
   // const [points, setPoints] = useState<Poi[]>([]);
@@ -545,7 +539,24 @@ export const MapPage = () => {
   const [loading, setLoading] = useLocalStorage("loading", null);
   const [points, setPoints] = useLocalStorage("points", {});
   const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
-
+  const pointsInRadiusGQLHook = useQuery(POINTS_QUERY, {
+    variables: {
+      coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
+      blocked: false,
+    },
+  });
+  const createPointByUsernameGQLHook = useQuery(CREATE_POINT, {
+    variables: {
+      username: user.username,
+      location: { lat: 32.02119878251853, lng: 34.74333323660794 },
+      geocode: "",
+    },
+  });
+  const pointImageByUserGQLHook = useQuery(POINT_IMAGE_BY_USER_QUERY, {
+    variables: {
+      username: user.username,
+    },
+  });
   const [cameraUpdateLock, setCameraUpdateLock] = useState(false);
   const [focusedPoint, setfocusedPoint] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -560,151 +571,111 @@ export const MapPage = () => {
     cameraUpdateLock: boolean,
     setCameraUpdateLock: any
   ) => {
-    if (cameraUpdateLock) {
-      return;
-    }
+    try {
+      if (cameraUpdateLock) {
+        return;
+      }
 
-    //
-    const distance = calcCrow(
-      ev.detail.center.lat,
-      ev.detail.center.lng,
-      cameraLocation.lat,
-      cameraLocation.lng
-    );
-    //;
-    if (distance > 0.7) {
-      setCameraUpdateLock(true);
-
-      const pointsInRadius = (
-        await getPointsInRadius(ev.detail.center, cameraUpdateLock)
-      ).payload;
       //
-      // let inumeratel = user;
-      // inumeratel.points = pointsInRadius;
-      if (pointsInRadius) {
+      const distance = calcCrow(
+        ev.detail.center.lat,
+        ev.detail.center.lng,
+        cameraLocation.lat,
+        cameraLocation.lng
+      );
+      //;
+      if (distance > 0.7) {
+        setCameraUpdateLock(true);
+
+        const pointData = (
+          await pointsInRadiusGQLHook.refetch({
+            coordOfCenter: cameraLocation,
+            blocked: false,
+          })
+        ).data.getPointsInRadius;
+
+        const mapImagges = (
+          await pointImageByUserGQLHook.refetch({ username: user.username })
+        ).data.getMapImagesByUserPage;
+        console.log(mapImages);
+        setMapImages(mapImagges);
+        setUser(user);
+        setPoints(pointData);
+        setCameraLocation(ev.detail.center);
+
         setCameraUpdateLock(false);
       }
-      const mapImagesByRadios = {};
-      for (let pointId of Object.keys(pointsInRadius)) {
-        let quadId =
-          pointsInRadius[pointId].location.lat.toFixed(2) +
-          ":" +
-          pointsInRadius[pointId].location.lng.toFixed(2);
-        console.log(quadId);
-        const image = await getPointImageByPointId(pointId, quadId);
-        if (!image) continue;
-        console.log(image);
-
-        mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.src;
-      }
-      const userMapImages: any = await getUserMapImagesByUserId(user.username);
-      if (!userMapImages.payload) return;
-
-      console.log(userMapImages.payload);
-      setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
-      setUser(user);
-      setPoints(pointsInRadius);
-      setCameraLocation(ev.detail.center);
+    } catch (e) {
+      console.log(e);
     }
   };
 
   const { themevars } = useTheme();
 
-  const mapStyle = [
-    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-    {
-      featureType: "administrative.locality",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#d59563" }],
-    },
-    {
-      featureType: "poi",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#d59563" }],
-    },
-    {
-      featureType: "poi.park",
-      elementType: "geometry",
-      stylers: [{ color: "#263c3f" }],
-    },
-    {
-      featureType: "poi.park",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#6b9a76" }],
-    },
-    {
-      featureType: "road",
-      elementType: "geometry",
-      stylers: [{ color: "#38414e" }],
-    },
-    {
-      featureType: "road",
-      elementType: "geometry.stroke",
-      stylers: [{ color: "#212a37" }],
-    },
-    {
-      featureType: "road",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#9ca5b3" }],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry",
-      stylers: [{ color: "#746855" }],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry.stroke",
-      stylers: [{ color: "#1f2835" }],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#f3d19c" }],
-    },
-    {
-      featureType: "transit",
-      elementType: "geometry",
-      stylers: [{ color: "#2f3948" }],
-    },
-    {
-      featureType: "transit.station",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#d59563" }],
-    },
-    {
-      featureType: "water",
-      elementType: "geometry",
-      stylers: [{ color: "#17263c" }],
-    },
-    {
-      featureType: "water",
-      elementType: "labels.text.fill",
-      stylers: [{ color: "#515c6d" }],
-    },
-    {
-      featureType: "water",
-      elementType: "labels.text.stroke",
-      stylers: [{ color: "#17263c" }],
-    },
-  ];
+  const tryAddNewPoint = async (
+    ev: any,
+    user: any,
+    setUser: any,
+    setErrorMessage: any,
+    auth: any,
+    addPoint: any,
+    setPoints: any,
+    cameraLocation: any
+  ) => {
+    if (user) {
+      const userU = JSON.parse(window.localStorage.getItem("user") || "{}");
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     setUser(Object.assign({}, user));
-  //   }
-  // }, [user]);
+      const geoCode = await geocodeLatLng(new google.maps.Geocoder());
+
+      async function geocodeLatLng(geocoder: google.maps.Geocoder) {
+        let { lat, lng } = ev.detail.latLng;
+        lat = parseFloat(lat.toFixed(2));
+        lng = parseFloat(lng.toFixed(2));
+
+        const response = await geocoder.geocode({
+          location: { lat: lat, lng: lng },
+          language: "en",
+        });
+        const parts = response.results[0].formatted_address.split(",");
+        if (parts.length === 3) {
+          return parts[1].replace(" ", "") + "," + parts[2].replace(" ", "");
+        } else if (parts.length === 2) {
+          const sf = parts[0].split(" ").filter((e, i) => i !== 0);
+
+          return (
+            sf.toString().replace(",", " ") + "," + parts[1].replace(" ", "")
+          );
+        }
+      }
+      const createPointData = (
+        await createPointByUsernameGQLHook.refetch({
+          username: userU.username,
+          location: ev.detail.latLng,
+          geocode: geoCode,
+        })
+      ).data.createPointByUsername;
+
+      const getPtInRadius = (
+        await pointsInRadiusGQLHook.refetch({
+          coordOfCenter: cameraLocation,
+        })
+      ).data.getPointsInRadius;
+
+      setUser(createPointData.user);
+      // setFriend(newUserData);
+
+      setPoints(getPtInRadius);
+    }
+  };
 
   const pointsStates = useMemo(
     () =>
-      Object.keys(points || {}).map((pointId: any) => {
+      points.map((point: any) => {
         return (
           <PoiMarker
-            key={pointId}
-            pointId={pointId}
-            point={points[pointId]}
+            key={point.pointId}
+            pointId={point.pointId}
+            point={point}
             user={user}
             setUser={setUser}
             tryRemovingAPoint={tryRemovingAPoint}
@@ -728,6 +699,7 @@ export const MapPage = () => {
       points,
       mapImages,
       setMapImages,
+      pointsInRadiusGQLHook,
     ]
   );
 

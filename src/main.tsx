@@ -11,22 +11,29 @@ import { ThemeToggleProvider } from "./state/providers/themeProvider";
 export const queryClient = new QueryClient();
 
 // Light and Dark Themes
+import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 
+const client = new ApolloClient({
+  uri: "http://localhost:4000/graphql",
+  cache: new InMemoryCache(),
+});
 // Create context for managing themes
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <ThemeToggleProvider>
-          <Provider store={store}>
-            <PersistGate persistor={persistor}>
-              <App />
-            </PersistGate>
-          </Provider>
-        </ThemeToggleProvider>
-      </QueryClientProvider>
+      <ApolloProvider client={client}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeToggleProvider>
+            <Provider store={store}>
+              <PersistGate persistor={persistor}>
+                <App />
+              </PersistGate>
+            </Provider>
+          </ThemeToggleProvider>
+        </QueryClientProvider>
+      </ApolloProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

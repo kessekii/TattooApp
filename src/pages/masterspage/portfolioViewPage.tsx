@@ -27,9 +27,13 @@ import {
   PostWrapper,
   UserAvatar,
   UserName,
-
 } from "./profileVIewPageComponents";
-import { EditButton, IcoButton, ProfileDescription, Typefield } from "./masterPage";
+import {
+  EditButton,
+  IcoButton,
+  ProfileDescription,
+  Typefield,
+} from "./masterPage";
 import ChatComponent from "../components/chat";
 import {
   getPostByPostId,
@@ -61,7 +65,7 @@ export const UserSection = styled.div`
   color: ${({ theme }) => theme.text};
 `;
 
-const PortfolioViewPage: React.FC = ({ }) => {
+const PortfolioViewPage: React.FC = ({}) => {
   const [user, setUser] = useLocalStorage("user", null);
   const [friend, setFriend] = useLocalStorage("friend", {});
   const [chats, setChats] = useLocalStorage("chats", null);
@@ -76,7 +80,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
   const [showCommentsPopup, setShowCommentsPopup] = useState<string | null>(
     null
   );
-  const [datagrid, setDatagrid] = useState<any>()
+  const [datagrid, setDatagrid] = useState<any>();
   const [newComment, setNewComment] = useState(""); // To hold new comment input
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null); // Track selected post for adding comment
   const { themevars } = useTheme();
@@ -113,9 +117,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
         friend && posts ? posts[selectedPostId] : { chatId: "" };
 
       const chat =
-        chats && Object.keys(chats).length === 0
-          ? {}
-          : chats[filteredPost.chatId];
+        chats && chats.length === 0 ? {} : chats[filteredPost.chatId];
 
       if (chat?.messages && chat.messages?.length > 0) {
         chat.messages.push({
@@ -191,7 +193,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
 
     let avatarsObj = { ...avatars };
 
-    for (let chatid of Object.keys(chats)) {
+    for (let chatid of chats) {
       const avatarsIds = await getAvatarIdsByChatId(chatid);
       for (let avatarId of avatarsIds) {
         const avatar = await getImageByImageId(avatarId);
@@ -204,46 +206,50 @@ const PortfolioViewPage: React.FC = ({ }) => {
     await setAvatars(avatarsObj);
   };
 
-
-  const handleUpdatePost = async (post_id: string, oldPostData: any, field: string, datagridObj: any) => {
+  const handleUpdatePost = async (
+    post_id: string,
+    oldPostData: any,
+    field: string,
+    datagridObj: any
+  ) => {
     try {
-
-      const datagrid = datagridObj[post_id]
-      const postdata = oldPostData[post_id]
+      const datagrid = datagridObj[post_id];
+      const postdata = oldPostData[post_id];
 
       if (datagrid == true) {
-        const newPostData = { ...postdata, [field]: postdata[field].filter((username) => username !== user.username) };
-
+        const newPostData = {
+          ...postdata,
+          [field]: postdata[field].filter(
+            (username) => username !== user.username
+          ),
+        };
 
         const updatedPost = await updatePost(post_id, newPostData);
 
-
-        setDatagrid((prev) => ({ ...prev, [post_id]: false }))
-        setFriendPosts(({ ...friendPosts, [post_id]: updatedPost }));
-
+        setDatagrid((prev) => ({ ...prev, [post_id]: false }));
+        setFriendPosts({ ...friendPosts, [post_id]: updatedPost });
       } else if (datagrid == false) {
         if (postdata[field].length === 0) {
           const newPostData = { ...postdata, [field]: [user.username] };
 
           await updatePost(post_id, newPostData);
-          setDatagrid(({ ...datagrid, [post_id]: true }))
+          setDatagrid({ ...datagrid, [post_id]: true });
 
-          setFriendPosts(({ ...friendPosts, [post_id]: newPostData }));
-
+          setFriendPosts({ ...friendPosts, [post_id]: newPostData });
         } else {
-          const newPostData = { ...postdata, [field]: [...postdata[field], user.username] };
+          const newPostData = {
+            ...postdata,
+            [field]: [...postdata[field], user.username],
+          };
 
           await updatePost(post_id, newPostData);
-          setDatagrid(({ ...datagrid, [post_id]: true }))
-          setFriendPosts(({ ...friendPosts, [post_id]: newPostData }));
+          setDatagrid({ ...datagrid, [post_id]: true });
+          setFriendPosts({ ...friendPosts, [post_id]: newPostData });
         }
       }
-
-
     } catch (error) {
       console.log("Error updating post", error);
       setErrorMessage("Failed to update post");
-
     }
   };
 
@@ -263,37 +269,27 @@ const PortfolioViewPage: React.FC = ({ }) => {
     }
   };
 
-
-
-
   useEffect(() => {
-    if (Object.keys(friendPosts).length > 0) {
-
-
-      initdataGrid()
+    if (friendPosts.length > 0) {
+      initdataGrid();
     }
   }, [friendPosts]);
 
   const initdataGrid = () => {
     let datagrid = {};
 
-
-    Object.values(friendPosts).forEach((post: any) => {
-
-      console.log('post : 270 : ', post.likes, post.likes.includes(user.name))
+    friendPosts.forEach((post: any) => {
+      console.log("post : 270 : ", post.likes, post.likes.includes(user.name));
       datagrid[post.id] = (post.likes as any).includes(user.username);
     });
 
-
-
-    console.log('datagrid : 274 : ', datagrid)
+    console.log("datagrid : 274 : ", datagrid);
     setDatagrid(datagrid);
-  }
+  };
 
   const handleNavigate = (username: string) => {
-    setPosts
-  }
-
+    setPosts;
+  };
 
   return (
     <PortfolioPage
@@ -301,7 +297,6 @@ const PortfolioViewPage: React.FC = ({ }) => {
       style={{ display: "contents", background: themevars.background }}
       onLoad={async () => await hadleGetAvatars()}
     >
-
       <StyledEditButton
         theme={themevars}
         style={{
@@ -321,7 +316,11 @@ const PortfolioViewPage: React.FC = ({ }) => {
           justifyContent: "center",
           flexWrap: "wrap",
         }}
-        onClick={() => { !showCommentsPopup ? navigate("/" + friend.username) : handleCloseCommentsPopup() }}
+        onClick={() => {
+          !showCommentsPopup
+            ? navigate("/" + friend.username)
+            : handleCloseCommentsPopup();
+        }}
       >
         <div style={{ marginLeft: "15px" }}>
           <ArrowBackIos style={{ alignSelf: "start" }} />
@@ -336,11 +335,11 @@ const PortfolioViewPage: React.FC = ({ }) => {
           marginTop: "6vh",
           marginBottom: "9vh",
         }}
-      // direction="row"
+        // direction="row"
       >
         {friend &&
           friendPosts &&
-          Object.keys(friend.posts || {}).map((post) => (
+          friend.posts.map((post, index) => (
             <Grid
               item
               style={{
@@ -356,9 +355,9 @@ const PortfolioViewPage: React.FC = ({ }) => {
                 // objectFit: "contain",
               }}
             >
-              <PostWrapper key={post} style={{ objectFit: "contain", }}>
+              <PostWrapper key={post} style={{ objectFit: "contain" }}>
                 <PostImage
-                  src={images[friendPosts[post].image]?.src || ""}
+                  src={images[friendPosts[index].image]?.src || ""}
                   alt={`Post ${post}`}
                   style={{
                     width: "80vw",
@@ -366,22 +365,30 @@ const PortfolioViewPage: React.FC = ({ }) => {
                     height: "80vw",
                     maxHeight: "400px",
                     objectFit: "contain",
-
                   }}
                 />
                 <>
-                  <PostDetails style={{ padding: "10px 7px" }} >
+                  <PostDetails style={{ padding: "10px 7px" }}>
                     <UserSection>
                       <UserAvatar
                         src={avatars[friend.username]?.src}
                         alt={`${friend.username} avatar`}
                         style={{}}
                       />
-                      <ProfileDescription style={{ marginLeft: '25px' }}>
-                        <UserName onClick={() => navigate("../" + friend.username)}>
+                      <ProfileDescription style={{ marginLeft: "25px" }}>
+                        <UserName
+                          onClick={() => navigate("../" + friend.username)}
+                        >
                           {friend.name}
                         </UserName>
-                        <Typefield style={{ overflow: "hidden", maxWidth: "60vw", lineBreak: "strict", color: themevars.text }}>
+                        <Typefield
+                          style={{
+                            overflow: "hidden",
+                            maxWidth: "60vw",
+                            lineBreak: "strict",
+                            color: themevars.text,
+                          }}
+                        >
                           {friendPosts[post].description}
                         </Typefield>
                       </ProfileDescription>
@@ -454,45 +461,65 @@ const PortfolioViewPage: React.FC = ({ }) => {
                     </CommentSection>
                   )}
                   <LikeSection>
-                    {friendPosts && datagrid && <StyledLikeButton theme={themevars} liked={datagrid[post] ? true : false}
-                      onClick={() => handleUpdatePost(post, friendPosts, "likes", datagrid)}>
-                      <svg viewBox="0 0 24 24">
-                        <path d="M16.5 3C14.4 3 12.7 4.2 12 5.3 11.3 4.2 9.6 3 7.5 3 4.5 3 2 5.5 2 8.5c0 5 6 8.8 10 12.5 4-3.7 10-7.5 10-12.5C22 5.5 19.5 3 16.5 3z"></path>
-                      </svg>
-                    </StyledLikeButton>}
+                    {friendPosts && datagrid && (
+                      <StyledLikeButton
+                        theme={themevars}
+                        liked={datagrid[post] ? true : false}
+                        onClick={() =>
+                          handleUpdatePost(post, friendPosts, "likes", datagrid)
+                        }
+                      >
+                        <svg viewBox="0 0 24 24">
+                          <path d="M16.5 3C14.4 3 12.7 4.2 12 5.3 11.3 4.2 9.6 3 7.5 3 4.5 3 2 5.5 2 8.5c0 5 6 8.8 10 12.5 4-3.7 10-7.5 10-12.5C22 5.5 19.5 3 16.5 3z"></path>
+                        </svg>
+                      </StyledLikeButton>
+                    )}
 
                     <IcoButton
-                      style={{ marginInline: 'unset', paddingInline: '40px', marginTop: 'unset', display: 'flex', color: themevars.icons.color, justifySelf: "right", alignItems: "center", justifyContent: "right", }}
+                      style={{
+                        marginInline: "unset",
+                        paddingInline: "40px",
+                        marginTop: "unset",
+                        display: "flex",
+                        color: themevars.icons.color,
+                        justifySelf: "right",
+                        alignItems: "center",
+                        justifyContent: "right",
+                      }}
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
                     >
-                      <Typography style={{ marginLeft: '10px', color: themevars.icons.color }}>
+                      <Typography
+                        style={{
+                          marginLeft: "10px",
+                          color: themevars.icons.color,
+                        }}
+                      >
                         View all{" "}
                         {friendChats[friendPosts[post].chatId]?.messages
                           ?.length || 0}{" "}
                         comments
-
                       </Typography>
 
-                      <Chat style={{ marginLeft: '8px', color: themevars.icons.color }} />
+                      <Chat
+                        style={{
+                          marginLeft: "8px",
+                          color: themevars.icons.color,
+                        }}
+                      />
                     </IcoButton>
-
-
                   </LikeSection>
-
                 </>
 
                 {showCommentsPopup === post && (
                   <CommentsPopup style={{ background: themevars.background }}>
                     <CommentsContent theme={themevars}>
-
-
                       <CommentList
                         style={{
                           borderRadius: "0px",
                           alignItems: "center",
                           display: "grid",
-                          height: 'auto',
+                          height: "auto",
                           marginTop: "6vh",
                           paddingBottom: "19vh",
                           background: themevars.background,
@@ -510,25 +537,36 @@ const PortfolioViewPage: React.FC = ({ }) => {
                             margin: "auto",
                           }}
                         />
-                        <PostDetails >
+                        <PostDetails>
                           <UserSection>
                             <UserAvatar
                               src={avatars[friend.username]?.src}
                               alt={`${friend.username} avatar`}
                               style={{ marginLeft: "25px" }}
                             />
-                            <ProfileDescription style={{ marginLeft: '25px' }}>
-                              <UserName onClick={() => navigate("../" + friend.username)}>
+                            <ProfileDescription style={{ marginLeft: "25px" }}>
+                              <UserName
+                                onClick={() =>
+                                  navigate("../" + friend.username)
+                                }
+                              >
                                 {friend.name}
                               </UserName>
-                              <Typefield style={{ overflow: "hidden", maxWidth: "60vw", lineBreak: "strict", color: themevars.text }}>
+                              <Typefield
+                                style={{
+                                  overflow: "hidden",
+                                  maxWidth: "60vw",
+                                  lineBreak: "strict",
+                                  color: themevars.text,
+                                }}
+                              >
                                 {friendPosts[post].description}
                               </Typefield>
                             </ProfileDescription>
                           </UserSection>
                         </PostDetails>
                         {friendChats[friendPosts[post].chatId]?.messages &&
-                          friendChats[friendPosts[post].chatId].messages.length >
+                        friendChats[friendPosts[post].chatId].messages.length >
                           0 ? (
                           friendChats[friendPosts[post].chatId].messages.map(
                             (comment, index) => (
@@ -588,18 +626,18 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                 >
                                   {comment.timestamp
                                     ? new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[0] +
-                                    ", " +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[0] +
-                                    ":" +
-                                    new Date(comment.timestamp)
-                                      .toISOString()
-                                      .split("T")[1]
-                                      .split(":")[1]
+                                        .toISOString()
+                                        .split("T")[0] +
+                                      ", " +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[0] +
+                                      ":" +
+                                      new Date(comment.timestamp)
+                                        .toISOString()
+                                        .split("T")[1]
+                                        .split(":")[1]
                                     : ""}
                                 </CommentText>
                               </CommentItem>
@@ -640,32 +678,28 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         Submit Comment
                       </CommentSubmitButton>
                     </Paper>
-
                   </CommentsPopup>
                 )}
               </PostWrapper>
             </Grid>
           ))}
       </Grid>
-    </PortfolioPage >
+    </PortfolioPage>
   );
 };
 
 export async function getAvatarByUserId(username: string) {
   try {
     //
-    const response = await fetch(
-      baseURL + "users/getAvatarByUserId",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ username: username }),
-      }
-    );
+    const response = await fetch(baseURL + "users/getAvatarByUserId", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ username: username }),
+    });
 
     const result = await response.json();
     return result.payload;

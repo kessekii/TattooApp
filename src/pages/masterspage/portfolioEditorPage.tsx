@@ -261,7 +261,7 @@ const PortfolioEditorPage: React.FC = () => {
         chatId: "",
       };
       updatedProfileData.posts =
-        Object.keys(user.posts).length > 0
+        user.posts.length > 0
           ? { ...user.posts, [newUuid]: newUuid }
           : { [newUuid]: newUuid };
 
@@ -341,7 +341,6 @@ const PortfolioEditorPage: React.FC = () => {
             flexDirection: "column-reverse",
             justifyContent: "center",
             flexWrap: "wrap",
-
           }}
           onClick={() => navigate("/" + user.username)}
         >
@@ -352,10 +351,14 @@ const PortfolioEditorPage: React.FC = () => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="image-grid">
             {(provided) => (
-              <ImageGrid style={{ marginTop: "6vh" }} ref={provided.innerRef} {...provided.droppableProps}>
+              <ImageGrid
+                style={{ marginTop: "6vh" }}
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
                 {posts &&
-                  Object.keys(posts).length > 0 &&
-                  Object.values(posts).map((post: any, index) => (
+                  posts.length > 0 &&
+                  posts.map((post: any, index) => (
                     <Draggable
                       key={post.id}
                       draggableId={String(post.id)}

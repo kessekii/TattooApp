@@ -28,10 +28,34 @@ import {
   getAvatars,
   getPointImageByPointId,
 } from "../../utils/helpers/helperFuncs";
+import { useQuery, gql } from "@apollo/client";
+import { c } from "vite/dist/node/types.d-aGj9QkWt";
+import { defultLocation } from "../../../src/state";
+import {
+  IMAGES_QUERY,
+  NEWS_QUERY,
+  POINTS_QUERY,
+  USER_QUERY,
+} from "../../../src/graphQL/queries";
 
 const LoginPage = () => {
   const { themevars } = useTheme();
-  const [loginF, setLogin] = useState("");
+  const [login, setLogin] = useState("");
+  const [loginAttempt, setLoginAttempt] = useState("");
+  const pointsGraphQLHook = useQuery(POINTS_QUERY, {
+    variables: {
+      coordOfCenter: defultLocation,
+    },
+  });
+  const userGraphQLHook = useQuery(USER_QUERY, {
+    variables: { username: login },
+  });
+  const imageGraphQLHook = useQuery(IMAGES_QUERY, {
+    variables: { username: login },
+  });
+  const newsGraphQLHook = useQuery(NEWS_QUERY, {
+    variables: { city: "Bat Yam", country: "Israel" },
+  });
   const [password, setPassword] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -52,81 +76,44 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const tryLogin = async () => {
-    if (!loginF || !password) return;
-
+    if (!login || !password) return;
     try {
-      setLoading(true);
-      const loginData = await loginAction(
-        { username: loginF, password: password },
-        setErrorMessage
-      );
-      if (!loginData || !loginData.username) return;
+      const userGQL = (await userGraphQLHook.refetch({ username: login })).data
+        .getProfileData;
 
-      // await auth.login(loginF, password);
-
-      const [chatData, postsData, pointsObject, imageIds] = await Promise.all([
-        getChatsByUserId(loginData.username),
-        getPostsByUserId(loginData.username),
-        getPointsInRadius(
-          { lat: 32.02119878251853, lng: 34.74333323660794 },
-          false
-        ),
-        getImageIdsByUserId(loginData.username),
-      ]);
-
-      const [avatarIds, avatarsImagesdata] = await getAvatars(loginData);
-      const nonAvatarImages = imageIds.payload?.filter(
-        (e) => !avatarIds?.includes(e)
-      );
-
-      const newImages = await Promise.all(
-        nonAvatarImages?.map(async (imageId) => {
-          const image = await getImageByImageId(imageId);
-          return image && image.payload ? { [imageId]: image.payload } : {};
+      const pointsGQL = (
+        await pointsGraphQLHook.refetch({
+          coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
+          blocked: false,
         })
-      );
-      const pointsInRaduis = await getPointsInRadius(
-        {
-          lat: 32.02119878251853,
-          lng: 34.74333323660794,
-        },
-        false
-      );
-      console.log(pointsInRaduis);
-      let newMapimages = {};
-      for (let pointId of Object.keys(pointsInRaduis.payload)) {
-        let quadId =
-          pointsInRaduis.payload[pointId].location.lat.toFixed(2) +
-          ":" +
-          pointsInRaduis.payload[pointId].location.lng.toFixed(2);
-        console.log(quadId);
-        const image = await getPointImageByPointId(pointId, quadId);
-        console.log(image.payload);
-        if (image.payload?.src) {
-          newMapimages[pointsInRaduis.payload[pointId].data.icon] =
-            image.payload.src;
-        }
-      }
-      setMapImages(newMapimages);
-      setAvatars(avatarsImagesdata || {});
-      setImages(Object.assign({}, ...newImages));
-      setFriend(loginData);
-      setUser(loginData);
-      setPosts(postsData.payload);
-      setChats(chatData.payload);
-      setFriendChats(chatData.payload);
-      setFriendPosts(postsData.payload);
-      setPoints(pointsObject.payload);
+      ).data.getPointsInRadius;
 
-      if (loginData.location) {
-        const newsData = await getNewsAction(loginData.location);
-        setNews(newsData);
-      }
+      const imageGQL = (await imageGraphQLHook.refetch({ username: login }))
+        .data.getAllImagesByUserPage;
 
-      navigate(`/${loginData.username}`);
+      setUser(userGQL);
+      setPoints(pointsGQL);
+      setChats(userGQL.chats);
+      setPosts(userGQL.posts);
+      setFriend(userGQL);
+      setFriendPosts(userGQL.posts);
+      setFriendChats(userGQL.chats);
+      setImages(imageGQL.posts);
+      setMapImages(imageGQL.map);
+      setAvatars(imageGQL.avatars);
+      if (userGQL.location) {
+        const newsGQL = (
+          await newsGraphQLHook.refetch({
+            city: userGQL.location.split(",")[0],
+            country: userGQL.location.split(",")[1],
+          })
+        ).data.getNewsByGeo;
+        setNews(newsGQL);
+      }
+      navigate(`/${userGQL.username}`);
       // await auth.setUserFull(loginData.payload);
     } catch (error) {
-      console.error("Error", error);
+      console.log("Error", error);
     }
   };
 
@@ -154,7 +141,7 @@ const LoginPage = () => {
             style: { color: themevars.text, fontSize: "12px" },
           }}
           onChange={(e) => setLogin(e.target.value)}
-          value={loginF}
+          value={login}
         />
         <LoginComponent
           variant="filled"
@@ -190,7 +177,10 @@ const LoginPage = () => {
         <LoginButton
           variant="contained"
           size="large"
-          onClick={async () => await tryLogin()}
+          onClick={async () => {
+            setLoginAttempt(login);
+            await tryLogin();
+          }}
           style={{ marginBottom: "5px" }}
         >
           Login
