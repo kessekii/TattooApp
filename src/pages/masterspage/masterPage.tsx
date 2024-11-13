@@ -1029,8 +1029,8 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     <FriendAvatar
       theme={themevars}
       key={fri + "avatar"}
-      src={avatars ? avatars[fri]?.src : ''}
-      alt={avatars ? avatars[fri]?.owner : ''}
+      src={avatars && avatars[fri] ? avatars[fri].src : '/blankPicture.png'}
+      alt={avatars && avatars[fri] ? avatars[fri].owner : '/blankPicture.png'}
       onClick={() => setShowFriends(true)}
     />
   ));
@@ -1373,7 +1373,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
                     >
                       <FriendPhoto
                         theme={themevars}
-                        src={avatars[follower]?.src}
+                        src={avatars && avatars[follower] ? avatars[follower].src : '/blankPicture.png'}
                         alt={friend.friends[follower].nickname}
                       />
                       <FriendNickname theme={themevars}>

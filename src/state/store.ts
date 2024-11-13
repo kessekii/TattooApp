@@ -38,7 +38,7 @@ export interface ActionTypes {
   "friend": typeof friendActions, 
   "images": typeof imagesActions,
   "posts":  typeof postsActions,
-  "news":  newsActions,
+  "news":  typeof newsDataActions,
   "chats": typeof chatsActions, 
   "friendPosts":  typeof friendPostsActions, 
 

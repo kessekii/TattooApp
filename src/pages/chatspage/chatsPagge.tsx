@@ -164,8 +164,15 @@ export const ChatsPageComponent: React.FC = () => {
   const { data: user, setUser } = useSlice("user"); // Replace useLocalStorage with useSlice
   const { data: friend, setFriend, getFriendData } = useSlice("friend");
   const { getNewsDataAction } = useSlice("news");
-  const { data: posts, setPosts, getPostsByUserIdAction } = useSlice("posts");
-  const { avatars: avatars, images: images, ids, getImagesByImageIdsAction, getImageIdsByUsernameAction, getMapImagesByUserIdAction, getAvatarsAction
+  const { data: posts,
+    setPosts,
+    getPostsByUserIdAction
+  } = useSlice("posts");
+  const { avatars: avatars, images: images, ids,
+    getImagesByImageIdsAction,
+    getImageIdsByUsernameAction,
+    getMapImagesByUserIdAction,
+    getAvatarsAction
   } = useSlice("images");
   const { data: friendPosts, setFriendPosts, getFriendPostsAction } = useSlice("friendPosts");
 
@@ -293,7 +300,7 @@ export const ChatsPageComponent: React.FC = () => {
     return messages.map((message, i) => {
       const isUserMessage = message.author === user.username;
 
-      console.log(Object.keys(avatars), avatars['nikita'])
+
 
 
       return (
@@ -323,7 +330,7 @@ export const ChatsPageComponent: React.FC = () => {
           >
             <StyledFriendAvatar
               theme={themevars}
-              src={Object.keys(avatars).includes(user.username) ? isUserMessage ? avatars[user['username']].src : avatars[message.author].src : isUserMessage ? images[user['profilePicture']].src : avatars[message['author']].src}
+              src={Object.keys(avatars).includes(user.username) && Object.keys(avatars).includes(message.author) ? isUserMessage ? avatars[user['username']].src : avatars[message['author']].src : isUserMessage ? images[user['profilePicture']].src : '/blankPicture.png'}
               alt={message.author}
             />
             <Box style={{ display: "flex", flexDirection: "column" }}>
@@ -503,7 +510,7 @@ export const ChatsPageComponent: React.FC = () => {
                   <StyledFriendAvatar
                     style={{ marginLeft: "15px" }}
                     theme={themevars}
-                    src={avatars[author]?.src}
+                    src={avatars[author]?.src || '/blankPicture.png'}
                     alt={author}
                   />
                   <Box

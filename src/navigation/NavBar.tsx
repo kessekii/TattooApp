@@ -159,7 +159,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             await getImagesByImageIdsAction(imageIds["payload"]);
 
             const userposts = await getFriendPostsAction(username)
-            console.log('userposts : 155 : ', userposts)
+
             setPosts(userposts["payload"].payload)
             setFriendPosts(userposts["payload"].payload)
 
@@ -318,11 +318,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
     };
   }, [isShrunk]);
 
-  useEffect(() => {
-    if (username) {
-      fetchData(username, { type: "/user" });
-    }
-  }, [username]);
+
 
   const SettingsPopupComponent = ({ onClose }) => {
     const { theme, themevars, toggleTheme } = useTheme();
@@ -365,15 +361,15 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         style={{
           visibility: false ? "hidden" : "visible",
         }}
-        hideNav={hideNav}
-        isMap={isMap}
+        hidenav={hideNav}
+        ismap={isMap}
         theme={themevars.navbar}
-        isShrunk={isShrunk}
+        isshrunk={isShrunk}
       >
         <Toolbar>
-          <NavIcons theme={themevars} isShrunk={isShrunk}>
+          <NavIcons theme={themevars} isshrunk={isShrunk}>
             <MenuButton
-              isShrunk={!isShrunk}
+              isshrunk={!isShrunk}
               index={0}
               // style={{ position: "sticky" }}
               onClick={() => handleNavigation("/map")}
@@ -383,7 +379,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             <MenuButton
               index={1}
               // style={{ position: "sticky" }}
-              isShrunk={!isShrunk}
+              isshrunk={!isShrunk}
               onClick={() => handleNavigation("/news")}
             >
               <Search style={{ color: themevars.icons.color }} />
@@ -392,7 +388,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             <MenuButton
               index={2}
               // style={{ position: "sticky" }}
-              isShrunk={!isShrunk}
+              isshrunk={!isShrunk}
               onClick={() => handleNavigation("/chats")}
             >
               <MessageIcon style={{ color: themevars.icons.color }} />
@@ -400,9 +396,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
             <MenuButton
               index={3}
               // style={{ position: "sticky" }}
-              isShrunk={!isShrunk}
+              isshrunk={!isShrunk}
             ></MenuButton>
-            <AvatarContainer isShrunk={!isShrunk}>
+            <AvatarContainer isshrunk={!isShrunk}>
 
               <Avatar
                 src={avatars && user && user.username && avatars[user.username] ? avatars[user.username].src : ''} // Replace with actual avatar URL

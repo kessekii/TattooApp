@@ -329,7 +329,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
             >
               <PostWrapper key={post} style={{ objectFit: "contain", }}>
                 <PostImage
-                  src={images[friendPosts[post].image]?.src || ""}
+                  src={images[friendPosts[post].image] ? images[friendPosts[post].image].src : "/blankPicture.png"}
                   alt={`Post ${post}`}
                   style={{
                     width: "80vw",
@@ -344,7 +344,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                   <PostDetails style={{ padding: "10px 7px" }} >
                     <UserSection>
                       <UserAvatar
-                        src={avatars[friend.username]?.src}
+                        src={avatars[friend.username].src ? avatars[friend.username].src : '/blankPicture.png'}
                         alt={`${friend.username} avatar`}
                         style={{}}
                       />
@@ -484,7 +484,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                         <PostDetails >
                           <UserSection>
                             <UserAvatar
-                              src={avatars[friend.username]?.src}
+                              src={avatars[friend.username] ? avatars[friend.username].src : '/blankPicture.png'}
                               alt={`${friend.username} avatar`}
                               style={{ marginLeft: "25px" }}
                             />
@@ -536,7 +536,7 @@ const PortfolioViewPage: React.FC = ({ }) => {
                                     }}
                                   >
                                     <UserAvatar
-                                      src={avatars[comment.author]?.src}
+                                      src={avatars[comment.author] ? avatars[comment.author].src : '/blankPicture.png'}
                                     ></UserAvatar>
 
                                     {/*  */}

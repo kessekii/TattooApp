@@ -62,24 +62,24 @@ export interface imagesActions {
           
         
       for (const post of postIds) {
-        console.log('post : 64 : ', post)
+        
         
         
 
        
         const res = await getImageByImageId(post);
-        console.log('res : 70 : ', res['payload'])
+        
         
         if (res['payload']) {
           
             
         
           result[res['payload'].id] = res.payload
-          console.log('resu', res.payload.payload)
+          
         }
       }
       
-      console.log('result : 81 : ', result)
+      
       
       return result
     } catch (e) {
@@ -90,7 +90,7 @@ const getImagesByImageIdsAction = createAsyncThunk('images/images', async (image
 
 
     const result = await handleGetPostsImages(imageIds)
-    console.log('result : 91 : ', result)
+    
 
     
 
@@ -147,7 +147,7 @@ const getMapImagesByUserIdAction = createAsyncThunk('images/mapimages', async (p
 
 const getAvatarsAction = createAsyncThunk('images/avatars', async (friend: any) => {
     const avatt = await getAvatars(friend)
-    console.log('avatt : 149 : ', avatt)
+    
     
     return avatt
 })

@@ -2,6 +2,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { getImageByImageId, getImageIdsByUserId, getPointsInRadius, getUserMapImagesByUserId } from "../../hooks/useChat"
 import { getAvatars, getPointImageByPointId } from "../../utils/helpers/helperFuncs";
 import { getNewsAction } from "../action-creators";
+import { Post } from "./postsSlice";
 
 export interface newsActions {
     getNewsDataAction: (location: string) => void;
@@ -33,6 +34,10 @@ const initialState: NewsState = {
     reducers: {
       setEvents (state, action: PayloadAction<Event>) {
         state.events = action.payload
+      },
+      setNews (state, action: PayloadAction<any>) {
+        state.events = action.payload.events;
+        state.posts = action.payload.posts
       }
     },
     extraReducers: (builder) => {

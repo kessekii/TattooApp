@@ -215,13 +215,13 @@ const NewsFeed = () => {
 
   const navigate = useNavigate();
   const { themevars } = useTheme();
-  const { events: events, posts: posts, setNews } = useSlice("news");
+  const { events: events, posts: posts, setEvents, setNews } = useSlice("news");
   const { data: user, setUser } = useSlice("user");
   const [newEvent, setNewEvent] = useState(initialNews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const { publicChats, setPostChats } = useSlice("chats");
-  const { friendPosts, setFriendPosts } = useSlice("friendPosts");
+  const { publicChats: publicChats, setPostChats } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
   const [newsPosts, setNewsPosts] = useState<any>({});
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -285,17 +285,17 @@ const NewsFeed = () => {
     return () => clearInterval(slideInterval);
   }, []);
 
-  const SliderComponent: any = () => {
-    if (events && events.length > 0)
-      return Object.values(events).map((slide: any) => {
-        return (
-          <Slide key={slide.pointId}>
-            <SlideImage src={slide.data.icon} alt={slide.data.desc} />
-            <SlideTitle>{slide.data.name}</SlideTitle>
-          </Slide>
-        );
-      });
-  };
+
+
+  const sliderComponent = useMemo(() => Object.entries(events).map((value: [string, any]) => {
+
+    return (
+      < Slide key={value[0] + value[1].data.name} >
+        <SlideImage src={value[1].data.icon} alt={value[1].data.desc} />
+        <SlideTitle>{value[1].data.name}</SlideTitle>
+      </Slide >)
+
+  }), [events])
   const getImageData = async (id: string) => {
     const data = await getPostByPostId(id);
     const imageData = await getPostImageByPostId(id);
@@ -423,7 +423,7 @@ const NewsFeed = () => {
         </Header>
 
         <SliderContainer ref={sliderRef}>
-          <SliderComponent />
+          {sliderComponent}
         </SliderContainer>
 
         {/* <AddEventButton onClick={openModal}>Add Event</AddEventButton> */}
