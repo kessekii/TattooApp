@@ -16,6 +16,7 @@ export const lightTheme = {
   buttonText: "#2c3e50", // Dark text on buttons for readability.
   border: "#b0bcc6",
   accent: "#42a3ff", // A medium gray-blue for borders to maintain subtlety and structure.
+  fontFamily: 'Arial, sans-serif',
 };
 
 export const darkTheme = {
@@ -36,8 +37,10 @@ export const darkTheme = {
   buttonText: "#f8f9fa", // Off-white for high contrast on buttons.
   border: "#5e6f7a", // Subtle grayish-blue for borders to maintain the dark theme.
   accent: "#ffc342",
+  fontFamily: 'Arial, sans-serif',
 };
 const theme = {
+  
   lightTheme: lightTheme,
   darkTheme: darkTheme,
 };
