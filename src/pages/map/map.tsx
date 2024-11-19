@@ -723,7 +723,7 @@ export const MapPage = () => {
       }
       const createPointData = (
         await createPointByUsernameGQLHook.refetch({
-          username: userU.username,
+          username: user.username,
           location: ev.detail.latLng,
           geocode: geoCode,
         })

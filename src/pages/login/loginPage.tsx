@@ -31,6 +31,7 @@ import { useQuery, gql } from "@apollo/client";
 import { c } from "vite/dist/node/types.d-aGj9QkWt";
 import { defultLocation } from "../../../src/state";
 import {
+  GETCHATS_QUERY,
   IMAGES_QUERY,
   NEWS_QUERY,
   POINTS_QUERY,
@@ -53,6 +54,10 @@ const LoginPage = () => {
   const imageGraphQLHook = useQuery(IMAGES_QUERY, {
     variables: { username: login },
   });
+  const getChatsGQLHook = useQuery(GETCHATS_QUERY, {
+    variables: { username: login },
+  });
+
   const newsGraphQLHook = useQuery(NEWS_QUERY, {
     variables: { city: "Bat Yam", country: "Israel" },
   });
@@ -62,6 +67,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { loginAction, setUser } = useSlice("user");
   const { data: posts, setPosts } = useSlice("posts");
+  const { setPostChats, setPrivateChats } = useSlice("chats");
   const { data: friend, setFriend } = useSlice("friend");
   const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
   const {
@@ -78,9 +84,14 @@ const LoginPage = () => {
 
       const imageGQL = (await imageGraphQLHook.refetch({ username: login }))
         .data.getAllImagesByUserPage;
+      const chatDtaa = (await getChatsGQLHook.refetch({ username: login })).data
+        .getChatsByUserId;
 
       console.log(userGQL, imageGQL);
-
+      const privateChats = chatDtaa.filter((post) => post.type === "private");
+      const publicChats = chatDtaa.filter((post) => post.type === "post");
+      setPostChats(publicChats);
+      setPrivateChats(privateChats);
       setUser(Object.assign({}, userGQL));
       setFriend(Object.assign({}, userGQL));
 
@@ -100,7 +111,7 @@ const LoginPage = () => {
       }
       navigate(`/${userGQL.username}`);
       // await auth.setUserFull(loginData.payload);
-    } catch (error) { }
+    } catch (error) {}
   };
 
   return (

@@ -58,6 +58,7 @@ import {
   IMAGES_QUERY,
   NEWS_QUERY,
   POINT_IMAGE_BY_USER_QUERY,
+  GETCHATS_QUERY,
 } from "../../src/graphQL/queries";
 import { useQuery } from "@apollo/client";
 import useSlice from "./../hooks/useSlice";
@@ -129,6 +130,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       setPrivateChats,
       getPrivateChatsAction,
       getPublicChatsAction,
+      setPostChats,
     } = useSlice("chats");
     // const { points, setPoints } = useSlice("points");
 
@@ -149,6 +151,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         coordOfCenter: defultLocation,
         blocked: false,
       },
+    });
+    const getChatsGQLHook = useQuery(GETCHATS_QUERY, {
+      variables: { username: user.username },
     });
     const userGraphQLHook = useQuery(USER_QUERY, {
       variables: { username: user.username },
@@ -243,6 +248,19 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
                   await imageGraphQLHook.refetch({ username: username })
                 ).data.getAllImagesByUserPage;
 
+                const chatDtaa = (
+                  await getChatsGQLHook.refetch({ username: username })
+                ).data.getChatsByUserId;
+
+                console.log(userGQL, imageGQL);
+                const privateChats = chatDtaa.filter(
+                  (post) => post.type === "private"
+                );
+                const publicChats = chatDtaa.filter(
+                  (post) => post.type === "post"
+                );
+                setPostChats(publicChats);
+                setPrivateChats(privateChats);
                 setPosts(Object.assign([], userGQL.posts));
                 setFriend(userGQL);
                 setFriendPosts(userGQL.posts);
@@ -331,9 +349,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         await fetchData(username, { type: path });
 
         navigate(path);
-      } catch (e) {
-
-      }
+      } catch (e) {}
     };
 
     const handleGoEdit = async () => {
@@ -462,7 +478,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
                 <Menu
                   isopen={isOpen}
                   theme={themevars.navbar}
-                // style={{ visibility: isOpen ? "visible" : "hidden" }}
+                  // style={{ visibility: isOpen ? "visible" : "hidden" }}
                 >
                   <MenuItem
                     isopened={isOpen}
@@ -534,10 +550,9 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           </div>
         )}
       </div>
-    )
+    );
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-
-}
+};
 export default NavBar;

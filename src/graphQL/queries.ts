@@ -25,6 +25,7 @@ const USER_QUERY = gql`
 
       location
       name
+
       password
       posts {
         postId
@@ -61,6 +62,24 @@ const POINTS_QUERY = gql`
         lat
         lng
       }
+    }
+  }
+`;
+const GETCHATS_QUERY = gql`
+  query getChatUserId($username: String!) {
+    getChatsByUserId(username: $username) {
+      chatId
+      participants
+      lastMessage {
+        text
+        timestamp
+      }
+      lastMessageTimestamp
+      messages {
+        text
+        timestamp
+      }
+      type
     }
   }
 `;
@@ -240,4 +259,5 @@ export {
   CREATE_POINT,
   REGISTER_USER,
   OPEN_POST_AND_CHAT,
+  GETCHATS_QUERY,
 };
