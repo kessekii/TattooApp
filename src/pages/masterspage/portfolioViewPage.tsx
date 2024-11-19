@@ -70,11 +70,7 @@ const PortfolioViewPage: React.FC = ({}) => {
   const { data: friend, setFriend, getFriendData } = useSlice("friend");
   const { data: user } = useSlice("user");
 
-  const {
-    privateChats,
-    publicChats: publicChats,
-    getPublicChatsAction,
-  } = useSlice("chats");
+  const { privateChats, publicChats: chats } = useSlice("chats");
   const { data: posts, setPosts } = useSlice("posts");
   const { images: images, avatars: avatars, setAvatars } = useSlice("images");
 
@@ -122,23 +118,23 @@ const PortfolioViewPage: React.FC = ({}) => {
         }
         await updateChatStraight(chat, filteredPost.chatId);
 
-        if (!publicChats[filteredPost.chatId]) {
-          publicChats[filteredPost.chatId] = {};
+        if (!chats[filteredPost.chatId]) {
+          chats[filteredPost.chatId] = {};
         }
         const postsData = await getPostsByUserId(friend.username);
-        publicChats[filteredPost.chatId].messages = chat.messages;
+        chats[filteredPost.chatId].messages = chat.messages;
         const newUserData = await getProfileData(friend.username);
 
         setFriend({ ...newUserData.payload });
-        getPublicChatsAction(publicChats);
+        // getchatsAction(chats);
         setFriendPosts(postsData.payload);
         if (newUserData.payload.username === user.username) {
           setFriend(newUserData.payload);
-          getPublicChatsAction(publicChats);
+          // getchatsAction(chats);
           setFriendPosts(postsData.payload);
         }
       } else if (
-        !publicChats ||
+        !chats ||
         (chat && (!chat.messages || chat.messages.length === 0))
       ) {
         chat.messages = [
@@ -151,18 +147,18 @@ const PortfolioViewPage: React.FC = ({}) => {
 
         await updateChatStraight(chat, filteredPost.chatId);
         const postsData = await getPostsByUserId(friend.username);
-        if (!publicChats[filteredPost.chatId]) {
-          publicChats[filteredPost.chatId] = {};
+        if (!chats[filteredPost.chatId]) {
+          chats[filteredPost.chatId] = {};
         }
-        publicChats[filteredPost.chatId].messages = chat.messages;
+        chats[filteredPost.chatId].messages = chat.messages;
         const newUserData = await getProfileData(friend.username);
 
         setFriend({ ...newUserData.payload });
-        await getPublicChatsAction(publicChats);
+        // await getchatsAction(chats);
         setFriendPosts(postsData.payload);
         if (newUserData.payload.username === user.username) {
           setFriend(newUserData.payload);
-          await getPublicChatsAction(publicChats);
+          // await getchatsAction(chats);
           setFriendPosts(postsData.payload);
         }
       }
@@ -247,8 +243,8 @@ const PortfolioViewPage: React.FC = ({}) => {
     let datagrid = {};
 
     friendPosts.forEach((post: any) => {
-      console.log("post : 270 : ", post.likes, post.likes.includes(user.name));
-      datagrid[post.id] = (post.likes as any).includes(user.username);
+      // console.log("post : 270 : ", post.likes, post.likes?.includes(user.name));
+      datagrid[post.id] = (post.likes as any)?.includes(user.username) || [];
     });
 
     console.log("datagrid : 274 : ", datagrid);
@@ -321,7 +317,7 @@ const PortfolioViewPage: React.FC = ({}) => {
             >
               <PostWrapper key={post} style={{ objectFit: "contain" }}>
                 <PostImage
-                  src={images[friendPosts[index].image]?.src || ""}
+                  src={post.image.src || ""}
                   alt={`Post ${post}`}
                   style={{
                     width: "80vw",
@@ -336,8 +332,9 @@ const PortfolioViewPage: React.FC = ({}) => {
                     <UserSection>
                       <UserAvatar
                         src={
-                          avatars[friend.username].src
-                            ? avatars[friend.username].src
+                          avatars.find((av) => av.owner === friend.username).src
+                            ? avatars.find((av) => av.owner === friend.username)
+                                .src
                             : "/blankPicture.png"
                         }
                         alt={`${friend.username} avatar`}
@@ -357,7 +354,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                             color: themevars.text,
                           }}
                         >
-                          {friendPosts[post].description}
+                          {post.description}
                         </Typefield>
                       </ProfileDescription>
                     </UserSection>
@@ -368,10 +365,10 @@ const PortfolioViewPage: React.FC = ({}) => {
                     {posts[post].description}
                   </Caption> */}
 
-                  {publicChats &&
-                  friendPosts[post].chatId &&
-                  publicChats[friendPosts[post].chatId] &&
-                  publicChats[friendPosts[post].chatId] ? (
+                  {chats &&
+                  post.chatId &&
+                  chats?.find((ct) => ct.chatId === post.chatId) &&
+                  chats?.find((ct) => ct.chatId === post.chatId) ? (
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
@@ -382,7 +379,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                         alignItems: "center",
                       }}
                     >
-                      {publicChats[friendPosts[post].chatId]?.messages
+                      {chats?.find((ct) => ct.chatId === post.chatId)?.messages
                         ?.length === 0 ? (
                         <>No comments yet</>
                       ) : (
@@ -467,8 +464,8 @@ const PortfolioViewPage: React.FC = ({}) => {
                         }}
                       >
                         View all{" "}
-                        {publicChats[friendPosts[post].chatId]?.messages
-                          ?.length || 0}{" "}
+                        {chats?.find((ct) => ct.chatId === post.chatId)
+                          ?.messages?.length || 0}{" "}
                         comments
                       </Typography>
 
@@ -497,7 +494,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                         }}
                       >
                         <PostImage
-                          src={images[friendPosts[post].image]?.src || ""}
+                          src={post.image.src || ""}
                           alt={`Post ${post}`}
                           style={{
                             width: "80vw",
@@ -512,8 +509,12 @@ const PortfolioViewPage: React.FC = ({}) => {
                           <UserSection>
                             <UserAvatar
                               src={
-                                avatars[friend.username]
-                                  ? avatars[friend.username].src
+                                avatars.find(
+                                  (av) => av.owner === friend.username
+                                ).src
+                                  ? avatars.find(
+                                      (av) => av.owner === friend.username
+                                    ).src
                                   : "/blankPicture.png"
                               }
                               alt={`${friend.username} avatar`}
@@ -535,14 +536,14 @@ const PortfolioViewPage: React.FC = ({}) => {
                                   color: themevars.text,
                                 }}
                               >
-                                {friendPosts[post].description}
+                                {post.description}
                               </Typefield>
                             </ProfileDescription>
                           </UserSection>
                         </PostDetails>
-                        {friend.chats.find((ch) => ch.chatId === post.chatId)
+                        {friend.chats?.find((ch) => ch.chatId === post.chatId)
                           ?.messages &&
-                        friend.chats.find((ch) => ch.chatId === post.chatId)
+                        friend.chats?.find((ch) => ch.chatId === post.chatId)
                           ?.messages.length > 0 ? (
                           friend.chats
                             .find((ch) => ch.chatId === post.chatId)
@@ -581,8 +582,13 @@ const PortfolioViewPage: React.FC = ({}) => {
                                   >
                                     <UserAvatar
                                       src={
-                                        avatars[comment.author]
-                                          ? avatars[comment.author].src
+                                        avatars.find(
+                                          (av) => av.owner === comment.author
+                                        )
+                                          ? avatars.find(
+                                              (av) =>
+                                                av.owner === comment.author
+                                            ).src
                                           : "/blankPicture.png"
                                       }
                                     ></UserAvatar>
