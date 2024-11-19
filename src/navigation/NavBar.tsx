@@ -303,6 +303,11 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         console.log(e);
       }
     };
+    useEffect(() => {
+      if (username) {
+        fetchData(username, { type: "/user" });
+      }
+    }, [username]);
 
     const navigate = useNavigate();
 
@@ -326,7 +331,14 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         await fetchData(username, { type: path });
 
         navigate(path);
-      } catch (e) {}
+      } catch (e) {
+
+      }
+    };
+
+    const handleGoEdit = async () => {
+      await setIsEditingProfile();
+      navigate("/" + user.username);
     };
 
     useEffect(() => {
@@ -450,7 +462,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
                 <Menu
                   isopen={isOpen}
                   theme={themevars.navbar}
-                  // style={{ visibility: isOpen ? "visible" : "hidden" }}
+                // style={{ visibility: isOpen ? "visible" : "hidden" }}
                 >
                   <MenuItem
                     isopened={isOpen}
@@ -522,10 +534,10 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
           </div>
         )}
       </div>
-    );
-  } catch (e) {
-    console.log(e);
+    )
+  } catch (err) {
+    console.error(err)
   }
-};
 
+}
 export default NavBar;

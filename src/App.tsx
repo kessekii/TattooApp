@@ -44,6 +44,7 @@ import {
 } from "./hooks/useChat";
 import { useAuth } from "./hooks/useAuth";
 import useSlice from "./hooks/useSlice";
+import EventViewComponent from "./pages/event/eventPage";
 
 export const GlobalStyle = createGlobalStyle<{ theme; children }>`
 root {
@@ -222,6 +223,15 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path=":username/event/:eventid"
+            element={
+              <ProtectedRoute redirectPath="/login" isAllowed={!!user}>
+                < EventViewComponent />
+              </ProtectedRoute>
+            }
+          />
+
         </Route>
       </Route>
     </Routes>

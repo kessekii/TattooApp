@@ -100,7 +100,7 @@ const LoginPage = () => {
       }
       navigate(`/${userGQL.username}`);
       // await auth.setUserFull(loginData.payload);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   return (
