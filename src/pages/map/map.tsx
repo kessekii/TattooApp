@@ -139,7 +139,7 @@ const PoiMarker = (props: {
   const {
     avatars: avatars,
     ids: ids,
-    mapImages: mapImages,
+    map: mapImages,
     setMapImages,
     getMapImagesByUserIdAction,
     getImagesByImageIdsAction,
@@ -622,7 +622,7 @@ export const MapPage = () => {
   });
   const {
     images: images,
-    mapImages: mapImages,
+    map: mapImages,
     avatars: avatars,
     setMapImages,
     setImages,

@@ -70,7 +70,11 @@ const PortfolioViewPage: React.FC = ({}) => {
   const { data: friend, setFriend, getFriendData } = useSlice("friend");
   const { data: user } = useSlice("user");
 
-  const { privateChats, publicChats: chats } = useSlice("chats");
+  const {
+    privateChats,
+    publicChats: chats,
+    getPublicChatsAction,
+  } = useSlice("chats");
   const { data: posts, setPosts } = useSlice("posts");
   const { images: images, avatars: avatars, setAvatars } = useSlice("images");
 
@@ -154,11 +158,11 @@ const PortfolioViewPage: React.FC = ({}) => {
         const newUserData = await getProfileData(friend.username);
 
         setFriend({ ...newUserData.payload });
-        // await getchatsAction(chats);
+        await getPublicChatsAction(chats);
         setFriendPosts(postsData.payload);
         if (newUserData.payload.username === user.username) {
           setFriend(newUserData.payload);
-          // await getchatsAction(chats);
+          await getPublicChatsAction(chats);
           setFriendPosts(postsData.payload);
         }
       }
