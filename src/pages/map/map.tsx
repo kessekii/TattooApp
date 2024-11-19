@@ -36,7 +36,7 @@ import zIndex from "@mui/material/styles/zIndex";
 import { keyframes, styled } from "styled-components";
 import { useTheme } from "../../state/providers/themeProvider";
 import { getPointImageByPointId } from "../../utils/helpers/helperFuncs";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import {
   CREATE_POINT,
   POINT_IMAGE_BY_USER_QUERY,
@@ -109,7 +109,6 @@ const PoiMarker = (props: {
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
-  const [points, setPoints] = useLocalStorage("points", {});
   const pointsInRadiusGQLHook = useQuery(POINTS_QUERY, {
     variables: {
       coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
@@ -121,7 +120,7 @@ const PoiMarker = (props: {
       username: props.user.username,
     },
   });
-  const updatePointGQLHook = useQuery(UPDATE_POINT, {
+  const updatePointGQLHook = useMutation(UPDATE_POINT, {
     variables: {
       point: props.point,
       quadId: "1",
@@ -135,6 +134,7 @@ const PoiMarker = (props: {
     setEvents,
     getNewsDataAction,
   } = useSlice("news");
+  const { data: points, setPoint } = useSlice("points");
   const { data: posts, setPosts, getPostsByUserIdAction } = useSlice("posts");
   const {
     avatars: avatars,
@@ -203,21 +203,24 @@ const PoiMarker = (props: {
     // point.imageSrc = newImage.src;
 
     const usePointData = (
-      await updatePointGQLHook.refetch({
-        point: {
-          pointId: point.pointId,
-          data: {
-            name: name,
-            desc: desc,
-            icon: point.data.icon,
+      await updatePointGQLHook[0]({
+        variables: {
+          point: {
+            pointId: point.pointId,
+            data: {
+              name: name,
+              desc: desc,
+              icon: point.data.icon,
+            },
+            location: {
+              lat: point.location.lat,
+              lng: point.location.lng,
+            },
+            owner: point.owner,
           },
-          location: {
-            lat: point.location.lat,
-            lng: point.location.lng,
-          },
-          owner: point.owner,
+          quadId: coord,
+          imageSrc: newImage.src,
         },
-        quadId: coord,
       })
     ).data.updatePoint;
 
@@ -234,8 +237,9 @@ const PoiMarker = (props: {
       await pointImageByUserGQLHook.refetch({ username: user.username })
     ).data.getMapImagesByUserPage;
 
-    setUser(usePointData);
+    setUser(user);
     setMapImages(mapImagges);
+    setPoint(pointData);
     const [newUserData, newPointData] = (
       await updatePointbyPointId(coord, point)
     ).payload;
@@ -246,10 +250,7 @@ const PoiMarker = (props: {
 
     setUser(newUserData);
     setFriend(newUserData);
-    // props.setPoints({
-    //   ...pointsInRadius,
-    //   [newPointData.pointId]: newPointData,
-    // });
+    setPoint(pointsInRadius);
     const mapImagesByRadios = {};
 
     for (let pointId of Object.keys(pointsInRadius)) {
@@ -286,18 +287,8 @@ const PoiMarker = (props: {
   // }
   //;
 
-  const isAvailableEdit =
-    user.points?.includes(
-      props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
-    ) &&
-    user.points[
-      props.point.location.lat.toFixed(2) +
-        ":" +
-        props.point.location.lng.toFixed(2)
-    ].find((point) => point === props.point.pointId);
-  //;
+  const isAvailableEdit = props.point.owner === user.username;
+  console.log(isAvailableEdit);
   return (
     <>
       {isEdit && (
@@ -602,6 +593,7 @@ export const MapPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const { data: user, setUser } = useSlice("user");
   const { data: friend, setFriend } = useSlice("friend");
+  const { data: points, setPoint } = useSlice("points");
   const pointsInRadiusGQLHook = useQuery(POINTS_QUERY, {
     variables: {
       coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
@@ -674,6 +666,9 @@ export const MapPage = () => {
         console.log(mapImagges);
         setMapImages(mapImagges);
         setUser(user);
+        if (pointData) {
+          setPoint(pointData);
+        }
 
         setCameraLocation(ev.detail.center);
 
@@ -742,7 +737,7 @@ export const MapPage = () => {
 
   const pointsStates = useMemo(
     () =>
-      pointsInRadiusGQLHook.data?.points?.map((point: any) => {
+      points.map((point: any) => {
         return (
           <PoiMarker
             key={point.pointId}
@@ -771,6 +766,7 @@ export const MapPage = () => {
       mapImages,
       setMapImages,
       pointsInRadiusGQLHook,
+      points,
     ]
   );
 

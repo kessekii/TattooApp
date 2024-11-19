@@ -57,6 +57,7 @@ const POINTS_QUERY = gql`
         name
         desc
       }
+      owner
       quadId
       location {
         lat
@@ -218,7 +219,11 @@ const CREATE_POINT = gql`
   }
 `;
 const UPDATE_POINT = gql`
-  query UpdatePoint($point: PointInput!, $quadId: String, $imageSrc: String) {
+  mutation UpdatePoint(
+    $point: PointInput!
+    $quadId: String!
+    $imageSrc: String!
+  ) {
     updatePoint(point: $point, quadId: $quadId, imageSrc: $imageSrc) {
       pointId
       data {
