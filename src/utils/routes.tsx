@@ -3,6 +3,7 @@ import { useTypedSelector } from "../hooks/useTypedSelector";
 import React, { useEffect } from "react";
 import NotLogged from "./NotLogged";
 import jwt_decode from "jwt-decode";
+import useSlice from "../hooks/useSlice";
 
 const useAuth = (token: any) => {
   // const data: any = decodeJwt(token)
@@ -21,7 +22,7 @@ const decodeJwt = (token: string) => {
   }
 };
 const ProtectedRoutes = () => {
-  const { login } = useTypedSelector((state) => state);
+  const { user } = useSlice('user')
 
   return <Outlet />;
 };

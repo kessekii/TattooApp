@@ -3,6 +3,7 @@ import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useChat } from "../../hooks/useChat";
 import { collection, doc, onSnapshot } from "firebase/firestore";
 import { firestore } from "../../App";
+import useSlice from "../../hooks/useSlice";
 
 interface ChatProps {
   chatId: string;
@@ -33,7 +34,7 @@ function formatDate(date: Date) {
 }
 
 const ChatComponent: React.FC<ChatProps> = ({ chatId }) => {
-  const { login } = useTypedSelector((state) => state);
+  const { data: login } = useSlice('user');
   const chatService = useChat();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -43,7 +44,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatId }) => {
   useEffect(() => {
     setLoading(true);
     handleGetMessage();
-    console.log("reloaded useeffect");
+
   }, [chatId]);
 
   const handleSendMessage = async () => {
@@ -59,7 +60,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatId }) => {
         await handleGetMessage();
       }
     } catch (error) {
-      console.log("error", error);
+
     }
   };
 
@@ -69,7 +70,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatId }) => {
         const messagesArray: any[] = [];
         const response = await chatService.getChatByChatId(
           chatId,
-          login.user.email
+          login.email
         );
 
         for (const date of Object.values<any>(response.data)) {
@@ -120,7 +121,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatId }) => {
         );
       }
     } catch (error) {
-      console.log("error", error);
+
     }
   };
 

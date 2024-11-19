@@ -9,7 +9,7 @@ export const useAuth = () => {
     try {
       setUser({ username, password });
     } catch (error) {
-      console.log(error);
+      
     }
   };
   const setUserFull = async (user: any) => {

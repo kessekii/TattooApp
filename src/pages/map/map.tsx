@@ -43,6 +43,7 @@ import {
   POINTS_QUERY,
   UPDATE_POINT,
 } from "../../graphQL/queries";
+import useSlice from "../../hooks/useSlice";
 
 export const PointBox = styled.div`
   background: ${({ theme }) => theme.background};
@@ -103,12 +104,11 @@ const PoiMarker = (props: {
   setErrorMessage: any;
   auth: any;
   addPoint: any;
-  setPoints: any;
+
   cameraLocation: any;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [user, setUser] = useLocalStorage("user", {});
-  const [friend, setFriend] = useLocalStorage("friend", {});
+
   const [points, setPoints] = useLocalStorage("points", {});
   const pointsInRadiusGQLHook = useQuery(POINTS_QUERY, {
     variables: {
@@ -118,7 +118,7 @@ const PoiMarker = (props: {
   });
   const pointImageByUserGQLHook = useQuery(POINT_IMAGE_BY_USER_QUERY, {
     variables: {
-      username: user.username,
+      username: props.user.username,
     },
   });
   const updatePointGQLHook = useQuery(UPDATE_POINT, {
@@ -127,8 +127,40 @@ const PoiMarker = (props: {
       quadId: "1",
     },
   });
+  const { data: user, setUser } = useSlice("user"); // Replace useLocalStorage with useSlice
+  const { data: friend, setFriend, getFriendData } = useSlice("friend");
+  const {
+    events: events,
+    posts: feedPosts,
+    setEvents,
+    getNewsDataAction,
+  } = useSlice("news");
+  const { data: posts, setPosts, getPostsByUserIdAction } = useSlice("posts");
+  const {
+    avatars: avatars,
+    ids: ids,
+    mapImages: mapImages,
+    setMapImages,
+    getMapImagesByUserIdAction,
+    getImagesByImageIdsAction,
+    getImageIdsByUsernameAction,
+    getAvatarsAction,
+  } = useSlice("images");
+  const {
+    data: friendPosts,
+    setFriendPosts,
+    getFriendPostsAction,
+  } = useSlice("friendPosts");
 
-  const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
+  // const { imageIds, setImageIds } = useSlice("imageIds");
+  const {
+    privateChats,
+    publicChats,
+    setPrivateChats,
+    setPostChats,
+    getPrivateChatsAction,
+    getPublicChatsAction,
+  } = useSlice("chats");
   const [isEdit, setIsEdit] = useState(false);
   const [name, setName] = useState<string>(props.point?.data?.name || "");
   const [desc, setDesc] = useState<string>(props.point?.data?.desc || "");
@@ -147,7 +179,6 @@ const PoiMarker = (props: {
           100,
           0,
           async (uri) => {
-            console.log(uri);
             if (typeof uri === "string") {
               setNewImage({ src: uri, id: props.pointId });
             }
@@ -203,9 +234,43 @@ const PoiMarker = (props: {
       await pointImageByUserGQLHook.refetch({ username: user.username })
     ).data.getMapImagesByUserPage;
 
-    setPoints(pointData);
     setUser(usePointData);
     setMapImages(mapImagges);
+    const [newUserData, newPointData] = (
+      await updatePointbyPointId(coord, point)
+    ).payload;
+    //
+
+    const pointsInRadius = (await getPointsInRadius(cameraLocation, false))
+      .payload;
+
+    setUser(newUserData);
+    setFriend(newUserData);
+    // props.setPoints({
+    //   ...pointsInRadius,
+    //   [newPointData.pointId]: newPointData,
+    // });
+    const mapImagesByRadios = {};
+
+    for (let pointId of Object.keys(pointsInRadius)) {
+      let quadId =
+        pointsInRadius[pointId].location.lat.toFixed(2) +
+        ":" +
+        pointsInRadius[pointId].location.lng.toFixed(2);
+
+      const image = await getPointImageByPointId(pointId, quadId);
+      if (!image) continue;
+
+      mapImagesByRadios[pointsInRadius[pointId].data.icon] = image.src;
+    }
+    const userMapImages: any = await getUserMapImagesByUserId(
+      newUserData.username
+    );
+    if (!userMapImages.payload) return;
+
+    setMapImages({ ...userMapImages.payload, ...mapImagesByRadios });
+
+    // setFocusedPoint(null);
   };
   const navigate = useNavigate();
   useEffect(() => {
@@ -250,7 +315,6 @@ const PoiMarker = (props: {
         >
           <textarea
             onChange={(e) => {
-              console.log(e);
               setName(e.target.value);
             }}
             value={name}
@@ -358,7 +422,7 @@ const PoiMarker = (props: {
                 <PostImage
                   // style={{ zIndex: 0 }}
                   src={
-                    mapImages
+                    mapImages && mapImages.length > 0
                       ? mapImages.find((e) => e.id === props.point?.data?.icon)
                           ?.src
                       : ""
@@ -369,7 +433,7 @@ const PoiMarker = (props: {
               <PostImage
                 // style={{ zIndex: 0 }}
                 src={
-                  mapImages
+                  mapImages && mapImages.length > 0
                     ? mapImages.find((e) => e.id === props.point?.data?.icon)
                         ?.src
                     : ""
@@ -418,7 +482,7 @@ const PoiMarker = (props: {
 
                         props.auth,
 
-                        props.setPoints,
+                        // props.setPoints,
                         props.cameraLocation
                       );
                       props.setfocusedPoint(null);
@@ -490,7 +554,6 @@ const tryRemovingAPoint = async (
 
   auth: any,
 
-  setPoints: any,
   cameraLocation: any
 ) => {
   const headers = {
@@ -501,12 +564,12 @@ const tryRemovingAPoint = async (
   const coord = point_lat + ":" + point_lng;
   const newUserData = (await deletePointbyPointId(coord, point.pointId))
     .payload;
-  // console.log("EEEE", userData);
+  //
 
   const pointsObject = await getPointsInRadius(cameraLocation, false);
 
   setUser(newUserData);
-  setPoints(pointsObject.payload);
+
   await auth.setUserFull(newUserData);
   // setFocusedPoint(null);
 };
@@ -534,11 +597,11 @@ const toRad = (value: number) => {
 export const MapPage = () => {
   // const [points, setPoints] = useState<Poi[]>([]);
   const { addPoint } = useActions();
-  const [errorMessage, setErrorMessage] = useState("");
-  const [user, setUser] = useLocalStorage("user", {});
   const [loading, setLoading] = useLocalStorage("loading", null);
-  const [points, setPoints] = useLocalStorage("points", {});
-  const [mapImages, setMapImages] = useLocalStorage("mapImages", {});
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const { data: user, setUser } = useSlice("user");
+  const { data: friend, setFriend } = useSlice("friend");
   const pointsInRadiusGQLHook = useQuery(POINTS_QUERY, {
     variables: {
       coordOfCenter: { lat: 32.02119878251853, lng: 34.74333323660794 },
@@ -557,6 +620,17 @@ export const MapPage = () => {
       username: user.username,
     },
   });
+  const {
+    images: images,
+    mapImages: mapImages,
+    avatars: avatars,
+    setMapImages,
+    setImages,
+  } = useSlice("images");
+
+  const { privateChats, publicChats } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
+
   const [cameraUpdateLock, setCameraUpdateLock] = useState(false);
   const [focusedPoint, setfocusedPoint] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -597,10 +671,10 @@ export const MapPage = () => {
         const mapImagges = (
           await pointImageByUserGQLHook.refetch({ username: user.username })
         ).data.getMapImagesByUserPage;
-        console.log(mapImages);
+        console.log(mapImagges);
         setMapImages(mapImagges);
         setUser(user);
-        setPoints(pointData);
+
         setCameraLocation(ev.detail.center);
 
         setCameraUpdateLock(false);
@@ -619,7 +693,7 @@ export const MapPage = () => {
     setErrorMessage: any,
     auth: any,
     addPoint: any,
-    setPoints: any,
+
     cameraLocation: any
   ) => {
     if (user) {
@@ -663,14 +737,12 @@ export const MapPage = () => {
 
       setUser(createPointData.user);
       // setFriend(newUserData);
-
-      setPoints(getPtInRadius);
     }
   };
 
   const pointsStates = useMemo(
     () =>
-      points.map((point: any) => {
+      pointsInRadiusGQLHook.data?.points?.map((point: any) => {
         return (
           <PoiMarker
             key={point.pointId}
@@ -684,7 +756,6 @@ export const MapPage = () => {
             setErrorMessage={setErrorMessage}
             auth={auth}
             addPoint={addPoint}
-            setPoints={setPoints}
             cameraLocation={cameraLocation}
           ></PoiMarker>
         );
@@ -696,7 +767,7 @@ export const MapPage = () => {
       setfocusedPoint,
       auth,
       setErrorMessage,
-      points,
+      pointsInRadiusGQLHook,
       mapImages,
       setMapImages,
       pointsInRadiusGQLHook,
@@ -707,7 +778,7 @@ export const MapPage = () => {
   return (
     <APIProvider
       apiKey="AIzaSyAGFYy06ioQhkJ1yOit5nequl-z05bNgm4"
-      onLoad={() => console.log("Maps API has loaded.")}
+      onLoad={() => {}}
     >
       <PaperFade
         style={{
@@ -747,7 +818,7 @@ export const MapPage = () => {
                 setErrorMessage,
                 auth,
                 addPoint,
-                setPoints,
+
                 cameraLocation
               );
             } else {

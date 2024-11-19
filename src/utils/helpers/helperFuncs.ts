@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getAvatarByUserId } from "../../../src/pages/masterspage/portfolioViewPage";
-import AxiosCustom , { baseURL} from "../../utils/Axios";
+import AxiosCustom, { baseURL } from "../../utils/Axios";
 
 export const imageToBlob = async (imageSrc: string): Promise<Blob> => {
   const response = await fetch(imageSrc);
@@ -42,7 +42,7 @@ export const getPointImageByPointId = async (
 ) => {
   try {
     const { data } = await AxiosCustom.post(
-      baseURL+ "images/getPointImageByPointId",
+      baseURL + "images/getPointImageByPointId",
       {
         pointId: pointId,
         quadId: quadId,
@@ -57,9 +57,7 @@ export const getPointImageByPointId = async (
 
     const result = data.payload;
     return result;
-  } catch (error) {
-    console.log("error", error);
-  }
+  } catch (error) {}
 };
 export const getAvatars = async (friend) => {
   let avatarsImagesObject: any = {};
@@ -73,8 +71,8 @@ export const getAvatars = async (friend) => {
     [friend.username]: imageUser,
   };
   avatarsIds.push(imageUser.id);
-
-  for (let friendUsername of Object.keys(friend.friends || {})) {
+  if (!friend.friends) return [avatarsIds, avatarsImagesObject];
+  for (let friendUsername of friend.friends || []) {
     const image = await getAvatarByUserId(friendUsername);
     if (!image) continue;
     avatarsImagesObject = {
@@ -83,37 +81,30 @@ export const getAvatars = async (friend) => {
     };
     avatarsIds.push(image.id);
   }
-  // console.log(avatarsImagesObject);
+  //
   // setAvatars(avatarsImagesObject);
   return [avatarsIds, avatarsImagesObject];
 };
 
 export const getAvatarIdsByChatId = async (chatId) => {
   try {
-    const response = await fetch(
-      baseURL+ "images/getImageIdsByChatId",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({ chatId: chatId }),
-      }
-    );
+    const response = await fetch(baseURL + "images/getImageIdsByChatId", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ chatId: chatId }),
+    });
 
     const result = await response.json();
-    if (result && !result.payload){
-        return result;
+    if (result && !result.payload) {
+      return result;
     } else if (result && result.payload) {
       return result.payload;
     }
-
-   
-  } catch (error) {
-    console.log("error", error);
-  }
+  } catch (error) {}
 };
 export const filterContactsByType = (arr: any, type: string) => {
   if (!arr || arr.length === 0) return [];

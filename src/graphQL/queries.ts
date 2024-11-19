@@ -13,8 +13,10 @@ const USER_QUERY = gql`
         username
         profilePicture {
           id
+          src
         }
         backdrop {
+          src
           id
         }
       }
@@ -26,7 +28,9 @@ const USER_QUERY = gql`
       password
       posts {
         postId
-        image
+        image {
+          src
+        }
         chatId
       }
       profilePicture {
@@ -153,6 +157,27 @@ const NEWS_QUERY = gql`
     }
   }
 `;
+const REGISTER_USER = gql`
+  query RegisterUser(
+    $username: String!
+    $password: String!
+    $userEmail: String!
+  ) {
+    register(username: $username, password: $password, userEmail: $userEmail) {
+      username
+      location
+      userEmail
+      description
+    }
+  }
+`;
+const OPEN_POST_AND_CHAT = gql`
+  mutation OpenPostAndChat($username: String!, $post: PostInput!) {
+    openPostAndChatByUserAndPostId(username: $username, post: $post) {
+      chatId
+    }
+  }
+`;
 const CREATE_POINT = gql`
   query CreatePoint(
     $username: String!
@@ -213,4 +238,6 @@ export {
   POINTS_IN_RADIUS_QUERY,
   UPDATE_POINT,
   CREATE_POINT,
+  REGISTER_USER,
+  OPEN_POST_AND_CHAT,
 };

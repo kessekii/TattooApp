@@ -43,6 +43,7 @@ import {
   getPostsByUserId,
 } from "./hooks/useChat";
 import { useAuth } from "./hooks/useAuth";
+import useSlice from "./hooks/useSlice";
 
 export const GlobalStyle = createGlobalStyle<{ theme; children }>`
 root {
@@ -113,19 +114,12 @@ const App: React.FC = () => {
 
   // const { login, user } = useTypedSelector((state) => state);
   const { themevars } = useTheme();
-  const [user, setUser] = useLocalStorage("user", {});
-  const [currentTheme, setCurrentTheme] = useLocalStorage("theme", "light");
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [news, setNews] = useLocalStorage("news", {});
+  const { data: user, setUser } = useSlice("user");
+
   const [screen, setScreen] = useLocalStorage("screen", {});
-  const [posts, setPosts] = useLocalStorage("posts", {});
-  const [chats, setChats] = useLocalStorage("chats", {});
-  const [hideNav, setHideNav] = useLocalStorage("hideNav", false);
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isErrorPromptOpened, setIsErrorPromptOpened] = useState(false);
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", {});
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", {});
-  const navigate = useNavigate();
+
   const handleResize = () => {
     setScreen(window.innerWidth, window.innerHeight);
   };
@@ -137,11 +131,11 @@ const App: React.FC = () => {
     return children ? children : <Outlet />;
   };
 
-  useEffect(() => {
-    if (errorMessage !== null) {
-      setIsErrorPromptOpened(true);
-    }
-  }, [errorMessage]);
+  // useEffect(() => {
+  //   if (errorMessage !== null) {
+  //     setIsErrorPromptOpened(true);
+  //   }
+  // }, [errorMessage]);
 
   return (
     <Routes>

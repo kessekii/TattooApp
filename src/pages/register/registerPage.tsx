@@ -19,6 +19,8 @@ import {
   TitleComponent,
 } from "../login/loginPageComponents";
 import { useTheme } from "../../state/providers/themeProvider";
+import { useQuery } from "@apollo/client";
+import { REGISTER_USER } from "../../../src/graphQL/queries";
 
 export interface Comment {
   author: string;
@@ -80,9 +82,11 @@ export interface User {
   profilePicture: string;
   posts: PostSocial[];
   friends: Friends[];
+  chats: any[];
   reviews: Reviews[];
   calendar: Calendar[];
   socialLinks: SocialLinks[];
+  points: any[];
   map: MapData[];
 }
 export const RegisterPage = () => {
@@ -94,15 +98,22 @@ export const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const { insertUser } = useActions();
-
+  const RegisterGQLHook = useQuery(REGISTER_USER);
   const navigate = useNavigate();
   const handleRegister = async () => {
     try {
-      await auth.register(password, username);
-      insertUser(
-        { password: password, username: username, userEmail: email },
-        setErrorMessage
-      );
+      // await auth.register(password, username);
+      // insertUser(
+      //   { password: password, username: username, userEmail: email },
+      //   setErrorMessage
+      console.log(email, password, username);
+      // );
+      const regData = await RegisterGQLHook.refetch({
+        username: username,
+        password: password,
+        userEmail: email,
+      });
+      console.log(regData);
       navigate("/");
     } catch (error) {
       toast.error("register.error");

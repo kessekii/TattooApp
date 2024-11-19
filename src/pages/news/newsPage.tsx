@@ -23,6 +23,7 @@ import {
   getUserById,
 } from "../../hooks/useChat";
 import PullToRefresh from 'react-pull-to-refresh';
+import useSlice from "../../hooks/useSlice";
 // Styled components with theme access
 const NewsFeedContainer = styled.div`
   font-family: Arial, sans-serif;
@@ -214,13 +215,13 @@ const NewsFeed = () => {
 
   const navigate = useNavigate();
   const { themevars } = useTheme();
-  const [news, setNews] = useLocalStorage("news", null);
-  const [user, setUser] = useLocalStorage("user", null);
+  const { events: events, posts: posts, setEvents, setNews } = useSlice("news");
+  const { data: user, setUser } = useSlice("user");
   const [newEvent, setNewEvent] = useState(initialNews);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
+  const { publicChats: publicChats, setPostChats } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
   const [newsPosts, setNewsPosts] = useState<any>({});
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -247,7 +248,7 @@ const NewsFeed = () => {
         navigate("/" + name + "/portfolio");
       }
     } catch (e) {
-      console.log(e);
+
     }
   };
 
@@ -284,23 +285,23 @@ const NewsFeed = () => {
     return () => clearInterval(slideInterval);
   }, []);
 
-  const SliderComponent: any = () => {
-    if (news && news.events)
-      return Object.values(news.events).map((slide: any) => {
-        return (
-          <Slide key={slide.pointId}>
-            <SlideImage src={slide.data.icon} alt={slide.data.desc} />
-            <SlideTitle>{slide.data.name}</SlideTitle>
-          </Slide>
-        );
-      });
-  };
+
+
+  const sliderComponent = useMemo(() => Object.entries(events).map((value: [string, any]) => {
+
+    return (
+      < Slide key={value[0] + value[1].data.name} >
+        <SlideImage src={value[1].data.icon} alt={value[1].data.desc} />
+        <SlideTitle>{value[1].data.name}</SlideTitle>
+      </Slide >)
+
+  }), [events])
   const getImageData = async (id: string) => {
     const data = await getPostByPostId(id);
     const imageData = await getPostImageByPostId(id);
 
     const commentsData = await getChatsByChatId(data.chatId);
-    console.log(commentsData);
+
     const allData = Object.assign(
       {},
       {
@@ -309,30 +310,30 @@ const NewsFeed = () => {
         image: imageData.src,
       }
     );
-    console.log("allData", allData);
+
     return { id: id, data: { ...allData } };
   };
 
-  const handlePosts = async (news: any) => {
+  const handlePosts = async (posts: any) => {
     try {
-      if (news && news.posts) {
+      if (posts) {
         let arr = [];
-        for (const pst of news.posts.comments) {
-          console.log("POSTUS ::: ", pst);
+        for (const pst of posts.comments) {
+
           const postsFull = await getImageData(pst);
-          console.log("postsFull ::: ", postsFull);
+
           arr.push(postsFull);
         }
-        console.log("arr :::   ", arr);
+
         setNewsPosts(arr);
         return arr;
       }
     } catch (e) {
-      console.log(e);
+
     }
   };
 
-  const handleRefresh = async (resolve) => {
+  const handleRefresh = async () => {
     try {
       // Refetch the news data
       const refreshedNews = await getNewsAction(user.location) // You need to implement this function
@@ -341,19 +342,19 @@ const NewsFeed = () => {
       // Refetch posts
       await handlePosts(refreshedNews);
 
-      resolve(); // Resolve the promise when refresh is complete
+      // Resolve the promise when refresh is complete
     } catch (error) {
       console.error("Error refreshing data:", error);
-      resolve(); // Resolve even if there's an error, to reset the pull-to-refresh state
+      // Resolve even if there's an error, to reset the pull-to-refresh state
     }
   }
 
   useEffect(() => {
-    handlePosts(news);
+    handlePosts(posts);
   }, []);
 
   useEffect(() => {
-    console.log(newsPosts);
+
   }, [newsPosts]);
 
   const postsFeed = useMemo(
@@ -408,7 +409,7 @@ const NewsFeed = () => {
 
   return (
     <NewsFeedContainer theme={themevars}>
-      <PullToRefresh onRefresh={handleRefresh}>
+      <PullToRefresh onRefresh={async (): Promise<void> => handleRefresh()}>
         {/* Header */}
         <Header theme={themevars}>
           <SearchBar>
@@ -422,7 +423,7 @@ const NewsFeed = () => {
         </Header>
 
         <SliderContainer ref={sliderRef}>
-          <SliderComponent />
+          {sliderComponent}
         </SliderContainer>
 
         {/* <AddEventButton onClick={openModal}>Add Event</AddEventButton> */}
@@ -506,7 +507,7 @@ const NewsFeed = () => {
         >
           <NewsPageImageGrid>
 
-            {news && newsPosts && postsFeed}
+            {postsFeed}
           </NewsPageImageGrid>
         </div>
       </PullToRefresh>

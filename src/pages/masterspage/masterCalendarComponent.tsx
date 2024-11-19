@@ -141,10 +141,8 @@ const DateHourSelector: React.FC<MasterCalendarProps> = ({
         dates: dateRange.map((d) => d.toISOString().split("T")[0]),
         hours: selectedHours.map((hour: number) => hour.toString()),
       });
-      console.log(
-        "Selected Dates:",
-        dateRange.map((d) => format(d, "yyyy-MM-dd"))
-      );
+
+
     }
 
     // Perform saving logic here (e.g., send data to backend)

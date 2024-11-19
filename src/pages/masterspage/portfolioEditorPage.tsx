@@ -20,6 +20,9 @@ import {
 import { s } from "vite/dist/node/types.d-aGj9QkWt";
 import Resizer from "react-image-file-resizer";
 import { ArrowBackIos } from "@mui/icons-material";
+import useSlice from "../../hooks/useSlice";
+import { useMutation, useQuery } from "@apollo/client";
+import { OPEN_POST_AND_CHAT, USER_QUERY } from "../../../src/graphQL/queries";
 // Styled components
 const EditorContainer = styled.div`
   display: flex;
@@ -169,13 +172,24 @@ interface PortfolioEditorPageProps {
 
 // Component
 const PortfolioEditorPage: React.FC = () => {
-  const [user, setUser] = useLocalStorage("user", null);
-  const [posts, setPosts] = useLocalStorage("posts", null);
-  const [chats, setChats] = useLocalStorage("chats", null);
-  const [friend, setFriend] = useLocalStorage("friend", {});
-  const [friendPosts, setFriendPosts] = useLocalStorage("friendPosts", null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
-  const [images, setImages] = useLocalStorage("images", null);
+  const { data: user, setUser } = useSlice("user");
+  const { data: friend, setFriend, getFriendData } = useSlice("friend");
+  const { images, avatars, setAvatars, setImages } = useSlice("images");
+  const userGraphQLHook = useQuery(USER_QUERY, {
+    variables: { username: user.username },
+  });
+  const CreateChatAndPostGQLHook = useMutation(OPEN_POST_AND_CHAT, {
+    variables: { username: user.username, post: {} },
+  });
+  const { data: posts, setPosts } = useSlice("posts");
+  const {
+    privateChats,
+    publicChats,
+    setPrivateChats,
+    setPostChats,
+    createChatsAction,
+  } = useSlice("chats");
+  const { data: friendPosts, setFriendPosts } = useSlice("friendPosts");
   const { updateUser } = useActions();
   const { themevars } = useTheme(); // Accessing the theme
   const [errorMessage, setErrorMessage] = useState("");
@@ -214,7 +228,6 @@ const PortfolioEditorPage: React.FC = () => {
           100,
           0,
           async (uri) => {
-            console.log(uri);
             if (typeof uri === "string") {
               setNewImage({ src: uri, caption: "" });
             }
@@ -232,17 +245,16 @@ const PortfolioEditorPage: React.FC = () => {
 
   // Handle dragging and dropping images
   const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const reorderedImages = posts;
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-    [reorderedImages[sourceIndex], reorderedImages[destinationIndex]] = [
-      reorderedImages[destinationIndex],
-      reorderedImages[sourceIndex],
-    ];
-
-    updateUser({ ...user, posts: reorderedImages }, setErrorMessage);
-    setUser({ ...user, posts: reorderedImages });
+    // if (!result.destination) return;
+    // const reorderedImages = posts;
+    // const sourceIndex = result.source.index;
+    // const destinationIndex = result.destination.index;
+    // [reorderedImages[sourceIndex], reorderedImages[destinationIndex]] = [
+    //   reorderedImages[destinationIndex],
+    //   reorderedImages[sourceIndex],
+    // ];
+    // updateUser({ ...user, posts: reorderedImages }, setErrorMessage);
+    // setUser({ ...user, posts: reorderedImages });
     // setProfile({ ...user, posts: reorderedImages });
   };
 
@@ -251,46 +263,61 @@ const PortfolioEditorPage: React.FC = () => {
     const newUuid = uuidv4();
     if (isNewImage) {
       const newPost = {
-        id: newUuid,
+        postId: newUuid,
         image: newImage.src,
         likes: 0,
         shares: 0,
-        user: { avatar: user.profilePicture, name: user.username },
+
         description: newImage.caption,
-        comments: [],
+
         chatId: "",
+        location: user.location,
+        timestamp: new Date().toISOString(),
+        title: newImage.caption,
       };
       updatedProfileData.posts =
         user.posts.length > 0
-          ? { ...user.posts, [newUuid]: newUuid }
-          : { [newUuid]: newUuid };
+          ? [...user.posts, newPost] // Add new post to existing posts
+          : [newPost];
 
-      const newUser = await createChatByUsername(
-        updatedProfileData,
-        setErrorMessage,
-        newPost
-      );
+      // const newUser = await createChatsAction(
+      //   updatedProfileData,
+      //   setErrorMessage,
+      //   newPost
+      // );
+      const mutationData = (
+        await CreateChatAndPostGQLHook[0]({
+          variables: { username: user.username, post: newPost },
+        })
+      ).data.openPostAndChat;
+      const userRefetchData = (
+        await userGraphQLHook.refetch({
+          username: user.username,
+        })
+      ).data.getProfileData;
+      navigate("/" + user.username);
     }
     const userData = await getProfileData(updatedProfileData.username);
+
     // updateUser(updatedProfileData, setErrorMessage);
     const postsData = await getPostsByUserId(updatedProfileData.username);
     const chatsData = await getChatsByUserId(updatedProfileData.username);
     const imageData = await getImageIdsByUserId(updatedProfileData.username);
-    let newImages = {};
+    let newImages = [];
     for (let imageId of imageData.payload) {
       const image = await getImageByImageId(imageId);
-      newImages = { ...newImages, [imageId]: image.payload };
+      newImages = [...newImages, image];
     }
     setIsNewImage(false);
 
     setUser(userData.payload);
     setFriend(userData.payload);
 
-    setPosts(postsData.payload);
+    //setPosts(postsData.payload);
     setFriendPosts(postsData.payload);
 
-    setChats(chatsData.payload);
-    setFriendChats(chatsData.payload);
+    setPrivateChats(chatsData.payload);
+    setPostChats(chatsData.payload);
     setImages(newImages);
 
     navigate("/" + user.username);
@@ -300,9 +327,9 @@ const PortfolioEditorPage: React.FC = () => {
   // Delete image
   const handleDeleteImage = () => {
     const updatedProfileData = { ...user };
-    updatedProfileData.posts = Object.keys(posts).filter(
-      (el, index) => index !== imageToDelete
-    );
+    // updatedProfileData.posts = Object.keys(posts).filter(
+    //   (el, index) => index !== imageToDelete
+    // );
 
     updateUser(updatedProfileData, setErrorMessage);
     setIsDeleteModalOpen(false); // Close confirmation modal

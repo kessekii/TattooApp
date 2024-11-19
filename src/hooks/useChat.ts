@@ -2,6 +2,7 @@ import { useQueryClient } from "react-query";
 
 import { useTypedSelector } from "./useTypedSelector";
 import {baseURL} from "./../utils/Axios";
+import useSlice from "./useSlice";
 
 const BASE_URL = baseURL
 
@@ -24,7 +25,7 @@ export const getChatByChatId = async (chatId: string, username: string) => {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const updateUserAndImage = async (
@@ -52,7 +53,7 @@ export const updateUserAndImage = async (
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 
@@ -75,7 +76,7 @@ export const getPostsByUserId = async (username: string) => {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getPrivateChatsByUserId = async (username: string) => {
@@ -98,7 +99,7 @@ export const getPrivateChatsByUserId = async (username: string) => {
 
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getImageByImageId = async (imageId: string) => {
@@ -121,7 +122,7 @@ export const getImageByImageId = async (imageId: string) => {
 
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getImageIdsByUserId = async (username: string) => {
@@ -143,7 +144,7 @@ export const getImageIdsByUserId = async (username: string) => {
 
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getUserMapImagesByUserId = async (username: string) => {
@@ -164,7 +165,7 @@ export const getUserMapImagesByUserId = async (username: string) => {
 
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 
@@ -187,7 +188,7 @@ export const getChatsByUserId = async (username: string) => {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getPointByQuadIdAndPointId = async (
@@ -211,7 +212,7 @@ export const getPointByQuadIdAndPointId = async (
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const createPointByUsername = async (
@@ -240,7 +241,7 @@ export const createPointByUsername = async (
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getPointsInRadius = async (location: any, blocked: any) => {
@@ -263,7 +264,7 @@ export const getPointsInRadius = async (location: any, blocked: any) => {
     //;
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const deletePointbyPointId = async (quadId: string, pointId: string) => {
@@ -284,7 +285,7 @@ export const deletePointbyPointId = async (quadId: string, pointId: string) => {
     const result = response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const getUserById = async (username: string) => {
@@ -302,7 +303,7 @@ export const getUserById = async (username: string) => {
     const result = response.json();
     return result;
   } catch (err) {
-    console.log(err);
+    
   }
 };
 export const updatePointbyPointId = async (quadId: string, point: string) => {
@@ -320,7 +321,7 @@ export const updatePointbyPointId = async (quadId: string, point: string) => {
     const result = response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const updatePoint = async (point: any) => {
@@ -338,12 +339,12 @@ export const updatePoint = async (point: any) => {
     const result = await response.json();
     return result;
   } catch (error) {
-    console.log("error", error);
+    
   }
 };
 export const useChat = () => {
-  const { login } = useTypedSelector((state) => state);
-  const queryClient = useQueryClient();
+  const { data: user } = useSlice('user');
+  // const queryClient = useQueryClient();
 
   const sendMessage = async (id: string, message: string) => {
     try {
@@ -359,17 +360,17 @@ export const useChat = () => {
           },
           body: JSON.stringify({
             chatId: id,
-            userEmail: login.user.email,
+            userEmail: user.email,
             data: message,
           }),
         }
       );
 
-      queryClient.invalidateQueries("chats");
+      // queryClient.invalidateQueries("chats");
 
       return response;
     } catch (error) {
-      console.log("error", error);
+      
     }
   };
 

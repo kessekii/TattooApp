@@ -37,6 +37,7 @@ export interface ProfileData {
   username: string;
   type: string;
   location: string;
+  backfrop: string,
   description: string;
   profilePicture: string;
   posts: Array<Post>;
@@ -113,7 +114,7 @@ const handlePosts = async (filter: any) => {
     );
     return data;
   } catch (e) {
-    console.log(e);
+    
   }
 };
 
@@ -131,7 +132,7 @@ export const updatePost = async (postId: string, post: any) => {
     );
     return data.payload;
   } catch (e) {
-    console.log(e);
+    
   }
 };
 
@@ -150,7 +151,7 @@ export const getPostImageByPostId = async (postId: any) => {
 
     return data.payload;
   } catch (e) {
-    console.log(e);
+    
   }
 };
 export const getPostByPostId = async (postId: any) => {
@@ -168,7 +169,7 @@ export const getPostByPostId = async (postId: any) => {
 
     return data.payload;
   } catch (e) {
-    console.log(e);
+    
   }
 };
 export const getTrendingPostsByCityAction = async (city: any) => {
@@ -176,7 +177,7 @@ export const getTrendingPostsByCityAction = async (city: any) => {
     const headers = {
       Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
     };
-    console.log(city);
+    
     const { data } = await AxiosCustom.post(
       endpoints.GETTRENDINGPOSTS,
       { city },
@@ -186,7 +187,7 @@ export const getTrendingPostsByCityAction = async (city: any) => {
     );
     return data;
   } catch (e) {
-    console.log(e);
+    
   }
 };
 //------------NEWS OPERATIONS ------------
@@ -252,7 +253,7 @@ export const getNewsAction = async (filter: string) => {
 
     return { events: eventsDataDict, posts: postsDataDict };
   } catch (err) {
-    console.log(err);
+    
     return false;
   }
 };
@@ -281,7 +282,7 @@ export const makeEventAction = async (payload: any) => {
 
     return data.payload;
   } catch (err) {
-    console.log(err);
+    
     return false;
   }
 };
@@ -311,7 +312,7 @@ export const loginAction = async (loginParams: any, setErrorMessage: any) => {
     }
     return data.payload;
   } catch (err) {
-    console.log(err);
+    
     return false;
   }
 };
@@ -366,13 +367,13 @@ export const createChatByUsername = async (
     );
 
     if (!data.successful) {
-      setErrorMessage(data.payload);
+      //setErrorMessage(data.payload);
       return;
     }
 
     return data;
   } catch (err) {
-    setErrorMessage(err);
+    //setErrorMessage(err);
     console.error(err);
   }
 };
@@ -598,7 +599,7 @@ export const addNotificationAction = (message, type) => {
 
       return;
     } catch (err) {
-      console.log(err);
+      
       return;
     }
   };
@@ -609,7 +610,7 @@ export const getChatsByChatId = async (chatId: any) => {
     const headers = {
       Authorization: "Bearer " + "AIzaSyC3zvtXPRpuYYTKEJsZ6WXync_-shMPkHM",
     };
-    console.log("jyfujfkufkuf", chatId);
+    
     const { data } = await AxiosCustom.post(
       endpoints.GETCHATBYCHATID,
       { chatId },
@@ -619,7 +620,7 @@ export const getChatsByChatId = async (chatId: any) => {
     );
     return data;
   } catch (err) {
-    console.log(err);
+    
     return false;
   }
 };
@@ -639,7 +640,7 @@ export const getProfileData = async (username: any) => {
 
     return data;
   } catch (err) {
-    console.log(err);
+    
     return false;
   }
 };

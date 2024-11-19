@@ -15,6 +15,7 @@ import { ArrowBackIos, BorderBottomOutlined, Send } from "@mui/icons-material";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { sq } from "date-fns/locale";
+import useSlice from "../../hooks/useSlice";
 
 // Styled Components
 
@@ -160,13 +161,25 @@ export const ChatsPageComponent: React.FC = () => {
     return `${hours}:${minutes}`;
   };
   const { chatId } = useParams();
-  const [user, setUser] = useLocalStorage("user", null);
-  const [images, setImages] = useLocalStorage("images", {});
-  const [avatars, setAvatars] = useLocalStorage("avatars", {});
-  const [friend, setFriend] = useLocalStorage("friend", null);
-  const [friendChats, setFriendChats] = useLocalStorage("friendChats", null);
+  const { data: user, setUser } = useSlice("user"); // Replace useLocalStorage with useSlice
+  const { data: friend, setFriend, getFriendData } = useSlice("friend");
+  const { getNewsDataAction } = useSlice("news");
+  const { data: posts,
+    setPosts,
+    getPostsByUserIdAction
+  } = useSlice("posts");
+  const { avatars: avatars, images: images, ids,
+    getImagesByImageIdsAction,
+    getImageIdsByUsernameAction,
+    getMapImagesByUserIdAction,
+    getAvatarsAction
+  } = useSlice("images");
+  const { data: friendPosts, setFriendPosts, getFriendPostsAction } = useSlice("friendPosts");
+
+
+
+  const { privateChats, setPostChats, setPrivateChats, getPrivateChatsAction, getPublicChatsAction } = useSlice("chats");
   const [loader, setloader] = useState(false);
-  const [chats, setChats] = useLocalStorage("chats", null);
   const navigate = useNavigate();
   const [newComment, setNewComment] = useState("");
   const [isMessagesPopupOpened, setIsMessagesPopupOpened] = useState(
@@ -177,12 +190,12 @@ export const ChatsPageComponent: React.FC = () => {
   );
   const [hideNav, setHideNav] = useLocalStorage("hideNav", false);
   const { toggleTheme, themevars } = useTheme();
-  const [privateChats, setPrivateChats] = useState<any>({});
-  const handleLoadCHats = async () => {
-    const data = (await getPrivateChatsByUserId(user.username)).payload;
-    setPrivateChats({ ...data });
+
+  const handleLoaPrivateChats = async () => {
+    const privats = await getPrivateChatsAction(user.username);
+
     await timeout(5000);
-    return data;
+    return privats;
     //for 1 sec delay
   };
   const handleOpenMessages = (privateChatId: string) => {
@@ -219,7 +232,7 @@ export const ChatsPageComponent: React.FC = () => {
 
       //     }
       // })
-      console.log("chats", chats, privateChatId);
+
       const chat = chats[privateChatId];
       //
       if (chats && chat && chat.messages && chat.messages?.length > 0) {
@@ -237,11 +250,11 @@ export const ChatsPageComponent: React.FC = () => {
 
         chats[privateChatId] = newChatData;
         const newPrivateChats = await getPrivateChatsByUserId(user.username);
-        setPrivateChats({ ...newPrivateChats.payload });
+
         setUser(user);
         setFriend(user);
-        setChats(chats);
-        setFriendChats(chats);
+        setPrivateChats({ ...newPrivateChats.payload });
+        setPostChats(chats);
       } else if (
         !chats ||
         (chat && (!chat.messages || chat.messages.length === 0))
@@ -262,8 +275,8 @@ export const ChatsPageComponent: React.FC = () => {
         chats[privateChatId].messages = newChatData;
         setUser(user);
         setFriend(user);
-        setChats(chats);
-        setFriendChats(chats);
+
+        setPostChats(chats);
         const newPrivateChats = await getPrivateChatsByUserId(user.username);
         setPrivateChats(newPrivateChats.payload);
       }
@@ -281,36 +294,14 @@ export const ChatsPageComponent: React.FC = () => {
   //     };
   //   }, []);
 
-  useEffect(() => {
-    let isSubscribed = true;
 
-    // declare the async data fetching function
-    const fetchData = async () => {
-      // get the data from the api
-      const data = await handleLoadCHats();
-      // convert the data to json
-      //   const json = await response.json();
-
-      // set state with the result if `isSubscribed` is true
-      if (isSubscribed) {
-        setPrivateChats(data);
-        setloader(!loader);
-        return (isSubscribed = false);
-      }
-    };
-
-    // call the function
-    fetchData().catch(console.error);
-
-    // cancel any future `setData`
-    return () => privateChats;
-  }, [loader]);
 
   const renderMessages = (messages) => {
     return messages.map((message, i) => {
       const isUserMessage = message.author === user.username;
-      const avatar =
-        avatars[isUserMessage ? user.username : message.author].src;
+
+
+
 
       return (
         <StyledCommentItem
@@ -339,7 +330,7 @@ export const ChatsPageComponent: React.FC = () => {
           >
             <StyledFriendAvatar
               theme={themevars}
-              src={avatar || ""}
+              src={Object.keys(avatars).includes(user.username) && Object.keys(avatars).includes(message.author) ? isUserMessage ? avatars[user['username']].src : avatars[message['author']].src : isUserMessage ? images[user['profilePicture']].src : '/blankPicture.png'}
               alt={message.author}
             />
             <Box style={{ display: "flex", flexDirection: "column" }}>
@@ -361,7 +352,7 @@ export const ChatsPageComponent: React.FC = () => {
   const participants = useMemo(
     () =>
       Object.keys(privateChats || {}).map((privateChatId) => {
-        console.log("eededed" + privateChats, privateChatId);
+
         const chatData = privateChats[privateChatId];
 
         const author = chatData.participants.find((e) => e !== user.username);
@@ -519,7 +510,7 @@ export const ChatsPageComponent: React.FC = () => {
                   <StyledFriendAvatar
                     style={{ marginLeft: "15px" }}
                     theme={themevars}
-                    src={avatars[author]?.src}
+                    src={avatars[author]?.src || '/blankPicture.png'}
                     alt={author}
                   />
                   <Box

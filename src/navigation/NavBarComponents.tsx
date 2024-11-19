@@ -132,10 +132,10 @@ const transOut = keyframes`
 `;
 
 export const NavContainer = styled.div<{
-  hideNav: boolean;
-  theme: any;
-  isShrunk: boolean;
-  isMap: boolean;
+  hidenav: boolean,
+  theme: any,
+  isshrunk: boolean,
+  ismap: boolean,
 }>`
   background: ${(props) => props.theme.background};
   transform-origin: center;
@@ -145,22 +145,22 @@ export const NavContainer = styled.div<{
   background-clip: padding-box;
   border-width: 5px;
   border-color: #8dadec;
-  visibility: ${({ hideNav }) => (hideNav ? "hidden" : "visible")};
+  visibility: ${({ hidenav }) => (hidenav ? "hidden" : "visible")};
   width: ${(props) =>
-    props.isShrunk ? "4vw" : "68vw"}; /* Shrinks to 60px width when inactive */
+    props.isshrunk ? "4vw" : "68vw"}; /* Shrinks to 60px width when inactive */
   max-height: 60px;
   min-width: 60px;
   z-index: 1100;
-  animation: ${({ isMap }) => (isMap ? transIn : transOut)} 0.6s ease;
+  animation: ${({ ismap }) => (ismap ? transIn : transOut)} 0.6s ease;
   border-radius: 25px;
 
   transition: all 0.9s ease;
 `;
 
-export const NavIcons = styled(Box)<{ theme: any; isShrunk: boolean }>`
+export const NavIcons = styled(Box) <{ theme: any, isshrunk: boolean }>`
   display: flex;
   justify-content: ${(props) =>
-    props.isShrunk
+    props.isshrunk
       ? "space-around"
       : "space-around"}; /* Icons centered when shrunk */
   width: 100%;
@@ -168,11 +168,11 @@ export const NavIcons = styled(Box)<{ theme: any; isShrunk: boolean }>`
   transition: justify-content 1s ease; /* Smooth transition for icons */
 `;
 
-export const AvatarContainer = styled.div<{ isShrunk: boolean }>`
+export const AvatarContainer = styled.div<{ isshrunk: boolean }>`
   position: fixed;
-  margin-left: ${({ isShrunk }) => (isShrunk ? "50vw" : "0vw")};
-  transition: ${({ isShrunk }) =>
-    isShrunk ? "margin-left 1s ease-in-out" : "margin-left 0.6s ease"};
+  margin-left: ${({ isshrunk }) => (isshrunk ? "50vw" : "0vw")};
+  transition: ${({ isshrunk }) =>
+    isshrunk ? "margin-left 1s ease-in-out" : "margin-left 0.6s ease"};
 `;
 
 export const Avatar = styled.img`
@@ -199,25 +199,22 @@ export const Menu = styled.div<{ isopen: boolean }>`
     forwards;
   transform-origin: top;
 `;
-export const MenuButton = styled(IconButton)<{
-  isShrunk: boolean;
-  index: number;
-}>`
+export const MenuButton = styled(IconButton) <{ isshrunk: boolean, index: number }>`
   background-color: ${({ theme }) => theme.background};
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 50%;
   padding: unset;
   justify-content: space-between;
 
-  animation: ${({ isShrunk }) => (isShrunk ? fadeIn : fadeOut)}
-    ${({ isShrunk, index }) =>
-      isShrunk
-        ? 1.2 + index * 0.4 + "s ease-out"
-        : 0.1 + (4 - index) * 0.1 + "s ease-in"}
+  animation: ${({ isshrunk }) => (isshrunk ? fadeIn : fadeOut)}
+    ${({ isshrunk, index }) =>
+    isshrunk
+      ? 1.2 + index * 0.4 + "s ease-out"
+      : 0.1 + (4 - index) * 0.1 + "s ease-in"}
     forwards;
 `;
 
-export const MenuItem = styled.button<{ isopened; index }>`
+export const MenuItem = styled.button<{ isopened: boolean, index: number }>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -231,9 +228,9 @@ export const MenuItem = styled.button<{ isopened; index }>`
   transition: all 0.7s ease;
   animation: ${({ isopened }) => (isopened ? fadeIn : fadeOut)}
     ${({ isopened, index }) =>
-      isopened
-        ? 0.1 + index * 0.15 + "s ease-in"
-        : 0.1 + (4 - index) * 0.15 + "s ease-out"}
+    isopened
+      ? 0.1 + index * 0.15 + "s ease-in"
+      : 0.1 + (4 - index) * 0.15 + "s ease-out"}
     forwards;
   &:hover {
     background-color: ${({ theme }) => theme.border};
