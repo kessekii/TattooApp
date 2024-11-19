@@ -398,7 +398,7 @@ const PortfolioEditorPage: React.FC = () => {
                           {...provided.dragHandleProps}
                         >
                           <Image
-                            src={images[post.image].src}
+                            src={images && post && post.image && images[post.image] && images[post.image].src}
                             alt={`Image ${post.id}`}
                             onClick={() => openModal(index)}
                           />

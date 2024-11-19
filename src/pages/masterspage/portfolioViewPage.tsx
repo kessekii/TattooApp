@@ -66,7 +66,7 @@ export const UserSection = styled.div`
   color: ${({ theme }) => theme.text};
 `;
 
-const PortfolioViewPage: React.FC = ({}) => {
+const PortfolioViewPage: React.FC = ({ }) => {
   const { data: friend, setFriend, getFriendData } = useSlice("friend");
   const { data: user } = useSlice("user");
 
@@ -295,7 +295,7 @@ const PortfolioViewPage: React.FC = ({}) => {
           marginTop: "6vh",
           marginBottom: "9vh",
         }}
-        // direction="row"
+      // direction="row"
       >
         {friend &&
           friendPosts &&
@@ -331,11 +331,11 @@ const PortfolioViewPage: React.FC = ({}) => {
                   <PostDetails style={{ padding: "10px 7px" }}>
                     <UserSection>
                       <UserAvatar
-                        src={
+                        src={avatars && avatars.length > 0 &&
                           avatars.find((av) => av.owner === friend.username).src
-                            ? avatars.find((av) => av.owner === friend.username)
-                                .src
-                            : "/blankPicture.png"
+                          ? avatars.find((av) => av.owner === friend.username)
+                            .src
+                          : "/blankPicture.png"
                         }
                         alt={`${friend.username} avatar`}
                         style={{}}
@@ -366,9 +366,9 @@ const PortfolioViewPage: React.FC = ({}) => {
                   </Caption> */}
 
                   {chats &&
-                  post.chatId &&
-                  chats?.find((ct) => ct.chatId === post.chatId) &&
-                  chats?.find((ct) => ct.chatId === post.chatId) ? (
+                    post.chatId && chats.length > 0 &&
+                    chats?.find((ct) => ct.chatId === post.chatId) &&
+                    chats?.find((ct) => ct.chatId === post.chatId) ? (
                     <CommentSection
                       theme={themevars}
                       onClick={() => handleCommentsClick(post)}
@@ -464,7 +464,7 @@ const PortfolioViewPage: React.FC = ({}) => {
                         }}
                       >
                         View all{" "}
-                        {chats?.find((ct) => ct.chatId === post.chatId)
+                        {chats && chats.length > 0 && chats?.find((ct) => ct.chatId === post.chatId)
                           ?.messages?.length || 0}{" "}
                         comments
                       </Typography>
@@ -513,8 +513,8 @@ const PortfolioViewPage: React.FC = ({}) => {
                                   (av) => av.owner === friend.username
                                 ).src
                                   ? avatars.find(
-                                      (av) => av.owner === friend.username
-                                    ).src
+                                    (av) => av.owner === friend.username
+                                  ).src
                                   : "/blankPicture.png"
                               }
                               alt={`${friend.username} avatar`}
@@ -543,8 +543,8 @@ const PortfolioViewPage: React.FC = ({}) => {
                         </PostDetails>
                         {friend.chats?.find((ch) => ch.chatId === post.chatId)
                           ?.messages &&
-                        friend.chats?.find((ch) => ch.chatId === post.chatId)
-                          ?.messages.length > 0 ? (
+                          friend.chats?.find((ch) => ch.chatId === post.chatId)
+                            ?.messages.length > 0 ? (
                           friend.chats
                             .find((ch) => ch.chatId === post.chatId)
                             ?.messages.map((comment, index) => (
@@ -586,9 +586,9 @@ const PortfolioViewPage: React.FC = ({}) => {
                                           (av) => av.owner === comment.author
                                         )
                                           ? avatars.find(
-                                              (av) =>
-                                                av.owner === comment.author
-                                            ).src
+                                            (av) =>
+                                              av.owner === comment.author
+                                          ).src
                                           : "/blankPicture.png"
                                       }
                                     ></UserAvatar>
@@ -613,18 +613,18 @@ const PortfolioViewPage: React.FC = ({}) => {
                                 >
                                   {comment.timestamp
                                     ? new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[0] +
-                                      ", " +
-                                      new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[1]
-                                        .split(":")[0] +
-                                      ":" +
-                                      new Date(comment.timestamp)
-                                        .toISOString()
-                                        .split("T")[1]
-                                        .split(":")[1]
+                                      .toISOString()
+                                      .split("T")[0] +
+                                    ", " +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[0] +
+                                    ":" +
+                                    new Date(comment.timestamp)
+                                      .toISOString()
+                                      .split("T")[1]
+                                      .split(":")[1]
                                     : ""}
                                 </CommentText>
                               </CommentItem>
@@ -689,7 +689,7 @@ export async function getAvatarByUserId(username: string) {
 
     const result = await response.json();
     return result.payload;
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export default PortfolioViewPage;
