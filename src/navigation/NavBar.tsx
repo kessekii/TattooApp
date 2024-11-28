@@ -132,6 +132,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
       getPublicChatsAction,
       setPostChats,
     } = useSlice("chats");
+    const { isEditing: isEditing, setIsEditing } = useSlice("settings");
     // const { points, setPoints } = useSlice("points");
 
     const { username } = useParams();
@@ -144,7 +145,6 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
     const auth = useAuth();
     const { themevars } = useTheme();
     const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
-    const { isEditing, setIsEditingProfile } = useEditing();
 
     const pointsGraphQLHook = useQuery(POINTS_QUERY, {
       variables: {
@@ -349,11 +349,11 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
         await fetchData(username, { type: path });
 
         navigate(path);
-      } catch (e) {}
+      } catch (e) { }
     };
 
     const handleGoEdit = async () => {
-      await setIsEditingProfile();
+      await setIsEditing();
       navigate("/" + user.username);
     };
 
@@ -478,7 +478,7 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
                 <Menu
                   isopen={isOpen}
                   theme={themevars.navbar}
-                  // style={{ visibility: isOpen ? "visible" : "hidden" }}
+                // style={{ visibility: isOpen ? "visible" : "hidden" }}
                 >
                   <MenuItem
                     isopened={isOpen}
@@ -497,10 +497,10 @@ const NavBar = (props: { screen: any; onResize: () => void }) => {
                     isopened={isOpen}
                     theme={themevars}
                     index={3}
-                    onClick={async () => {
+                    onClick={() => {
                       //window.location.href = user.username;
-                      navigate("/" + user.username);
-                      await setIsEditingProfile();
+                      //navigate("/" + user.username);
+                      setIsEditing(true);
                     }}
                   >
                     <FaUserEdit /> Edit Profile

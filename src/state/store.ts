@@ -36,6 +36,7 @@ import {
   FriendPostsState,
 } from "./features/friendPostsSlice";
 import { pointActions, pointReducer, PointState } from "./features/pointsSlice";
+import { settingsActions, settingsReducer, SettingsState } from "./features/settingsSlice";
 
 // YOU SHOULD ADD HERE OTHER REDUCERS AS YOU CREATE NEW FEATURES
 export const sliceActionsCombined: ActionTypes = {
@@ -47,6 +48,7 @@ export const sliceActionsCombined: ActionTypes = {
   chats: chatsActions,
   friendPosts: friendPostsActions,
   points: pointActions,
+  settings: settingsActions,
 };
 
 export interface ActionTypes {
@@ -58,6 +60,7 @@ export interface ActionTypes {
   chats: typeof chatsActions;
   friendPosts: typeof friendPostsActions;
   points: typeof pointActions;
+  settings :typeof settingsActions;
 }
 
 export type ActionState = {
@@ -69,6 +72,7 @@ export type ActionState = {
   chats: ChatState;
   friendPosts: FriendPostsState;
   points: PointState;
+  settings: SettingsState;
 };
 export type SlicesState = typeof sliceActionsCombined;
 
@@ -82,6 +86,7 @@ const rootReducer = combineReducers({
   chats: chatsReducer,
   friendPosts: friendPostsReducer,
   points: pointReducer,
+  settings: settingsReducer,
 });
 
 // Type for the root state

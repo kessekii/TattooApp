@@ -141,19 +141,19 @@ export const IcoButton = styled.button<{ theme }>`
 `;
 
 // SaveButton inheriting from EditButton with specific background
-export const SaveButton = styled(EditButton)<{ theme }>`
+export const SaveButton = styled(EditButton) <{ theme }>`
   background-color: #28a745;
   color: white;
 `;
 
 // CancelButton inheriting from EditButton with specific background
-export const CancelButton = styled(EditButton)<{ theme }>`
+export const CancelButton = styled(EditButton) <{ theme }>`
   background-color: #dc3545;
   color: white;
 `;
 
 // FollowButton with dynamic background based on the "following" prop
-export const FollowButton = styled(IcoButton)<{ following }>`
+export const FollowButton = styled(IcoButton) <{ following }>`
   background-color: ${(props) =>
     props.following ? "#dc3545" : props.theme.buttonBackground};
 `;
@@ -536,7 +536,7 @@ export const UploadInput = styled.input<{ theme }>`
   background-color: ${(props) => props.theme.buttonBackground};
 `;
 
-export const IcButton = styled(IconButton)<{ theme }>`
+export const IcButton = styled(IconButton) <{ theme }>`
   
   color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.backgroundButton} !important;
@@ -552,7 +552,7 @@ export const IcButton = styled(IconButton)<{ theme }>`
   }
 `;
 
-export const Typefield = styled(Typography)<{ theme; bold? }>`
+export const Typefield = styled(Typography) <{ theme; bold?}>`
   font-weight: ${(props) => (props.bold ? "700" : "500")};
   color: ${(props) => props.theme.text};
 `;
@@ -598,25 +598,24 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
   const { username, postId } = useParams();
 
   let loggedInUser = user.username === username;
-
-  const { isEditing, setIsEditingProfile } = useEditing();
+  const { isEditing: isEditing, setIsEditing } = useSlice("settings");
 
   const [editProfile, setEditProfile] = useState(
     friend
       ? {
-          name: friend.name,
-          username: friend.username,
-          description: friend.description,
-          profilePicture: friend.profilePicture,
-          location: friend.location,
-        }
+        name: friend.name,
+        username: friend.username,
+        description: friend.description,
+        profilePicture: friend.profilePicture,
+        location: friend.location,
+      }
       : {
-          name: "",
-          username: "",
-          description: "",
-          profilePicture: "",
-          location: "",
-        }
+        name: "",
+        username: "",
+        description: "",
+        profilePicture: "",
+        location: "",
+      }
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(
     friend && friend.friends && friend.friends.length > 0
@@ -674,20 +673,20 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     const updatedReviews =
       friend.reviews && friend.reviews.length > 0
         ? [
-            ...friend.reviews,
-            {
-              photo: friend.profilePicture,
-              nickname: friend.username,
-              ...newReview,
-            },
-          ]
+          ...friend.reviews,
+          {
+            photo: friend.profilePicture,
+            nickname: friend.username,
+            ...newReview,
+          },
+        ]
         : [
-            {
-              photo: friend.profilePicture,
-              nickname: friend.username,
-              ...newReview,
-            },
-          ];
+          {
+            photo: friend.profilePicture,
+            nickname: friend.username,
+            ...newReview,
+          },
+        ];
     // setProfileData({
     //   ...friend,
     //   reviews: updatedReviews,
@@ -711,7 +710,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
   // Toggle edit mode
   const handleEditClick = async () => {
-    await setIsEditingProfile();
+    await setIsEditing();
   };
 
   // Save changes
@@ -741,6 +740,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     };
 
     const userUpdateData = (
+
       await UserUpdateGQLHook.refetch({
         user: userUpdateParams,
       })
@@ -753,16 +753,16 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       images?.filter((img) => img.id !== userUpdateData.id) || [];
 
     OtherImages.push(userUpdateData.backdrop);
-    setImages(OtherImages);
+    // setImages(OtherImages);
     const otherAvatarsEntry = avatars.filter(
       (av) => av.id !== userUpdateData.profilePicture.id
     );
     otherAvatarsEntry.push(userUpdateData);
 
-    setAvatars(otherAvatarsEntry);
+    //setAvatars(otherAvatarsEntry);
     setUser({ ...user, ...userUpdateData });
     setFriend({ ...user, ...userUpdateData });
-    // await setIsEditingProfile();
+    // await setIsEditing();
     // // setImages({
     // //   ...images,
     // //   [result.payload.image.id]: result.payload.image.src,
@@ -771,7 +771,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
     // // setAvatars({ ...avatars, [user.username]: result.payload.image });
     // setUser(result.payload.user);
     // setFriend(result.payload.user);
-    // await setIsEditingProfile();
+    // await setIsEditing();
   };
 
   // Cancel editing
@@ -783,7 +783,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
       profilePicture: friend.profilePicture,
       location: friend.location,
     });
-    await setIsEditingProfile();
+    await setIsEditing(false);
   };
 
   // Handle input changes for editable fields
@@ -1015,7 +1015,7 @@ const ProfilePageComponent: React.FC<any> = ({ theme, handleNavigation }) => {
 
     updateUser(friend, setErrorMessage);
     setUser({ ...friend });
-    await setIsEditingProfile();
+
 
     return friend.calendar;
   };
